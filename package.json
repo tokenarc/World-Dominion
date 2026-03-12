@@ -1,0 +1,10 @@
+{
+  "name": "world-dominion",
+  "private": true,
+  "scripts": {
+    "dev:bot": "cd apps/bot && pnpm dev",
+    "dev:app": "cd apps/miniapp && pnpm dev",
+    "build:app": "cd apps/miniapp && pnpm build",
+    "deploy": "firebase deploy"
+  }
+}
