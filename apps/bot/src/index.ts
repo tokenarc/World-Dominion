@@ -2,6 +2,8 @@ import { Telegraf } from 'telegraf';
 import express from 'express';
 import * as dotenv from 'dotenv';
 import { seedNations } from './services/firebaseService';
+import * as cron from 'node-cron';
+import { runNPCCycle, seedAllNPCRoles } from './services/npcService';
 
 dotenv.config();
 
@@ -27,7 +29,15 @@ const startServer = async () => {
   try {
     // Seed nations if necessary
     await seedNations();
+    // Seed NPC roles if necessary
+    await seedAllNPCRoles();
     
+    // Schedule NPC decision cycle every 6 hours
+    cron.schedule('0 */6 * * *', () => {
+      console.log('Running scheduled NPC cycle...');
+      runNPCCycle().catch(console.error);
+    });
+
     // Launch bot
     if (process.env.NODE_ENV === 'production') {
       console.log('Bot starting in webhook mode...');
