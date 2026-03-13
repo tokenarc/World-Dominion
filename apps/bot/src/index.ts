@@ -26,6 +26,20 @@ import { marketCommand } from './commands/market';
 import { missionsCommand } from './commands/missions';
 import { referralCommand } from './commands/referral';
 
+// Import Routes
+import authRoutes from './routes/auth';
+import nationRoutes from './routes/nations';
+import roleRoutes from './routes/roles';
+import marketRoutes from './routes/market';
+import walletRoutes from './routes/wallet';
+import warRoutes from './routes/war';
+import intelRoutes from './routes/intel';
+import eventRoutes from './routes/events';
+import playerRoutes from './routes/player';
+
+// Import Middleware
+import { authMiddleware } from './middleware/auth';
+
 dotenv.config();
 
 const bot = new Telegraf(process.env.BOT_TOKEN || '');
@@ -70,8 +84,10 @@ bot.action('cancel_war', handleWarAction);
 bot.action(/send_peace:.+/, handlePeaceAction);
 bot.action('cancel_peace', handlePeaceAction);
 
-// Webhook setup for Express
+// Express setup
 app.use(express.json());
+
+// Webhook setup for Express
 app.post('/webhook', (req, res) => {
   bot.handleUpdate(req.body, res);
 });
@@ -80,6 +96,20 @@ app.post('/webhook', (req, res) => {
 app.get('/health', (req, res) => {
   res.send('Bot is running');
 });
+
+// REST API Routes
+// Auth route has special handling as it needs to validate initData before full auth middleware
+app.use('/api/auth', authRoutes);
+
+// Protected Routes
+app.use('/api/nations', authMiddleware, nationRoutes);
+app.use('/api/roles', authMiddleware, roleRoutes);
+app.use('/api/market', authMiddleware, marketRoutes);
+app.use('/api/wallet', authMiddleware, walletRoutes);
+app.use('/api/war', authMiddleware, warRoutes);
+app.use('/api/intel', authMiddleware, intelRoutes);
+app.use('/api/events', authMiddleware, eventRoutes);
+app.use('/api/player', authMiddleware, playerRoutes);
 
 const startServer = async () => {
   try {
