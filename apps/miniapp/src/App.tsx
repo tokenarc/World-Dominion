@@ -3,7 +3,6 @@ import { TelegramProvider } from './context/TelegramContext'
 import { FirebaseProvider } from './context/FirebaseContext'
 import { AuthProvider } from './context/AuthContext'
 import Layout from './components/Layout'
-import './App.css'
 
 function App() {
   const [isReady, setIsReady] = useState(false)

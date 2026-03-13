@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import './Events.css'
 
 interface GameEvent {
   id: string

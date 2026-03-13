@@ -1,4 +1,4 @@
-import * as gameConfig from '../../../data/game_config.json';
+import * as gameConfig from '../../../../data/game_config.json';
 
 export const WRB_TO_USD = gameConfig.war_bond_to_usd;
 export const USD_TO_WRB = gameConfig.usd_to_war_bond;

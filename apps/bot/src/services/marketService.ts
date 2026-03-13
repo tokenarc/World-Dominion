@@ -1,4 +1,4 @@
-import { db } from '../lib/firebase-admin';
+import { db, admin } from '../lib/firebase-admin';
 import { Player, Nation, saveWorldEvent, saveTransaction } from './firebaseService';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -225,13 +225,13 @@ export const placeBid = async (playerId: string, territoryId: string, bidAmount:
   if (auction.highestBidder) {
     const prevBidderRef = db.collection('players').doc(auction.highestBidder);
     await prevBidderRef.update({
-      'stats.warBonds': db.FieldValue.increment(auction.highestBid)
+      'stats.warBonds': admin.firestore.FieldValue.increment(auction.highestBid)
     });
   }
 
   // Deduct bid from new bidder
   await playerRef.update({
-    'stats.warBonds': db.FieldValue.increment(-bidAmount)
+    'stats.warBonds': admin.firestore.FieldValue.increment(-bidAmount)
   });
 
   // Update auction

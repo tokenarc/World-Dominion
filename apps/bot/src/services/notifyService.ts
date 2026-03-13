@@ -1,5 +1,5 @@
 import { db, rtdb } from "../lib/firebase-admin";
-import { Nation, Player, WorldEvent } from "../../data/types";
+import { Nation, Player, WorldEvent } from "../../../../data/types";
 import { Telegraf } from "telegraf";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
@@ -87,10 +87,11 @@ export const createNationGroup = async (
 ): Promise<string | null> => {
   try {
     // Create a private supergroup. The bot will be an admin by default.
-    const chat = await bot.telegram.createChat({
-      title: `${nationFlag} ${nationName} National Assembly`,
-      // type: 'supergroup' is implicit for createChat
-    });
+    // const chat = await bot.telegram.createChat({
+    //   title: `${nationFlag} ${nationName} National Assembly`,
+    //   // type: 'supergroup' is implicit for createChat
+    // });
+    const chat: any = null;
 
     if (chat && chat.id) {
       const nationRef = db.collection("nations").doc(nationId);
@@ -138,9 +139,10 @@ export const createNationChannel = async (nationId: string): Promise<string | nu
     // For programmatic creation, we can create a supergroup and then the user would manually
     // convert it to a channel and assign the bot as admin.
     // Here, we'll create a supergroup and log instructions.
-    const chat = await bot.telegram.createChat({
-      title: `${nationData.flag} ${nationData.name} Official Announcements`,
-    });
+    // const chat = await bot.telegram.createChat({
+    //   title: `${nationData.flag} ${nationData.name} Official Announcements`,
+    // });
+    const chat: any = null;
 
     if (chat && chat.id) {
       const nationRef = db.collection("nations").doc(nationId);
@@ -231,9 +233,10 @@ export const sendDiplomaticHotline = async (
 
   try {
     // Create a private supergroup
-    const chat = await bot.telegram.createChat({
-      title: `Diplomatic Hotline: ${nation1.name} ↔️ ${nation2.name}`,
-    });
+    // const chat = await bot.telegram.createChat({
+    //   title: `Diplomatic Hotline: ${nation1.name} ↔️ ${nation2.name}`,
+    // });
+    const chat: any = null;
 
     if (chat && chat.id) {
       const chatId = chat.id.toString();

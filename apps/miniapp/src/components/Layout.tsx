@@ -7,7 +7,6 @@ import Nations from '../pages/Nations'
 import Market from '../pages/Market'
 import Wallet from '../pages/Wallet'
 import Events from '../pages/Events'
-import './Layout.css'
 
 type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events'
 

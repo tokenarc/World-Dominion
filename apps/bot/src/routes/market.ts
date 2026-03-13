@@ -101,7 +101,7 @@ router.post('/p2p/buy/:listingId', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const result = await buyP2PItem(req.player.telegramId, req.params.listingId);
+    const result = await buyP2PItem(req.player.telegramId, req.params.listingId as string);
     res.json(result);
   } catch (error: any) {
     console.error('Error buying P2P item:', error);

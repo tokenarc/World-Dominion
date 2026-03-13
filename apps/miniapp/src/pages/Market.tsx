@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import './Market.css'
 
 interface Stock {
   id: string

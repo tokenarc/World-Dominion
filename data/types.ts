@@ -46,6 +46,8 @@ export interface Player {
   hoursPlayed: number;
   isNPC: boolean;
   npcPersonality?: string;
+  kycVerified?: boolean;
+  joinedAt?: number;
   createdAt: any;
   lastActive: any;
 }

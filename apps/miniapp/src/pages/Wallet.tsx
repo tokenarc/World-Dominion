@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import './Wallet.css'
 
 interface WalletData {
   usd: number

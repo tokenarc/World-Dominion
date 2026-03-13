@@ -1,4 +1,5 @@
 import { db, rtdb } from '../lib/firebase-admin';
+export { db, rtdb };
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -8,15 +9,27 @@ export interface Player {
   firstName?: string;
   lastName?: string;
   nationId?: string;
+  currentNation?: string;
   role?: string;
+  currentRole?: string;
   stats: {
     totalScore: number;
     warBonds: number;
     commandPoints: number;
     reputation: number;
+    militaryKnowledge?: number;
   };
+  wallet: {
+    warBonds: number;
+    commandPoints: number;
+  };
+  reputation: number;
+  kycVerified: boolean;
   joinedAt: number;
   lastActive: number;
+  isNPC: boolean;
+  referralCount?: number;
+  referralCpEarned?: number;
 }
 
 export interface Nation {
@@ -32,8 +45,12 @@ export interface WorldEvent {
   title: string;
   description: string;
   timestamp: number;
-  type: 'war' | 'economy' | 'politics' | 'natural_disaster';
+  type: 'war' | 'economy' | 'politics' | 'natural_disaster' | 'revolution' | 'political';
   affectedNations: string[];
+  effects?: any;
+  fromNews?: boolean;
+  createdAt?: number;
+  expiresAt?: number | null;
 }
 
 export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
@@ -52,9 +69,16 @@ export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
     stats: {
       totalScore: 0,
       warBonds: 1000,
-      commandPoints: 5000,
+      commandPoints: 100,
       reputation: 50,
     },
+    wallet: {
+      warBonds: 1000,
+      commandPoints: 100,
+    },
+    reputation: 50,
+    kycVerified: false,
+    isNPC: false,
     joinedAt: Date.now(),
     lastActive: Date.now(),
   };

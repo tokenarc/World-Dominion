@@ -1,4 +1,3 @@
-import './Navigation.css'
 
 type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events'
 

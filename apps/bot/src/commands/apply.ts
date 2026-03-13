@@ -3,7 +3,7 @@ import { Context, Markup } from 'telegraf';
 export const applyCommand = async (ctx: Context) => {
   const MINI_APP_URL = process.env.MINI_APP_URL || 'https://world-dominion.web.app';
 
-  const message = `📝 *ROLE APPLICATION*\n\n`;
+  let message = `📝 *ROLE APPLICATION*\n\n`;
   message += `Select a category to apply for a role in the world simulation. Your stats and history will be evaluated by AI Command.\n\n`;
   message += `Categories:`;
 

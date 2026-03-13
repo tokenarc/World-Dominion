@@ -1,4 +1,4 @@
-import { db } from '../lib/firebase-admin';
+import { db, admin } from '../lib/firebase-admin';
 import axios from 'axios';
 import { Player, saveTransaction } from './firebaseService';
 import * as fs from 'fs';
@@ -76,7 +76,7 @@ export const verifyTONTransaction = async (txHash: string, playerId: string, exp
 
     const playerRef = db.collection('players').doc(playerId);
     await playerRef.update({
-      'stats.warBonds': db.FieldValue.increment(wrbToCredit)
+      'stats.warBonds': admin.firestore.FieldValue.increment(wrbToCredit)
     });
 
     // Update transaction status
@@ -94,7 +94,7 @@ export const verifyTONTransaction = async (txHash: string, playerId: string, exp
       timestamp: Date.now()
     });
 
-    return { success: true, wrbCredited };
+    return { success: true, wrbCredited: wrbToCredit };
   } catch (error) {
     console.error('TON Verification Error:', error);
     throw error;
@@ -127,7 +127,7 @@ export const verifyUSDTTransaction = async (txHash: string, playerId: string, ex
 
     const playerRef = db.collection('players').doc(playerId);
     await playerRef.update({
-      'stats.warBonds': db.FieldValue.increment(wrbToCredit)
+      'stats.warBonds': admin.firestore.FieldValue.increment(wrbToCredit)
     });
 
     // Update transaction status
@@ -150,7 +150,7 @@ export const verifyUSDTTransaction = async (txHash: string, playerId: string, ex
       timestamp: Date.now()
     });
 
-    return { success: true, wrbCredited };
+    return { success: true, wrbCredited: wrbToCredit };
   } catch (error) {
     console.error('USDT Verification Error:', error);
     throw error;
@@ -186,7 +186,7 @@ export const initiateWithdrawal = async (playerId: string, wrbAmount: number, to
   if (player.stats.warBonds < wrbAmount) throw new Error('Insufficient War Bonds');
 
   await playerRef.update({
-    'stats.warBonds': db.FieldValue.increment(-wrbAmount)
+    'stats.warBonds': admin.firestore.FieldValue.increment(-wrbAmount)
   });
 
   // 5. Create withdrawal record

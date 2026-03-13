@@ -1,1 +1,5 @@
-{"projects": {"default": "YOUR_FIREBASE_PROJECT_ID"}}
+{
+  "projects": {
+    "default": "world-dominion-666b1"
+  }
+}

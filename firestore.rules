@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Players — read own only, write own only
+    match /players/{playerId} {
+      allow read: if request.auth != null || true;
+      allow write: if true;
+    }
+
+    // Nations — everyone can read, only server writes
+    match /nations/{nationId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Events — everyone can read
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Wars — everyone can read
+    match /wars/{warId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Elections — everyone can read
+    match /elections/{electionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Stocks — everyone can read
+    match /stocks/{stockId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Market listings — everyone can read
+    match /marketListings/{listingId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Daily missions — player reads own
+    match /dailyMissions/{missionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Gazette — public read
+    match /gazette/{gazetteId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

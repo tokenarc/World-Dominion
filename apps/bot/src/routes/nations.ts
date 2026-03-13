@@ -23,7 +23,7 @@ router.get('/', async (req: Request, res: Response) => {
  */
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const nation = await getNation(req.params.id);
+    const nation = await getNation(req.params.id as string);
     if (!nation) {
       return res.status(404).json({ error: 'Nation not found' });
     }

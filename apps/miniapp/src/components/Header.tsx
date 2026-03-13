@@ -1,5 +1,4 @@
 import { useAuth } from '../context/AuthContext'
-import './Header.css'
 
 export default function Header() {
   const { player } = useAuth()

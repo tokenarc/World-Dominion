@@ -1,15 +1,27 @@
 {
   "hosting": {
     "public": "apps/miniapp/out",
-    "ignore": ["firebase.json", "/.*", "/node_modules/"],
-    "rewrites": [{"source": "**", "destination": "/index.html"}],
-    "headers": [{
-      "source": "**",
-      "headers": [
-        {"key": "X-Frame-Options", "value": "ALLOWALL"},
-        {"key": "Content-Security-Policy", "value": "frame-ancestors *"}
-      ]
-    }]
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          { "key": "X-Frame-Options", "value": "ALLOWALL" },
+          { "key": "Content-Security-Policy", "value": "frame-ancestors *" },
+          { "key": "Access-Control-Allow-Origin", "value": "*" }
+        ]
+      }
+    ],
+    "rewrites": [
+      { "source": "**", "destination": "/index.html" }
+    ]
   },
-  "functions": {"source": "functions", "runtime": "nodejs20"}
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs20"
+  }
 }

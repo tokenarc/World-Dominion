@@ -1,5 +1,5 @@
 import { db, rtdb } from '../lib/firebase-admin';
-import { Nation, Player, WorldEvent, Election } from '../../data/types';
+import { Nation, Player, WorldEvent, Election } from '../../../../data/types';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Telegraf } from 'telegraf';
@@ -319,6 +319,7 @@ export const initiateCoup = async (playerId: string, targetNationId: string) => 
     affectedNations: [targetNationId],
     effects: { stability_change: stabilityChange },
     fromNews: false,
+    timestamp: Date.now(),
     createdAt: Date.now(),
     expiresAt: null,
   });
@@ -379,6 +380,7 @@ export const declareEmergency = async (presidentialId: string) => {
     affectedNations: [nation.id],
     effects: { stability_change: 5 },
     fromNews: false,
+    timestamp: Date.now(),
     createdAt: Date.now(),
     expiresAt: emergencyEndsAt,
   });

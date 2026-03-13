@@ -1,4 +1,4 @@
-import { db } from '../lib/firebase-admin';
+import { db, admin } from '../lib/firebase-admin';
 import { Player, Nation, saveWorldEvent } from './firebaseService';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -159,14 +159,14 @@ const applyMissionEffects = async (mission: SpyMission) => {
     case 'sabotage_infrastructure':
       // target GDP -3% for 7 days
       await targetRef.update({
-        industryHealth: db.FieldValue.increment(-10), // Simplified effect
+        industryHealth: admin.firestore.FieldValue.increment(-10), // Simplified effect
         gdpModifier: -0.03
       });
       break;
     case 'expose_corruption':
       // target stability -8, election triggered
       await targetRef.update({
-        stability: db.FieldValue.increment(-8),
+        stability: admin.firestore.FieldValue.increment(-8),
         electionTriggered: true
       });
       break;
@@ -174,14 +174,14 @@ const applyMissionEffects = async (mission: SpyMission) => {
       // remove role holder
       await targetRef.update({
         [`roles.${target.leaderRole}`]: null,
-        stability: db.FieldValue.increment(-15)
+        stability: admin.firestore.FieldValue.increment(-15)
       });
       break;
     case 'coup_support':
       // target stability -15, resistance +20
       await targetRef.update({
-        stability: db.FieldValue.increment(-15),
-        resistanceMeter: db.FieldValue.increment(20)
+        stability: admin.firestore.FieldValue.increment(-15),
+        resistanceMeter: admin.firestore.FieldValue.increment(20)
       });
       break;
     case 'false_flag':
@@ -236,7 +236,7 @@ const handleInterceptedAgent = async (mission: SpyMission) => {
   await agentRef.update({
     isBurned: true,
     burnedUntil: Date.now() + (7 * 24 * 60 * 60 * 1000),
-    'stats.reputation': db.FieldValue.increment(-20)
+    'stats.reputation': admin.firestore.FieldValue.increment(-20)
   });
 
   await saveWorldEvent({
@@ -272,7 +272,7 @@ export const cyberAttack = async (attackerNationId: string, targetNationId: stri
   
   // Disrupts target economy
   await targetRef.update({
-    gdpModifier: db.FieldValue.increment(-0.02),
+    gdpModifier: admin.firestore.FieldValue.increment(-0.02),
     intelAccessDisrupted: true,
     intelDisruptedUntil: Date.now() + (24 * 60 * 60 * 1000)
   });

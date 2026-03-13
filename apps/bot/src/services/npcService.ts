@@ -178,7 +178,18 @@ export const runNPCCycle = async () => {
   console.log('Starting NPC decision cycle...');
   const nationsSnapshot = await db.collection('nations').get();
   const recentEvents = await db.collection('events').orderBy('timestamp', 'desc').limit(1).get();
-  const event = recentEvents.docs[0]?.data() as WorldEvent || { title: 'Global Stability', description: 'The world remains in a state of flux.' };
+  const event = (recentEvents.docs[0]?.data() as WorldEvent) || ({
+    id: 'default',
+    type: 'diplomatic',
+    title: 'Global Stability',
+    description: 'The world remains in a state of flux.',
+    affectedNations: [],
+    effects: {},
+    fromNews: false,
+    timestamp: Date.now(),
+    createdAt: Date.now(),
+    expiresAt: Date.now() + 86400000
+  } as any as WorldEvent);
 
   for (const nationDoc of nationsSnapshot.docs) {
     const nationId = nationDoc.id;

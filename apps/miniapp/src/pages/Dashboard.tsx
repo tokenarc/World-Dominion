@@ -1,5 +1,4 @@
 import { useAuth } from '../context/AuthContext'
-import './Dashboard.css'
 
 export default function Dashboard() {
   const { player } = useAuth()
