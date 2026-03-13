@@ -1,0 +1,11 @@
+{
+  "eligible_governments":["liberal_democracy","fragile_democracy","parliamentary","semi_presidential","islamic_republic"],
+  "ineligible_governments":["totalitarian_dictatorship","military_junta","theocratic_monarchy","communist","juche"],
+  "election_cycle_days":30,
+  "campaign_duration_hours":24,
+  "voting_duration_hours":24,
+  "roles_elected":["president","prime_minister"],
+  "npc_vote_weight":0.3,
+  "coup_after_loss": {"success_formula":"loser_military / winner_stability × 0.5","if_success":"winner_removed stability-25","if_fail":"coup_leader_arrested reputation-40"},
+  "term_limits":{"max_consecutive_terms":2}
+}

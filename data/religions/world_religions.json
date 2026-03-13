@@ -1,0 +1,137 @@
+{
+  "religions": [
+    {
+      "id": "sunni_islam",
+      "name": "Sunni Islam",
+      "emoji": "☪️",
+      "adherents_million": 1800,
+      "primary_nations": ["SA","EG","TR","ID","PK","NG","BD","MY","MA","DZ","IQ","AF","SY","YE","LY","TN","SD","SO","ML","SN"],
+      "oic_influence": true,
+      "in_game_effects": {
+        "friday_prayer_morale_bonus": 2,
+        "ramadan_event_trigger": true,
+        "hajj_diplomacy_bonus": 5,
+        "muslim_solidarity_alliance": true,
+        "anti_alcohol_stability": 2
+      },
+      "holy_sites": [
+        {"id":"mecca","name":"Mecca","nationId":"SA","control_bonus":"OIC_vote_power","tourism_income":500},
+        {"id":"medina","name":"Medina","nationId":"SA","control_bonus":"Islamic_world_diplomacy","tourism_income":300},
+        {"id":"al_aqsa","name":"Al-Aqsa Mosque","nationId":"IL","control_bonus":"Palestinian_cause","tension_multiplier":3.0},
+        {"id":"najaf","name":"Najaf","nationId":"IQ","control_bonus":"Shia_world_influence","tourism_income":200},
+        {"id":"istanbul_mosques","name":"Hagia Sophia","nationId":"TR","control_bonus":"Ottoman_legacy","tourism_income":400}
+      ],
+      "conflict_with": ["shia_islam"],
+      "tension_events": ["sectarian_violence","mosque_attack","pilgrimage_crisis"],
+      "special_roles": ["Grand Mufti","OPEC Delegate","OIC Secretary"]
+    },
+    {
+      "id": "shia_islam",
+      "name": "Shia Islam",
+      "emoji": "☪️",
+      "adherents_million": 200,
+      "primary_nations": ["IR","IQ","BH","AZ","LB"],
+      "minority_in": ["SA","KW","QA","PK","AF"],
+      "iran_influence": true,
+      "in_game_effects": {
+        "ashura_event_trigger": true,
+        "iran_solidarity_bonus": 5,
+        "axis_of_resistance_access": true,
+        "martyrdom_morale_boost": 8
+      },
+      "holy_sites": [
+        {"id":"karbala","name":"Karbala","nationId":"IQ","control_bonus":"Shia_world_authority","tension_multiplier":2.5},
+        {"id":"mashhad","name":"Mashhad","nationId":"IR","control_bonus":"Iranian_soft_power","tourism_income":300}
+      ],
+      "conflict_with": ["sunni_islam"],
+      "tension_events": ["sectarian_massacre","shrine_bombing","husseini_procession"],
+      "special_roles": ["Ayatollah","Marjaa","Hezbollah Commander"]
+    },
+    {
+      "id": "christianity",
+      "name": "Christianity",
+      "emoji": "✝️",
+      "adherents_million": 2400,
+      "primary_nations": ["US","BR","MX","PH","NG","CD","ET","RU","UA","GB","DE","FR","IT","ES","PL","AU","CA","AR","CO","PE","VE","CL","ZA","KE","GH"],
+      "denominations": ["Catholic","Protestant","Orthodox","Evangelical","Anglican"],
+      "in_game_effects": {
+        "christmas_morale_bonus": 5,
+        "easter_stability_bonus": 3,
+        "papal_diplomacy_access": true,
+        "christian_solidarity": true
+      },
+      "holy_sites": [
+        {"id":"vatican","name":"Vatican City","nationId":"VA","control_bonus":"Catholic_world_influence","tourism_income":800},
+        {"id":"jerusalem_christian","name":"Church of Holy Sepulchre","nationId":"IL","control_bonus":"Christian_pilgrimage","tourism_income":600},
+        {"id":"bethlehem","name":"Bethlehem","nationId":"PS","control_bonus":"Christmas_diplomacy","tourism_income":200}
+      ],
+      "conflict_with": [],
+      "tension_events": ["church_persecution","anti_christian_violence","crusade_memory"],
+      "special_roles": ["Pope","Patriarch","Archbishop","Cardinal","Evangelical Leader"]
+    },
+    {
+      "id": "hinduism",
+      "name": "Hinduism",
+      "emoji": "🕉️",
+      "adherents_million": 1200,
+      "primary_nations": ["IN","NP"],
+      "minority_in": ["ID","MY","SG","FJ","SR","TT","GY"],
+      "in_game_effects": {
+        "diwali_morale_bonus": 4,
+        "karma_stability_system": true,
+        "caste_unrest_risk": 5,
+        "cow_protection_events": true
+      },
+      "holy_sites": [
+        {"id":"varanasi","name":"Varanasi","nationId":"IN","control_bonus":"Hindu_civilization_prestige","tourism_income":500},
+        {"id":"ayodhya","name":"Ayodhya","nationId":"IN","control_bonus":"Hindu_nationalist_bonus","tension_multiplier":2.0},
+        {"id":"pashupatinath","name":"Pashupatinath","nationId":"NP","control_bonus":"Nepal_India_bond","tourism_income":200}
+      ],
+      "conflict_with": ["sunni_islam"],
+      "tension_events": ["cow_slaughter_riot","temple_mosque_dispute","anti_conversion_law"],
+      "special_roles": ["Shankaracharya","RSS Chief","Hindu Nationalist Leader"]
+    },
+    {
+      "id": "judaism",
+      "name": "Judaism",
+      "emoji": "✡️",
+      "adherents_million": 15,
+      "primary_nations": ["IL"],
+      "diaspora_in": ["US","FR","GB","AR","CA","AU","RU","DE"],
+      "in_game_effects": {
+        "diaspora_lobbying": true,
+        "us_israel_special_relationship": 10,
+        "holocaust_memory_diplomacy": true,
+        "anti_semitism_events": true
+      },
+      "holy_sites": [
+        {"id":"western_wall","name":"Western Wall","nationId":"IL","control_bonus":"Jewish_world_solidarity","tension_multiplier":3.0},
+        {"id":"temple_mount","name":"Temple Mount","nationId":"IL","control_bonus":"End_times_prophecy_events","tension_multiplier":4.0}
+      ],
+      "conflict_with": ["sunni_islam"],
+      "tension_events": ["antisemitism_rise","bds_campaign","two_state_collapse"],
+      "special_roles": ["Chief Rabbi","Knesset Speaker","Mossad Director","Settler Leader"]
+    },
+    {
+      "id": "buddhism",
+      "name": "Buddhism",
+      "emoji": "☸️",
+      "adherents_million": 535,
+      "primary_nations": ["TH","MM","LK","KH","BT","MN","LA","JP","CN","VN"],
+      "in_game_effects": {
+        "peace_stability_bonus": 5,
+        "sangha_political_influence": true,
+        "nonviolence_diplomacy": true,
+        "meditation_morale_bonus": 3
+      },
+      "holy_sites": [
+        {"id":"lumbini","name":"Lumbini","nationId":"NP","control_bonus":"Buddhist_world_prestige","tourism_income":300},
+        {"id":"bodh_gaya","name":"Bodh Gaya","nationId":"IN","control_bonus":"Buddhist_pilgrimage","tourism_income":400},
+        {"id":"potala","name":"Potala Palace","nationId":"CN","control_bonus":"Tibet_control","tension_multiplier":2.0}
+      ],
+      "conflict_with": [],
+      "tension_events": ["rohingya_persecution","monk_protest","tibet_independence"],
+      "special_roles": ["Dalai Lama Type","Supreme Patriarch","Buddhist Monk Political Leader"]
+    }
+  ]
+}

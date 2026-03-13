@@ -1,0 +1,92 @@
+{
+  "resource_types": [
+    {"id":"oil_field","name":"Oil Field","emoji":"🛢️","bonus_description":"+$10B GDP/week","strategic_value":90,"depletion_rate_pct_per_week":0.5,"renewable":false,"nations_with":["SA","RU","IR","IQ","KW","AE","VE","NG","LY","KZ","AZ","US","CA","NO","MX"]},
+    {"id":"gas_field","name":"Natural Gas Field","emoji":"💨","bonus_description":"+$8B GDP/week","strategic_value":85,"depletion_rate_pct_per_week":0.3,"renewable":false,"nations_with":["RU","IR","QA","US","AU","CN","NO","TM","DZ"]},
+    {"id":"semiconductor_hub","name":"Semiconductor Hub","emoji":"💻","bonus_description":"+25% tech research, +$15B/week","strategic_value":95,"depletion_rate_pct_per_week":0,"renewable":true,"nations_with":["TW","KR","US","JP","NL"]},
+    {"id":"rare_earth_mine","name":"Rare Earth Mine","emoji":"⛏️","bonus_description":"+20% military tech speed","strategic_value":88,"depletion_rate_pct_per_week":0.8,"renewable":false,"nations_with":["CN","AU","US","RU","IN","BR"]},
+    {"id":"wheat_farmland","name":"Wheat Farmland","emoji":"🌾","bonus_description":"+food security +3, refugees +20","strategic_value":65,"depletion_rate_pct_per_week":0,"renewable":true,"nations_with":["RU","UA","US","CA","AU","FR","IN","AR","PK"]},
+    {"id":"strategic_port","name":"Strategic Port","emoji":"🚢","bonus_description":"+15% trade income, +naval power","strategic_value":82,"depletion_rate_pct_per_week":0,"renewable":true,"nations_with":["SG","US","CN","GB","DE","JP","AE","TR"]},
+    {"id":"nuclear_site","name":"Nuclear Site","emoji":"☢️","bonus_description":"Nuclear program access","strategic_value":98,"depletion_rate_pct_per_week":0,"renewable":true,"nations_with":["US","RU","CN","FR","GB","IN","PK","IL","KP","IR"]},
+    {"id":"diamond_mine","name":"Diamond Mine","emoji":"💎","bonus_description":"+50 WRB/day direct","strategic_value":75,"depletion_rate_pct_per_week":1.0,"renewable":false,"nations_with":["ZA","RU","CN","AU","CD","BW","CA"]},
+    {"id":"strait_control","name":"Strategic Strait","emoji":"🌊","bonus_description":"+20% global trade route income","strategic_value":92,"depletion_rate_pct_per_week":0,"renewable":true,"territories":["Strait_of_Hormuz","Bab_el_Mandeb","Strait_of_Malacca","Bosphorus","Suez_Canal","Panama_Canal","GIUK_Gap"]},
+    {"id":"tech_hub","name":"Technology Hub","emoji":"🏢","bonus_description":"+25% intel ops effectiveness","strategic_value":85,"depletion_rate_pct_per_week":0,"renewable":true,"nations_with":["US","IL","CN","GB","DE","KR","IN","SG"]},
+    {"id":"gold_mine","name":"Gold Mine","emoji":"🥇","bonus_description":"+$5B/week, currency stability +5","strategic_value":72,"depletion_rate_pct_per_week":0.6,"renewable":false,"nations_with":["CN","AU","RU","US","CA","GH","ZA","PE","ID"]},
+    {"id":"uranium_deposit","name":"Uranium Deposit","emoji":"🟡","bonus_description":"Nuclear fuel or reactor income","strategic_value":88,"depletion_rate_pct_per_week":0.4,"renewable":false,"nations_with":["KZ","CN","CA","AU","NE","NA","RU","UZ","US"]},
+    {"id":"air_base","name":"Military Air Base","emoji":"✈️","bonus_description":"+30% air strike range","strategic_value":80,"depletion_rate_pct_per_week":0,"renewable":true},
+    {"id":"deep_water_port","name":"Deep Water Naval Base","emoji":"⚓","bonus_description":"Blue-water navy deployment","strategic_value":85,"depletion_rate_pct_per_week":0,"renewable":true},
+    {"id":"lithium_deposit","name":"Lithium Deposit","emoji":"🔋","bonus_description":"+EV/tech industry bonus +30%","strategic_value":82,"depletion_rate_pct_per_week":0.3,"renewable":false,"nations_with":["BO","AR","CL","AU","CN","US","CA"]},
+    {"id":"fertile_agricultural","name":"Fertile Agricultural Zone","emoji":"🌱","bonus_description":"+food, population growth +2%/season","strategic_value":60,"depletion_rate_pct_per_week":0,"renewable":true},
+    {"id":"cobalt_mine","name":"Cobalt Mine","emoji":"🔵","bonus_description":"+battery/EV sector income","strategic_value":78,"depletion_rate_pct_per_week":0.7,"renewable":false,"nations_with":["CD","RU","AU","PH","CU","ZM"]}
+  ],
+
+  "strategic_straits": [
+    {
+      "id": "strait_hormuz",
+      "name": "Strait of Hormuz",
+      "emoji": "🛢️",
+      "controlled_by": "IR",
+      "adjacent_nations": ["IR","OM","AE"],
+      "importance": "20% of world's oil passes through daily",
+      "strategic_value": 98,
+      "control_bonus": "+25% oil export income for controller",
+      "block_effect": "Global oil price +50%, triggers world crisis event"
+    },
+    {
+      "id": "bab_el_mandeb",
+      "name": "Bab-el-Mandeb Strait",
+      "emoji": "⚓",
+      "controlled_by": null,
+      "adjacent_nations": ["YE","DJ","ER"],
+      "importance": "Red Sea access — Suez Canal approach",
+      "strategic_value": 90,
+      "control_bonus": "+20% trade route income",
+      "block_effect": "Asia-Europe trade +30% cost, EU crisis"
+    },
+    {
+      "id": "malacca",
+      "name": "Strait of Malacca",
+      "emoji": "🌏",
+      "controlled_by": null,
+      "adjacent_nations": ["MY","ID","SG"],
+      "importance": "80,000 ships per year — China's oil lifeline",
+      "strategic_value": 95,
+      "control_bonus": "+15% Asia trade income",
+      "block_effect": "China GDP -8%, Japan/Korea oil crisis"
+    },
+    {
+      "id": "bosphorus",
+      "name": "Bosphorus Strait",
+      "emoji": "🌉",
+      "controlled_by": "TR",
+      "adjacent_nations": ["TR"],
+      "importance": "Only sea access from Black Sea",
+      "strategic_value": 88,
+      "control_bonus": "Turkey: +20% toll income, veto Black Sea access",
+      "block_effect": "Russia Black Sea navy trapped, Ukraine grain blocked"
+    },
+    {
+      "id": "suez_canal",
+      "name": "Suez Canal",
+      "emoji": "🚢",
+      "controlled_by": "EG",
+      "adjacent_nations": ["EG","IL"],
+      "importance": "12% of global trade",
+      "strategic_value": 93,
+      "control_bonus": "Egypt: $9B/year income, +20% GDP",
+      "block_effect": "Global trade +15% cost, Europe-Asia shipping crisis"
+    }
+  ],
+
+  "territory_control_effects": {
+    "extraction_by_days_since_conquest": {
+      "0_to_3": 0.50,
+      "4_to_7": 0.70,
+      "8_to_14": 0.85,
+      "15_plus": 1.00
+    },
+    "sabotage_reduces_to": 0.50,
+    "sabotage_duration_days": 7,
+    "sabotage_mission_cost_wrb": 400,
+    "sabotage_detection_chance_pct": 30
+  }
+}

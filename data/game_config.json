@@ -1,0 +1,66 @@
+{
+  "version": "1.0.0-beta",
+  "beta_mode": true,
+  "max_players_beta": 500,
+  "max_players_open_beta": 5000,
+  "season_duration_days": 90,
+  "battle_round_hours": 6,
+  "election_cycle_days": 30,
+  "war_bond_to_usd": 0.01,
+  "usd_to_war_bond": 100,
+  "withdrawal_rate": 0.98,
+  "marketplace_tax_pct": 3,
+  "npc_decision_interval_hours": 6,
+  "news_fetch_interval_minutes": 30,
+  "gdp_sync_interval_hours": 6,
+  "resistance_liberation_threshold": 100,
+  "failed_state_stability_threshold": 0,
+  "nuclear_winter_duration_days": 30,
+  "occupation_annexation_days": 7,
+  "annexation_cost_wrb": 5000,
+  "puppet_state_cost_wrb": 3000,
+  "referral_reward_cp": 500,
+  "nation_founding_cost_wrb": 2000,
+  "season_pass_cost_wrb": 500,
+  "beta_invite_code": "OBSIDIAN",
+  "admin_telegram_id": "YOUR_ADMIN_ID",
+  "main_channel_id": "YOUR_CHANNEL_ID",
+  "min_withdrawal_wrb": 500,
+  "max_withdrawal_per_day_usd": 98,
+  "max_withdrawal_per_month_usd": 490,
+  "withdrawal_hold_hours": 48,
+  "kyc_threshold_usd": 50,
+  "actions_per_minute_limit": 30,
+  "beta_features_enabled": {
+    "war": true,
+    "elections": true,
+    "spy_ops": true,
+    "marketplace_basic": true,
+    "marketplace_black": false,
+    "nuclear": false,
+    "space_race": false,
+    "crypto_payments": true,
+    "nation_channels": true
+  },
+  "launch_phases": {
+    "closed_beta": {
+      "name": "Closed Beta",
+      "max_players": 500,
+      "invite_required": true,
+      "invite_codes": ["OBSIDIAN","ARCBETA","WDBETA"],
+      "duration_weeks": 2
+    },
+    "open_beta": {
+      "name": "Open Beta",
+      "max_players": 5000,
+      "invite_required": false,
+      "duration_weeks": 2
+    },
+    "main_launch": {
+      "name": "Season 1",
+      "max_players": null,
+      "all_features": true,
+      "season_duration_days": 90
+    }
+  }
+}

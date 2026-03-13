@@ -1,0 +1,47 @@
+{
+  "description": "Template for initial game state seeded into Firebase on first run",
+  "globalState": {
+    "currentSeason": 1,
+    "seasonStartDate": null,
+    "activeWars": 0,
+    "totalPlayers": 0,
+    "humanPlayers": 0,
+    "npcPlayers": 0,
+    "onlinePlayers": 0,
+    "defconLevel": 5,
+    "globalStability": 65,
+    "oilPrice": 80,
+    "wheatPrice": 250,
+    "semiconductorSupply": 100,
+    "lastGDPSync": null,
+    "lastNewsSync": null,
+    "lastNPCCycle": null,
+    "betaMode": true,
+    "phase": "closed_beta"
+  },
+  "collections": {
+    "players": "/{telegramId}",
+    "nations": "/{isoCode}",
+    "wars": "/{warId}",
+    "events": "/{eventId}",
+    "elections": "/{electionId}",
+    "spyMissions": "/{missionId}",
+    "marketListings": "/{listingId}",
+    "cryptoTransactions": "/{txId}",
+    "npcDecisions": "/{decisionId}",
+    "roleApplications": "/{applicationId}",
+    "stocks": "/{companyId}",
+    "territories": "/{territoryId}",
+    "alliances_active": "/{allianceId}",
+    "cartels_active": "/{cartelId}"
+  },
+  "realtimeDB": {
+    "liveState": "/liveState",
+    "onlinePlayers": "/onlinePlayers/{telegramId}",
+    "activeBattles": "/activeBattles/{warId}",
+    "liveEvents": "/liveEvents/{eventId}",
+    "nationStats": "/nationStats/{isoCode}",
+    "stockPrices": "/stockPrices/{companyId}",
+    "defcon": "/defcon"
+  }
+}

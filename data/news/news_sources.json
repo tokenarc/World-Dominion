@@ -1,0 +1,110 @@
+{
+  "gdelt_config": {
+    "base_url": "https://api.gdeltproject.org/api/v2/doc/doc",
+    "format": "json",
+    "maxrecords": 5,
+    "scheduled_queries": [
+      {
+        "id": "military_conflict",
+        "query": "war military attack airstrike invasion troops",
+        "event_type": "military",
+        "fetch_interval_minutes": 30,
+        "emoji": "⚔️"
+      },
+      {
+        "id": "economic_crisis",
+        "query": "sanctions economy inflation GDP recession crisis",
+        "event_type": "economic",
+        "fetch_interval_minutes": 60,
+        "emoji": "📉"
+      },
+      {
+        "id": "elections_politics",
+        "query": "election president coup protest revolution democracy",
+        "event_type": "political",
+        "fetch_interval_minutes": 60,
+        "emoji": "🗳️"
+      },
+      {
+        "id": "nuclear_wmd",
+        "query": "nuclear weapon missile test ICBM warhead",
+        "event_type": "nuclear",
+        "fetch_interval_minutes": 120,
+        "emoji": "☢️"
+      },
+      {
+        "id": "natural_disaster",
+        "query": "earthquake flood hurricane typhoon tsunami disaster",
+        "event_type": "disaster",
+        "fetch_interval_minutes": 60,
+        "emoji": "🌪️"
+      },
+      {
+        "id": "diplomacy",
+        "query": "treaty alliance summit diplomacy peace negotiation UN",
+        "event_type": "diplomatic",
+        "fetch_interval_minutes": 60,
+        "emoji": "🤝"
+      },
+      {
+        "id": "terrorism",
+        "query": "terrorism attack bomb ISIS Al-Qaeda extremism",
+        "event_type": "security",
+        "fetch_interval_minutes": 45,
+        "emoji": "💥"
+      },
+      {
+        "id": "pandemic_health",
+        "query": "pandemic virus disease outbreak WHO health emergency",
+        "event_type": "pandemic",
+        "fetch_interval_minutes": 120,
+        "emoji": "🦠"
+      },
+      {
+        "id": "space_tech",
+        "query": "space rocket satellite launch NASA moon Mars technology",
+        "event_type": "space",
+        "fetch_interval_minutes": 180,
+        "emoji": "🚀"
+      },
+      {
+        "id": "oil_energy",
+        "query": "oil price OPEC energy gas pipeline crude barrel",
+        "event_type": "economic",
+        "fetch_interval_minutes": 60,
+        "emoji": "🛢️"
+      }
+    ]
+  },
+
+  "event_classification": {
+    "military": ["war","attack","strike","invasion","troops","battle","offensive","ceasefire","casualties","airstrike","missile","bomb","siege","assault","military"],
+    "economic": ["sanctions","economy","GDP","inflation","recession","trade","tariff","debt","currency","crisis","bank","IMF","market","stock","oil","gas"],
+    "political": ["election","president","prime minister","coup","protest","democracy","opposition","impeachment","resignation","cabinet","parliament","government"],
+    "nuclear": ["nuclear","missile","ICBM","warhead","plutonium","uranium","enrichment","reactor","deterrence","proliferation","radiation"],
+    "disaster": ["earthquake","flood","hurricane","typhoon","tsunami","drought","famine","wildfire","volcano","cyclone","disaster","casualty"],
+    "diplomatic": ["treaty","alliance","summit","agreement","negotiation","ambassador","sanction","UN","NATO","peace","diplomatic"],
+    "religious": ["fatwa","jihad","crusade","mosque","church","temple","pilgrimage","religious","sectarian","blasphemy"],
+    "pandemic": ["pandemic","virus","outbreak","WHO","disease","vaccine","lockdown","epidemic","mortality","pathogen"],
+    "space": ["rocket","satellite","launch","orbit","NASA","ISS","moon","mars","spacecraft","astronaut"]
+  },
+
+  "groq_conversion_prompt": "You are a World Dominion game master. Convert this real news article into a game event. Article: '{title}'. Return ONLY valid JSON with no markdown: {\"type\":\"military|economic|political|diplomatic|nuclear|disaster|religious|pandemic|space\",\"title\":\"game_event_title_max_10_words\",\"description\":\"engaging_description_max_30_words\",\"affectedNations\":[\"ISO_codes\"],\"effects\":{\"stability_change\":-5,\"gdp_modifier\":0.95,\"military_change\":0,\"resistance_change\":0,\"global_oil_change\":0},\"duration_hours\":24}",
+
+  "historical_events_calendar": [
+    {"month":9,"day":11,"event_type":"security","title":"Global Terror Alert Elevated","description":"Anniversary triggers heightened security protocols worldwide.","effects":{"stability_change":-3}},
+    {"month":8,"day":6,"event_type":"nuclear","title":"Nuclear Disarmament Debate","description":"Hiroshima anniversary triggers UN disarmament resolution vote.","effects":{"stability_change":2}},
+    {"month":11,"day":11,"event_type":"diplomatic","title":"Armistice Day — Peace Movement","description":"Global war weariness event. Ceasefire proposals more likely.","effects":{"stability_change":3}},
+    {"month":12,"day":25,"event_type":"religious","title":"Christmas — Western Morale Boost","description":"Christian nations receive stability bonus.","effects":{"stability_change":5}},
+    {"month":1,"day":1,"event_type":"political","title":"New Year Economic Reset","description":"Annual economic review. Budgets adjusted. New expectations set.","effects":{"gdp_modifier":1.02}},
+    {"month":7,"day":4,"event_type":"political","title":"US Independence Day — Democracy Promotion","description":"USA launches global democracy promotion campaign.","effects":{"stability_change":2}},
+    {"month":5,"day":9,"event_type":"military","title":"Victory Day — Russian Military Parade","description":"Russia flexes military might. NATO tension increases.","effects":{"military_change":5}},
+    {"month":10,"day":1,"event_type":"political","title":"China National Day","description":"China makes geopolitical statement. Taiwan tension spikes.","effects":{"stability_change":-2}}
+  ],
+
+  "gazette_template": {
+    "prompt": "You are the Editor-in-Chief of the World Dominion Gazette, the official newspaper of the World Dominion geopolitical strategy game. Today's game events: {events_json}. Write a dramatic, engaging newspaper in Telegram format. Include: 📰 HEADLINE STORY (60 words max), 📊 ECONOMIC REPORT (real GDP numbers from events), 🕵️ INTELLIGENCE LEAK (mysterious tip about a spy operation), 🗣️ OPINION COLUMN (pick one ideology's perspective), ⚡ BREAKING UPDATES (3 short bullets). Use emojis. Make it dramatic. Game context: 195 nations, real players controlling roles, wars and economics are real player actions.",
+    "post_time_utc": "08:00",
+    "channels": ["main_game_channel", "all_nation_channels"]
+  }
+}

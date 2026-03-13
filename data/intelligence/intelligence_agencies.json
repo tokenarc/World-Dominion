@@ -1,0 +1,252 @@
+{
+  "intelligence_agencies": [
+    {
+      "id": "cia",
+      "name": "Central Intelligence Agency",
+      "nationId": "US",
+      "emoji": "🦅",
+      "founded": 1947,
+      "budget_million": 15000,
+      "personnel_approx": 21000,
+      "known_capabilities": ["human_intelligence","signals_intelligence","cyber","covert_action","drone_strikes"],
+      "in_game_stats": {
+        "base_success_rate": 0.75,
+        "global_reach": 195,
+        "tech_level": 95,
+        "budget_bonus_pct": 40
+      },
+      "special_abilities": ["Tier 4 missions unlocked","Drone strike authorization","Five Eyes access","PRISM data access"],
+      "known_operations": ["Bay of Pigs","Operation Ajax","Phoenix Program","COINTELPRO","MKDELTA"],
+      "historical_note": "World's most funded intelligence agency"
+    },
+    {
+      "id": "fsb",
+      "name": "Federal Security Service (FSB)",
+      "nationId": "RU",
+      "emoji": "🐻",
+      "founded": 1995,
+      "budget_million": 4000,
+      "personnel_approx": 350000,
+      "known_capabilities": ["counter_intelligence","assassination","cyber","election_interference","deep_cover"],
+      "in_game_stats": {
+        "base_success_rate": 0.72,
+        "global_reach": 80,
+        "tech_level": 85,
+        "assassination_bonus_pct": 30
+      },
+      "special_abilities": ["Polonium poisoning","Novichok ops","GRU coordination","FSB-linked hackers"],
+      "historical_note": "KGB successor. Feared for assassinations abroad."
+    },
+    {
+      "id": "svr",
+      "name": "SVR (Foreign Intelligence Service)",
+      "nationId": "RU",
+      "emoji": "🕵️",
+      "founded": 1991,
+      "budget_million": 2000,
+      "personnel_approx": 13000,
+      "known_capabilities": ["foreign_intelligence","deep_cover_agents","political_influence","tech_theft"],
+      "in_game_stats": {
+        "base_success_rate": 0.70,
+        "global_reach": 100,
+        "tech_level": 80,
+        "sleeper_agent_bonus_pct": 50
+      },
+      "special_abilities": ["Deep cover agents in NATO","Illegals program","Political influence ops"]
+    },
+    {
+      "id": "mi6",
+      "name": "MI6 (Secret Intelligence Service)",
+      "nationId": "GB",
+      "emoji": "🎩",
+      "founded": 1909,
+      "budget_million": 3500,
+      "personnel_approx": 3000,
+      "known_capabilities": ["human_intelligence","liaison","cyber","counter_proliferation"],
+      "in_game_stats": {
+        "base_success_rate": 0.73,
+        "global_reach": 150,
+        "tech_level": 88,
+        "network_bonus_pct": 35
+      },
+      "special_abilities": ["Five Eyes access","GCHQ partnership","Global liaison network","Double agent expertise"],
+      "historical_note": "Oldest modern intelligence service. Inspiration for James Bond."
+    },
+    {
+      "id": "mossad",
+      "name": "Mossad",
+      "nationId": "IL",
+      "emoji": "🔯",
+      "founded": 1949,
+      "budget_million": 3000,
+      "personnel_approx": 7000,
+      "known_capabilities": ["assassination","counter_terrorism","nuclear_intelligence","diaspora_networks"],
+      "in_game_stats": {
+        "base_success_rate": 0.82,
+        "global_reach": 120,
+        "tech_level": 92,
+        "assassination_bonus_pct": 45
+      },
+      "special_abilities": ["Highest assassination success rate","Unit 8200 cyber","Diaspora network global","Stuxnet capability"],
+      "historical_note": "Known as most effective assassination program globally."
+    },
+    {
+      "id": "isi",
+      "name": "ISI (Inter-Services Intelligence)",
+      "nationId": "PK",
+      "emoji": "🌙",
+      "founded": 1948,
+      "budget_million": 500,
+      "personnel_approx": 10000,
+      "known_capabilities": ["proxy_warfare","afghan_networks","nuclear_security","regional_ops"],
+      "in_game_stats": {
+        "base_success_rate": 0.65,
+        "global_reach": 40,
+        "tech_level": 65,
+        "proxy_warfare_bonus_pct": 60
+      },
+      "special_abilities": ["Afghan Taliban access","Kashmir operations","Nuclear program protection","Regional proxy master"],
+      "historical_note": "Accused of double game — fighting and supporting terrorism simultaneously."
+    },
+    {
+      "id": "mss",
+      "name": "Ministry of State Security (MSS)",
+      "nationId": "CN",
+      "emoji": "🐉",
+      "founded": 1983,
+      "budget_million": 8000,
+      "personnel_approx": 100000,
+      "known_capabilities": ["economic_espionage","cyber","human_intelligence","tech_theft","corporate_infiltration"],
+      "in_game_stats": {
+        "base_success_rate": 0.70,
+        "global_reach": 160,
+        "tech_level": 88,
+        "tech_theft_bonus_pct": 80
+      },
+      "special_abilities": ["Largest cyber espionage program","Corporate infiltration","APT groups","Belt and Road leverage"],
+      "historical_note": "Estimated to have stolen $400B+ in IP from Western companies."
+    },
+    {
+      "id": "vevak",
+      "name": "VEVAK (Ministry of Intelligence)",
+      "nationId": "IR",
+      "emoji": "☪️",
+      "founded": 1984,
+      "budget_million": 1500,
+      "personnel_approx": 15000,
+      "known_capabilities": ["proxy_coordination","assassination","cyberattack","nuclear_ops_protection"],
+      "in_game_stats": {
+        "base_success_rate": 0.65,
+        "global_reach": 60,
+        "tech_level": 72,
+        "proxy_bonus_pct": 55
+      },
+      "special_abilities": ["Hezbollah coordination","Hamas support","Houthi supply lines","IRGC intelligence"],
+      "historical_note": "Primary coordinator of Iran's Axis of Resistance proxies."
+    },
+    {
+      "id": "raw",
+      "name": "RAW (Research and Analysis Wing)",
+      "nationId": "IN",
+      "emoji": "🌸",
+      "founded": 1968,
+      "budget_million": 1200,
+      "personnel_approx": 10000,
+      "known_capabilities": ["regional_intelligence","counter_china","counter_pakistan","technical_intelligence"],
+      "in_game_stats": {
+        "base_success_rate": 0.68,
+        "global_reach": 60,
+        "tech_level": 75,
+        "south_asia_bonus_pct": 40
+      },
+      "special_abilities": ["Bangladesh Liberation War legacy","Afghan network","Anti-China ops in Tibet","ISI counter-ops"]
+    },
+    {
+      "id": "dgse",
+      "name": "DGSE (French Foreign Intelligence)",
+      "nationId": "FR",
+      "emoji": "🗼",
+      "founded": 1982,
+      "budget_million": 2500,
+      "personnel_approx": 7000,
+      "known_capabilities": ["africa_operations","counter_terrorism","human_intelligence","cyber"],
+      "in_game_stats": {
+        "base_success_rate": 0.70,
+        "global_reach": 110,
+        "tech_level": 82,
+        "africa_bonus_pct": 50
+      },
+      "special_abilities": ["Françafrique network","Sahel operations","Counter-terrorism","Rainbow Warrior ops legacy"]
+    },
+    {
+      "id": "bnd",
+      "name": "BND (German Foreign Intelligence)",
+      "nationId": "DE",
+      "emoji": "🦅",
+      "founded": 1956,
+      "budget_million": 1000,
+      "personnel_approx": 6500,
+      "known_capabilities": ["signals_intelligence","russia_monitoring","middle_east","counter_terrorism"],
+      "in_game_stats": {
+        "base_success_rate": 0.68,
+        "global_reach": 90,
+        "tech_level": 85,
+        "europe_bonus_pct": 40
+      },
+      "special_abilities": ["NSA partnership","Russia watchers","Middle East networks","Legal constraint bonus (hard to expel)"]
+    }
+  ],
+
+  "spy_mission_tree": {
+    "tier_1_agent": {
+      "cost_cp": 500,
+      "missions": [
+        {"id":"surveillance","name":"Surveillance","description":"Monitor target nation's activity","duration_hours":6,"base_success":0.85,"reward":{"intel_points":10,"reveals":"stability_gdp_approximate"}},
+        {"id":"asset_recruitment","name":"Asset Recruitment","description":"Recruit an informant in target nation","duration_hours":12,"base_success":0.70,"reward":{"intel_points":20,"ongoing_intel":true}},
+        {"id":"propaganda_leaflets","name":"Propaganda Operation","description":"Spread destabilizing propaganda","duration_hours":6,"base_success":0.80,"reward":{"target_stability":-3,"intel_points":5}}
+      ]
+    },
+    "tier_2_station_chief": {
+      "cost_cp": 1500,
+      "missions": [
+        {"id":"steal_economic_data","name":"Steal Economic Data","description":"Get exact GDP, treasury, trade data","duration_hours":12,"base_success":0.65,"reward":{"reveals":"exact_treasury_gdp","intel_points":30}},
+        {"id":"intercept_comms","name":"Intercept Communications","description":"Read recent diplomatic messages","duration_hours":8,"base_success":0.70,"reward":{"reveals":"last_3_diplomatic_messages","intel_points":25}},
+        {"id":"sabotage_infrastructure","name":"Sabotage Infrastructure","description":"Damage target industry sector","duration_hours":16,"base_success":0.55,"reward":{"target_gdp_modifier":-0.03,"duration_days":7,"intel_points":40}},
+        {"id":"expose_corruption","name":"Expose Corruption","description":"Leak corruption evidence publicly","duration_hours":12,"base_success":0.60,"reward":{"target_stability":-8,"target_election_triggered":true,"intel_points":35}},
+        {"id":"cyberattack","name":"Cyber Attack","description":"Disrupt target's digital systems","duration_hours":8,"base_success":0.60,"reward":{"target_gdp_modifier":-0.02,"target_intel_disrupted":true,"intel_points":30}}
+      ]
+    },
+    "tier_3_intel_chief": {
+      "cost_wrb": 500,
+      "missions": [
+        {"id":"assassinate_leader","name":"Assassinate Leader","description":"Eliminate target nation's role holder","duration_hours":24,"base_success":0.40,"reward":{"removes_role":true,"target_stability":-15,"intel_points":100},"risk":"diplomatic_incident if caught"},
+        {"id":"coup_support","name":"Support Coup","description":"Fund and coordinate coup attempt","duration_hours":48,"base_success":0.45,"reward":{"target_stability":-15,"resistance_meter":+20,"intel_points":80}},
+        {"id":"false_flag","name":"False Flag Operation","description":"Create incident blaming different nation","duration_hours":24,"base_success":0.50,"reward":{"fake_war_trigger_possible":true,"international_tension":+20,"intel_points":60}},
+        {"id":"nuclear_secrets","name":"Steal Nuclear Secrets","description":"Access nuclear program data","duration_hours":48,"base_success":0.35,"reward":{"target_nuclear_data_stolen":true,"intel_points":120},"requires":"nuclear_site_territory_access"},
+        {"id":"sleeper_agent","name":"Plant Sleeper Agent","description":"Embed agent for 30 days continuous intel","duration_hours":72,"base_success":0.40,"reward":{"continuous_intel":true,"duration_days":30,"intel_points":90}}
+      ]
+    },
+    "tier_4_director": {
+      "cost_wrb": 2000,
+      "missions": [
+        {"id":"nuke_location","name":"Nuclear Location Intelligence","description":"Find exact location of enemy nukes","duration_hours":72,"base_success":0.30,"reward":{"reveals_nuclear_locations":true,"intel_points":200}},
+        {"id":"launch_code_intercept","name":"Launch Code Intercept","description":"Steal nuclear launch authorization codes","duration_hours":96,"base_success":0.20,"reward":{"can_prevent_nuclear_launch":true,"intel_points":500},"world_event_on_success":true},
+        {"id":"double_agent_reveal","name":"Expose Double Agent","description":"Reveal enemy double agent in your organization","duration_hours":48,"base_success":0.55,"reward":{"reveals_traitors":true,"counter_intel_bonus":+20,"intel_points":150}}
+      ]
+    }
+  },
+
+  "counter_intelligence": {
+    "rating_range": "0-100",
+    "detection_formula": "agency_rating / 100 × (1 - spy_intel_skill / 100)",
+    "when_caught": {
+      "agent_status": "BURNED",
+      "burned_duration_days": 7,
+      "effects": ["Cannot run missions for 7 days","Public diplomatic incident","Reputation -20","Possible arrest event"]
+    },
+    "ci_improvement": {
+      "cost_cp_per_5_points": 1000,
+      "max_rating": 95
+    }
+  }
+}

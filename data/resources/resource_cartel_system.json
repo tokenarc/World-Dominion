@@ -1,0 +1,8 @@
+{
+  "cartels": [
+    {"id":"opec_plus","name":"OPEC+ Oil Cartel","emoji":"🛢️","resource":"crude_oil","eligible_nations":["SA","IR","IQ","KW","AE","VE","NG","LY","DZ","RU"],"powers":["set_production_quota","oil_embargo","minimum_price_floor"],"global_effect":"±30% global oil price"},
+    {"id":"rare_earth_cartel","name":"Rare Earth Cartel","emoji":"⛏️","resource":"rare_earth","eligible_nations":["CN","AU","US","RU","IN","BR"],"powers":["export_restriction","price_floor"],"global_effect":"Semiconductor prices ×2 if restricted"},
+    {"id":"grain_cartel","name":"Global Grain Alliance","emoji":"🌾","resource":"wheat","eligible_nations":["RU","UA","US","CA","AU","FR","IN","AR"],"powers":["food_embargo","price_floor","famine_threat"]},
+    {"id":"chip_alliance","name":"Semiconductor Alliance","emoji":"💻","resource":"semiconductors","eligible_nations":["TW","KR","US","JP","NL"],"powers":["export_control","technology_denial"],"global_effect":"Enemy military tech frozen if denied"}
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "marketplaces": [
+    {
+      "id": "official_store",
+      "name": "Official Government Store",
+      "emoji": "🏪",
+      "description": "Standard military and political items. Fixed prices. Official channels only.",
+      "aesthetic": "Military supply catalog — dark greens, equipment cards, classified descriptions",
+      "currencies": ["WRB","CP"],
+      "tax_pct": 3,
+      "tax_goes_to": "nation_treasury",
+      "access": "all_players",
+      "items": [
+        {"id":"stability_boost","name":"National Stability Package","description":"Emergency stability measures","cost_cp":5000,"cost_wrb":null,"effect":"stability +10","category":"political","rarity":"uncommon"},
+        {"id":"military_training","name":"Military Training Program","description":"Improve troop quality","cost_cp":3000,"cost_wrb":null,"effect":"military +5","category":"military","rarity":"common"},
+        {"id":"economic_stimulus","name":"Economic Stimulus Package","description":"Boost GDP short term","cost_cp":null,"cost_wrb":200,"effect":"GDP +5% for 7 days","category":"economic","rarity":"uncommon"},
+        {"id":"propaganda_campaign","name":"State Propaganda Campaign","description":"Boost national morale","cost_cp":2000,"cost_wrb":null,"effect":"morale +8, stability +3","category":"media","rarity":"common"},
+        {"id":"intel_upgrade","name":"Intelligence Upgrade","description":"Improve spy agency capabilities","cost_cp":4000,"cost_wrb":null,"effect":"CI rating +10","category":"intelligence","rarity":"rare"},
+        {"id":"spy_satellite","name":"Spy Satellite Deployment","description":"Enhanced surveillance capacity","cost_cp":null,"cost_wrb":500,"effect":"All tier-1 missions success +15%","category":"intelligence","rarity":"rare"},
+        {"id":"nuclear_shelter","name":"Nuclear Shelter Network","description":"Reduce nuclear strike damage","cost_cp":null,"cost_wrb":1000,"effect":"Nuclear strike damage -30%","category":"military","rarity":"epic"},
+        {"id":"anti_missile","name":"ABM System","description":"Intercept incoming missiles","cost_cp":null,"cost_wrb":2000,"effect":"Can attempt nuclear intercept (40% success)","category":"military","rarity":"legendary"},
+        {"id":"diplomatic_passport","name":"Diplomatic Immunity Package","description":"Protect your agents from arrest","cost_cp":3000,"cost_wrb":null,"effect":"Caught spies not arrested for 30 days","category":"intelligence","rarity":"rare"},
+        {"id":"season_pass","name":"Season Pass","description":"Premium features for current season","cost_cp":null,"cost_wrb":500,"effect":"Priority role application, exclusive items, +10% income","category":"premium","rarity":"special"}
+      ]
+    },
+    {
+      "id": "arms_bazaar",
+      "name": "Arms Bazaar",
+      "emoji": "⚔️",
+      "description": "Nation-to-nation weapons trade. Generals and Defense Ministers only.",
+      "aesthetic": "Dark military auction hall, classified weapon specs, export licenses",
+      "currencies": ["WRB"],
+      "tax_pct": 5,
+      "tax_goes_to": "nation_treasury",
+      "access": "military_roles_only",
+      "items": [
+        {"id":"f16_squadron","name":"F-16 Fighter Squadron (12 jets)","cost_wrb":5000,"effect":"military_strength +15, air power +20","seller":"US_only","requires_ally_status":true},
+        {"id":"t90_tanks","name":"T-90 Tank Battalion (50 tanks)","cost_wrb":3000,"effect":"military_strength +10, armor +15","seller":"RU_only"},
+        {"id":"ak47_stockpile","name":"AK-47 Stockpile (100,000 units)","cost_wrb":500,"effect":"militia_recruitment capacity +20"},
+        {"id":"s400_system","name":"S-400 Air Defense System","cost_wrb":8000,"effect":"Air defense +35, can shoot down stealth","seller":"RU_only","diplomatic_tension":["US","NATO"]},
+        {"id":"patriot_battery","name":"Patriot PAC-3 Battery","cost_wrb":6000,"effect":"Air defense +25, ABM capability","seller":"US_only"},
+        {"id":"drone_fleet","name":"Bayraktar TB2 Drone Fleet (20 units)","cost_wrb":2000,"effect":"precision_strike_capacity +25, recon +15"},
+        {"id":"submarine","name":"Diesel Attack Submarine","cost_wrb":7000,"effect":"naval_power +20, blockade capability"},
+        {"id":"artillery_regiment","name":"Artillery Regiment (120 guns)","cost_wrb":2500,"effect":"bombardment +20"},
+        {"id":"pmc_contract","name":"PMC Contract (1000 fighters, 30 days)","cost_wrb":3000,"effect":"temp_troops +10, plausible_deniability"},
+        {"id":"missile_defense","name":"Theater Missile Defense","cost_wrb":4000,"effect":"missile_intercept +20%"}
+      ]
+    },
+    {
+      "id": "black_market",
+      "name": "Black Market",
+      "emoji": "🕶️",
+      "description": "Anonymous. Banned items. High risk. CP only. No refunds.",
+      "aesthetic": "Dark glitchy neon. Cyberpunk 2077. Items disappear. Anonymous vendors.",
+      "currencies": ["CP"],
+      "tax_pct": 5,
+      "tax_goes_to": "criminal_sector",
+      "access": "black_market_access_item_required",
+      "warning": "YOU ARE ACCESSING RESTRICTED MARKET. ALL TRANSACTIONS MONITORED BY INTERNATIONAL LAW ENFORCEMENT. SELLER AND BUYER ASSUME ALL RISK.",
+      "items": [
+        {"id":"chemical_weapon","name":"[CLASSIFIED] Binary Agent","cost_cp":10000,"effect":"chemical_attack_capability","icc_crime":true,"detection_risk":0.30},
+        {"id":"dirty_bomb_parts","name":"[CLASSIFIED] Radiological Components","cost_cp":8000,"effect":"dirty_bomb_capability","icc_crime":true,"detection_risk":0.35},
+        {"id":"hacker_tools","name":"Zero-Day Exploit Package","cost_cp":3000,"effect":"cyberattack success +40%","detection_risk":0.10},
+        {"id":"coup_kit","name":"Regime Change Package","cost_cp":5000,"effect":"Coup success rate +30%","detection_risk":0.15},
+        {"id":"assassination_contract","name":"[REDACTED] Contract","cost_cp":4000,"effect":"Assassination success +25%","detection_risk":0.20},
+        {"id":"forged_documents","name":"Forged Intelligence Documents","cost_cp":2000,"effect":"False flag operation +40%"},
+        {"id":"laundered_funds","name":"Laundered WRB","cost_cp":5000,"effect":"Convert 5000 CP → 45 WRB (9:1 rate)","detection_risk":0.20},
+        {"id":"black_market_access","name":"Black Market Access Card","cost_cp":1000,"effect":"Permanent black market access"},
+        {"id":"sanctions_bust","name":"Sanctions Busting Network","cost_cp":3000,"effect":"Bypass 1 sanction for 30 days"},
+        {"id":"nerve_agent","name":"[REDACTED] Novichok Type","cost_cp":8000,"effect":"Assassination auto-success but ICC immediate","icc_crime":true}
+      ]
+    },
+    {
+      "id": "stock_exchange",
+      "name": "Global Stock Exchange",
+      "emoji": "📈",
+      "description": "30 companies listed. Real event-driven prices. WRB trading.",
+      "aesthetic": "Bloomberg Terminal — pure dark, green/red, monospace, candlestick charts",
+      "currencies": ["WRB"],
+      "tax_pct": 0.5,
+      "tax_goes_to": "financial_sector",
+      "access": "finance_roles_priority",
+      "companies": [
+        {"id":"omnicorp","name":"OmniCorp Defense","sector":"defense","nationId":"US","basePrice":45,"volatility":"high","affects":["wars","military_budgets"]},
+        {"id":"petromax","name":"PetroMax Energy","sector":"energy","nationId":"SA","basePrice":120,"volatility":"very_high","affects":["oil_price","OPEC_decisions"]},
+        {"id":"techvision","name":"TechVision Semiconductors","sector":"technology","nationId":"TW","basePrice":280,"volatility":"high","affects":["china_taiwan_tension","tech_sanctions"]},
+        {"id":"globalbank","name":"Global Finance Bank","sector":"financial","nationId":"US","basePrice":65,"volatility":"medium","affects":["interest_rates","sanctions"]},
+        {"id":"agroworld","name":"AgroWorld Commodities","sector":"agriculture","nationId":"UA","basePrice":38,"volatility":"high","affects":["ukraine_war","food_crisis"]},
+        {"id":"cyberguard","name":"CyberGuard Systems","sector":"technology","nationId":"IL","basePrice":95,"volatility":"medium","affects":["cyber_attacks","intel_ops"]},
+        {"id":"pharmazen","name":"PharmaZen Biotech","sector":"pharmaceutical","nationId":"US","basePrice":75,"volatility":"medium","affects":["pandemic_events","health_crises"]},
+        {"id":"spacex_equivalent","name":"Orbital Dynamics Corp","sector":"space","nationId":"US","basePrice":340,"volatility":"high","affects":["space_race","satellite_launches"]},
+        {"id":"dragon_steel","name":"Dragon Steel Industries","sector":"industrial","nationId":"CN","basePrice":28,"volatility":"medium","affects":["china_gdp","trade_wars"]},
+        {"id":"kremlin_gas","name":"NordGaz Exports","sector":"energy","nationId":"RU","basePrice":55,"volatility":"very_high","affects":["russia_sanctions","eu_energy"]},
+        {"id":"nuclear_tech","name":"AtomTech Nuclear","sector":"energy","nationId":"FR","basePrice":88,"volatility":"low","affects":["nuclear_events","energy_policy"]},
+        {"id":"intel_systems","name":"IntelSystems AI Defense","sector":"intelligence","nationId":"US","basePrice":155,"volatility":"high","affects":["ai_race","cyber_warfare"]},
+        {"id":"mediaglobal","name":"MediaGlobal Network","sector":"media","nationId":"US","basePrice":42,"volatility":"medium","affects":["disinformation","press_freedom"]},
+        {"id":"rare_earth_corp","name":"RareMetal Extraction","sector":"mining","nationId":"CN","basePrice":68,"volatility":"high","affects":["resource_conflicts","tech_supply"]},
+        {"id":"cartel_pharma","name":"BioPharm International","sector":"pharmaceutical","nationId":"MX","basePrice":22,"volatility":"medium","affects":["drug_trade","health_policy"]}
+      ]
+    },
+    {
+      "id": "commodity_exchange",
+      "name": "Commodity Exchange",
+      "emoji": "🛢️",
+      "description": "Real commodities. WRB trading. Prices affect global game economy.",
+      "aesthetic": "Trading floor — real-time price tickers, supply/demand visible",
+      "currencies": ["WRB"],
+      "tax_pct": 2,
+      "tax_goes_to": "nation_treasury",
+      "commodities": [
+        {"id":"crude_oil","name":"Crude Oil","unit":"barrel","base_price_wrb":0.8,"volatility":"very_high","produced_by":["SA","RU","US","IR","IQ","AE","KW","VE","NG"],"consumed_by":"all","global_event_modifier":true},
+        {"id":"natural_gas","name":"Natural Gas","unit":"MMBtu","base_price_wrb":0.3,"volatility":"high","produced_by":["RU","US","IR","QA","AU","CN","NO"]},
+        {"id":"wheat","name":"Wheat","unit":"tonne","base_price_wrb":0.25,"volatility":"high","produced_by":["RU","UA","US","CA","AU","FR","IN","AR"],"famine_risk_if_scarce":true},
+        {"id":"rare_earth","name":"Rare Earth Elements","unit":"kg","base_price_wrb":50,"volatility":"high","produced_by":["CN","AU","US","RU","IN","BR"]},
+        {"id":"semiconductors","name":"Semiconductors","unit":"chip_lot","base_price_wrb":200,"volatility":"very_high","produced_by":["TW","KR","US","JP","NL"]},
+        {"id":"gold","name":"Gold","unit":"troy_oz","base_price_wrb":18,"volatility":"medium","produced_by":["CN","AU","RU","US","CA","GH","ZA"]},
+        {"id":"uranium","name":"Uranium","unit":"kg","base_price_wrb":150,"volatility":"medium","produced_by":["KZ","CN","CA","AU","NE","NA","RU"],"nuclear_program_required":true},
+        {"id":"lithium","name":"Lithium","unit":"tonne","base_price_wrb":80,"volatility":"high","produced_by":["BO","AR","CL","AU","CN","US"]},
+        {"id":"cobalt","name":"Cobalt","unit":"kg","base_price_wrb":35,"volatility":"high","produced_by":["CD","RU","AU","PH","CU"]},
+        {"id":"food_aid","name":"Humanitarian Food Aid","unit":"tonne","base_price_wrb":0.15,"volatility":"low","special":"Can be donated for diplomacy bonus"}
+      ]
+    },
+    {
+      "id": "p2p_marketplace",
+      "name": "P2P Player Exchange",
+      "emoji": "🤝",
+      "description": "Player-to-player. Any item. WRB or CP. Escrow protected.",
+      "currencies": ["WRB","CP"],
+      "tax_pct": 3,
+      "escrow": true,
+      "listing_expiry_hours": 48,
+      "minimum_wrb": 10,
+      "access": "all_players",
+      "special": "Players can sell anything they own, including items, territories (leases), intelligence reports, diplomatic services"
+    },
+    {
+      "id": "territory_auctions",
+      "name": "Territory Auctions",
+      "emoji": "🏔️",
+      "description": "7-day auctions for strategic territories. WRB only. High stakes.",
+      "currencies": ["WRB"],
+      "auction_fee_pct": 10,
+      "auction_duration_days": 7,
+      "minimum_bid_wrb": 500,
+      "access": "president_finance_minister_only",
+      "special": "Territories include: resource zones, naval bases, air bases, strategic straits (leases), tech hubs"
+    },
+    {
+      "id": "diplomatic_favors",
+      "name": "Diplomatic Favors Exchange",
+      "emoji": "🤲",
+      "description": "Trade political capital. Reputation points only. No WRB or CP.",
+      "currencies": ["reputation_points"],
+      "tax_pct": 0,
+      "access": "diplomatic_roles_only",
+      "special": "UN votes, alliance endorsements, sanctions support, territory recognition, conflict mediation — all traded here",
+      "minimum_reputation_to_access": 50
+    }
+  ]
+}

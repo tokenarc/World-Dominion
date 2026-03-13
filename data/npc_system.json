@@ -1,0 +1,161 @@
+{
+  "npc_system": {
+    "description": "Every unoccupied role is filled by an AI NPC. NPCs act like real players — they make decisions, respond to events, manage economies, declare wars, and negotiate. When a real player applies for a role, the NPC vacates it.",
+    "npc_behavior_engine": "Groq llama3-70b-8192",
+    "decision_frequency": "Every 6 hours for major decisions, real-time for responses",
+    "personality_types": [
+      {
+        "id": "hawk",
+        "name": "Military Hawk",
+        "description": "Aggressive, expansionist, militaristic",
+        "traits": {
+          "war_threshold": 30,
+          "diplomacy_preference": 20,
+          "military_spending_pct": 40,
+          "nuclear_use_threshold": 60,
+          "alliance_loyalty": 50
+        },
+        "example_nations": ["KP", "RU", "IR"],
+        "groq_system_prompt": "You are a hawkish military leader. You prefer military solutions. You build armies. You see diplomacy as weakness. You respond aggressively to perceived threats. Make decisions accordingly."
+      },
+      {
+        "id": "dove",
+        "name": "Diplomatic Dove",
+        "description": "Peaceful, cooperative, multilateral",
+        "traits": {
+          "war_threshold": 80,
+          "diplomacy_preference": 90,
+          "military_spending_pct": 10,
+          "nuclear_use_threshold": 99,
+          "alliance_loyalty": 85
+        },
+        "example_nations": ["JP", "DE", "NZ"],
+        "groq_system_prompt": "You are a peaceful diplomatic leader. You prefer negotiations and treaties. You avoid war unless absolutely necessary. You support international institutions. You cooperate with allies."
+      },
+      {
+        "id": "realist",
+        "name": "Strategic Realist",
+        "description": "Pragmatic, self-interest driven, calculated",
+        "traits": {
+          "war_threshold": 55,
+          "diplomacy_preference": 60,
+          "military_spending_pct": 20,
+          "nuclear_use_threshold": 85,
+          "alliance_loyalty": 60
+        },
+        "example_nations": ["US", "CN", "FR"],
+        "groq_system_prompt": "You are a pragmatic strategic realist. Every decision is based on national interest. You use diplomacy when cheap and military when necessary. Alliances are tools not obligations. Act rationally."
+      },
+      {
+        "id": "revolutionary",
+        "name": "Revolutionary Leader",
+        "description": "Ideology-driven, anti-establishment, unpredictable",
+        "traits": {
+          "war_threshold": 40,
+          "diplomacy_preference": 30,
+          "military_spending_pct": 30,
+          "nuclear_use_threshold": 50,
+          "alliance_loyalty": 40
+        },
+        "example_nations": ["CU", "VE", "AF"],
+        "groq_system_prompt": "You are a revolutionary ideological leader. You prioritize spreading your ideology. You distrust Western institutions. You support revolutionary movements globally. You are unpredictable by design."
+      },
+      {
+        "id": "theocrat",
+        "name": "Religious Leader",
+        "description": "Faith-driven decisions, divine mandate",
+        "traits": {
+          "war_threshold": 45,
+          "diplomacy_preference": 50,
+          "military_spending_pct": 25,
+          "nuclear_use_threshold": 70,
+          "alliance_loyalty": 70
+        },
+        "example_nations": ["SA", "IR", "VA"],
+        "groq_system_prompt": "You are a religious leader who governs by divine law. Religious values guide all decisions. You protect holy sites. You respond harshly to blasphemy or religious persecution. Faith comes before politics."
+      },
+      {
+        "id": "oligarch",
+        "name": "Oligarchic Ruler",
+        "description": "Profit-motivated, kleptocratic, self-preserving",
+        "traits": {
+          "war_threshold": 60,
+          "diplomacy_preference": 55,
+          "military_spending_pct": 15,
+          "nuclear_use_threshold": 90,
+          "alliance_loyalty": 45
+        },
+        "example_nations": ["AZ", "KZ", "TM"],
+        "groq_system_prompt": "You are an oligarchic ruler. Personal wealth and power preservation motivate all decisions. You use state resources for personal gain. You negotiate based on what benefits you financially. Corruption is a tool."
+      }
+    ],
+    "npc_decision_types": {
+      "economic": [
+        "Set tax rate",
+        "Adjust military budget",
+        "Accept/reject trade deal",
+        "Impose/lift sanctions",
+        "Set interest rates (Central Bank NPC)",
+        "Sell/buy commodities",
+        "Accept/reject foreign investment",
+        "Declare economic emergency"
+      ],
+      "military": [
+        "Declare war",
+        "Accept peace offer",
+        "Join coalition",
+        "Deploy troops to border",
+        "Launch cyber attack",
+        "Request military aid",
+        "Sign ceasefire",
+        "Escalate to nuclear alert"
+      ],
+      "diplomatic": [
+        "Propose alliance",
+        "Break alliance",
+        "Send diplomatic message",
+        "Request UN session",
+        "Impose visa restrictions",
+        "Expel ambassador",
+        "Sign treaty",
+        "Recognize/derecognize government"
+      ],
+      "domestic": [
+        "Call election",
+        "Suppress opposition",
+        "Declare martial law",
+        "Respond to protest",
+        "Manage refugee crisis",
+        "Respond to natural disaster",
+        "Censor media",
+        "Free political prisoners"
+      ]
+    },
+    "npc_groq_prompt_template": "You are the {role} of {nation} in World Dominion game. Your nation's stats: GDP={gdp}, Stability={stability}, Military={military}, Ideology={ideology}, Alliances={alliances}, At War With={atWarWith}. Current world event: {event}. Your personality type: {personality}. Make ONE decision from these options: {options}. Return ONLY valid JSON: {\"decision\": \"option_chosen\", \"reasoning\": \"brief reason\", \"target\": \"nation_code_if_applicable\"}",
+    "npc_role_vacating": {
+      "description": "When a real player applies and is accepted for a role, the NPC immediately vacates",
+      "handover_process": [
+        "NPC completes any active 6-hour decision cycle",
+        "NPC sends farewell message to nation channel",
+        "NPC stats transferred to player (momentum preserved)",
+        "Player takes over immediately",
+        "NPC archived for historical record"
+      ],
+      "npc_farewell_messages": [
+        "The interim {role} has stepped down. A new leader has been appointed.",
+        "Command transfers to {player_name}. The nation awaits your leadership.",
+        "AI governance ends. Human leadership begins for {nation}."
+      ]
+    },
+    "npc_salaries": {
+      "description": "NPCs earn CP (not WRB) to simulate economic activity",
+      "President": 500,
+      "General": 300,
+      "Finance_Minister": 400,
+      "Grand_Mufti": 250,
+      "Spy_Chief": 350,
+      "Governor": 200,
+      "default": 100
+    }
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "conquest_system": {
+    "occupation_levels": {
+      "level_1_occupation": {
+        "name": "Military Occupation",
+        "trigger": "War score reaches 100%",
+        "attacker_gains": {
+          "treasury_pct": 40,
+          "military_units_pct": 30,
+          "border_territories": 3,
+          "trade_route_access": true,
+          "occupation_tax_pct_gdp_per_48h": 5,
+          "loot_one_industry": true,
+          "war_reparations_negotiable": true
+        },
+        "defender_keeps": {
+          "treasury_pct": 60,
+          "underground_military": true,
+          "player_roles_downgraded": true,
+          "culture_unchanged": true
+        },
+        "defender_role_changes": {
+          "President": "Resistance Leader (underground)",
+          "General": "Guerrilla Commander",
+          "Finance_Minister": "Black Market Economist",
+          "all_others": "Occupied Civilian"
+        },
+        "occupation_costs_attacker": {
+          "stability_per_day": -2,
+          "resistance_grows_per_day": 2,
+          "insurgency_attacks_every_hours": 48
+        }
+      },
+      "level_2_annexation": {
+        "name": "Full Annexation",
+        "requirement": "7 days successful occupation",
+        "cost_wrb": 5000,
+        "resource_transfers": {
+          "oil_gas": "100% absorbed into attacker energy sector",
+          "military": "60% absorbed, 40% defects to resistance",
+          "nuclear_weapons": {
+            "transfer": false,
+            "secure_cost_wrb": 3000,
+            "secure_time_days": 30,
+            "theft_window": "30 days — spy mission available to ALL nations",
+            "if_stolen": "Stealing nation gets nuclear program"
+          },
+          "territories": "All transfer — resource bonuses shift immediately",
+          "gdp": "Absorbed at 70% efficiency, grows to 100% over 30 days",
+          "debt": "Attacker inherits all defender debt",
+          "sanctions": "Attacker temporarily inherits defender sanctions",
+          "population": "Added to attacker — stability formula recalculated"
+        },
+        "defender_player_choices": [
+          "Collaborate (keep role under occupier, traitor tag from resistance)",
+          "Resist (join underground resistance, hero tag, dangerous)",
+          "Exile (move to another nation, lose current role)"
+        ],
+        "stability_penalties_from_mismatch": {
+          "sunni_annexes_shia": -20,
+          "hindu_annexes_muslim": -25,
+          "communist_annexes_capitalist": -15,
+          "democratic_annexes_authoritarian": -10,
+          "same_ideology": 0
+        }
+      },
+      "level_3_puppet_state": {
+        "name": "Puppet State",
+        "cost_wrb": 3000,
+        "requirement": "Successful coup operation in target",
+        "attacker_gains": {
+          "gdp_tribute_pct": 30,
+          "military_access": true,
+          "un_vote_control": true,
+          "trade_routes": true,
+          "resource_extraction_rights": true,
+          "permanent_spy_access": true
+        },
+        "defender_keeps": {
+          "name_and_flag": true,
+          "own_player_roles": true,
+          "gdp_pct": 70
+        },
+        "puppet_restrictions": {
+          "cannot_declare_war_without_master": true,
+          "must_vote_with_master_in_un": true,
+          "master_spy_chief_has_access": true
+        },
+        "breaking_free": {
+          "resistance_required": 80,
+          "cost_wrb": 2000,
+          "success_formula": "defender_stability / attacker_military_strength",
+          "foreign_funding_helps": true
+        }
+      }
+    },
+
+    "resistance_meter": {
+      "starting_value": 0,
+      "max_value": 100,
+      "liberation_threshold": 100,
+      "increases": {
+        "per_day_of_occupation": 2,
+        "foreign_aid_to_resistance": 10,
+        "guerrilla_battle_won": 8,
+        "international_sanctions_on_occupier": 5,
+        "religious_leader_calls_resistance": 7,
+        "propaganda_from_exile_government": 4,
+        "un_condemnation_resolution": 6
+      },
+      "decreases": {
+        "occupier_stability_item_purchased": -5,
+        "economic_development_in_territory": -8,
+        "collaborator_players_in_power": -6,
+        "time_without_resistance_success_per_day": -1
+      },
+      "liberation_event": {
+        "trigger": "Resistance hits 100",
+        "effects": [
+          "Mass uprising — all occupied roles vacated",
+          "New elections called within 48 hours",
+          "Occupier must decide: Suppress or Withdraw",
+          "Suppress = war crimes risk + international sanctions",
+          "Withdraw = face of defeat + reputation loss"
+        ]
+      }
+    },
+
+    "resource_territories": {
+      "types": [
+        { "id": "oil_field", "emoji": "🛢️", "bonus": "+$10B GDP/week to controller", "strategic_value": 90 },
+        { "id": "rare_earth_mine", "emoji": "⛏️", "bonus": "+20% military tech research speed", "strategic_value": 85 },
+        { "id": "farmland", "emoji": "🌾", "bonus": "+food security, +refugee capacity", "strategic_value": 60 },
+        { "id": "strategic_port", "emoji": "🚢", "bonus": "+15% trade income, +naval power", "strategic_value": 80 },
+        { "id": "power_grid", "emoji": "⚡", "bonus": "+20% industrial output", "strategic_value": 70 },
+        { "id": "tech_hub", "emoji": "💻", "bonus": "+25% intelligence ops effectiveness", "strategic_value": 85 },
+        { "id": "nuclear_site", "emoji": "☢️", "bonus": "Nuclear program access", "strategic_value": 95 },
+        { "id": "diamond_mine", "emoji": "💎", "bonus": "+50 WRB/day direct income", "strategic_value": 75 },
+        { "id": "strait_control", "emoji": "🌊", "bonus": "+20% global trade route income", "strategic_value": 90 },
+        { "id": "air_base", "emoji": "✈️", "bonus": "+30% air strike range", "strategic_value": 80 }
+      ],
+      "extraction_after_conquest": {
+        "day_1_to_3": "50% efficiency (resistance sabotage)",
+        "day_4_to_7": "70% efficiency",
+        "day_8_to_14": "85% efficiency",
+        "day_15_plus": "100% efficiency (if stable)"
+      },
+      "sabotage_mission": {
+        "by": "Former owner spy players",
+        "effect": "Reduces extraction to 50% for 7 days",
+        "cost": "400 WRB per sabotage operation",
+        "detection_chance_pct": 30
+      }
+    },
+
+    "real_world_scenarios": {
+      "china_takes_taiwan": {
+        "attacker_gains": ["Semiconductor hub (massive tech bonus)", "Pacific ports (+naval power)", "TW GDP $800B at 70% = $560B", "Advanced chip manufacturing"],
+        "global_effects": ["Semiconductor prices +40%", "US: DEFCON 3 auto-trigger", "Japan/South Korea: Defensive alliance proposed", "Tech industry crisis event globally"],
+        "defender_response": ["TW resistance movement", "US military aid", "International sanctions on CN"]
+      },
+      "russia_takes_ukraine": {
+        "attacker_gains": ["Wheat farmland (food prices +25%)", "Industrial eastern Ukraine", "Black Sea ports", "Mineral resources"],
+        "attacker_inherits": ["Ukraine debt", "Western sanctions package"],
+        "global_effects": ["Global food crisis event", "NATO emergency session", "EU energy dependency crisis"]
+      },
+      "india_takes_pakistan": {
+        "attacker_gains": ["Nuclear weapons (unsecured — 30 days)", "Gwadar Port", "ISI network (partial)", "Punjab farmland"],
+        "attacker_inherits": ["Pakistan debt", "Islamic world anger"],
+        "global_effects": ["OIC emergency session", "China CSTO response", "Sectarian crisis -25 stability", "Nuclear theft window opens globally"]
+      }
+    },
+
+    "partition_mechanic": {
+      "description": "Multiple winners can split a defeated nation",
+      "examples": ["Korea split (North=RU sphere, South=US sphere)", "Germany post-WW2", "India-Pakistan 1947"],
+      "mechanics": [
+        "Two winning nations agree on partition line",
+        "Each gets a zone of control",
+        "Divided capital = permanent tension event every 30 days",
+        "Partition line = contested border, permanent low-level conflict",
+        "Players from original nation choose which zone to join",
+        "Reunification requires both zones' agreement + 10,000 WRB"
+      ]
+    },
+
+    "failed_state_mechanic": {
+      "trigger": "Nation stability hits 0",
+      "effects": [
+        "Government collapses — all political roles vacated",
+        "Military fractures into 3 factions",
+        "Economy enters hyperinflation (GDP -50%)",
+        "Refugees flood all neighboring nations",
+        "3 Warlord roles open — first 3 players to apply get them",
+        "Foreign nations can intervene (peacekeeping or exploitation)",
+        "International aid organizations deploy (new roles open)",
+        "Recovery minimum: 30 real days"
+      ],
+      "recovery_path": [
+        "Warlords must unite OR one defeats others",
+        "Foreign peacekeepers stabilize (with agenda)",
+        "New elections called when stability > 30",
+        "International reconstruction fund (WRB donations from any nation)"
+      ],
+      "fragile_nations_at_start": ["SY", "AF", "VE", "YE", "SO", "LY"]
+    }
+  }
+}

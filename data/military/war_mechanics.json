@@ -1,0 +1,16 @@
+{
+  "war_declaration": {"requires_role":["supreme_commander","general","president"],"cost_cp":5000,"cooldown_hours_after_peace":48},
+  "battle_rounds": {"frequency_hours":6,"formula":"attack = (military_strength × morale/100 × ideology_modifier) + random(0,10)","defense_bonus":1.15,"home_territory_bonus":1.20,"coalition_bonus_per_ally":0.08,"max_coalition_bonus":0.40},
+  "war_score": {"max":100,"victory_threshold":100,"round_score_cap":15,"nuclear_strike_score":40},
+  "casualties": {"base_per_round_pct":1.0,"nuclear_casualties_pct":10,"morale_loss_per_round":2,"morale_recovery_per_day_peace":3},
+  "nuclear_protocol": {
+    "requires":["president_authorization","nuclear_commander_coauth","nuclear_weapons_gt_0"],
+    "consequences": {
+      "tactical":{"war_score":15,"icc_risk":0.3},
+      "strategic":{"war_score":40,"icc_risk":0.8,"nuclear_winter_risk":0.1},
+      "city_strike":{"war_score":60,"icc_immediate":true,"global_stability":-20}
+    }
+  },
+  "war_crimes": {"triggers":["chemical_weapon_use","city_nuclear_strike","bioweapon_use"],"stability_penalty":-15,"reputation_penalty":-30},
+  "ceasefire": {"can_propose":["president","supreme_commander"],"requires_both_sides":true,"minimum_days":7}
+}

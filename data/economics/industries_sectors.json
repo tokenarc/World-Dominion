@@ -1,0 +1,179 @@
+{
+  "industry_sectors": [
+    {
+      "id": "energy",
+      "name": "Energy Sector",
+      "emoji": "⚡",
+      "description": "Oil, gas, nuclear, coal, and renewable energy production.",
+      "subsectors": ["Oil & Gas","Nuclear Power","Renewable Energy","Coal"],
+      "roles": ["Oil Minister","Energy CEO","OPEC Delegate","Nuclear Plant Director","Renewable Energy Minister"],
+      "income_wrb_per_day": {"tier1_nation": 200, "tier2_nation": 100, "tier3_nation": 30},
+      "gdp_contribution_pct": 15,
+      "health_effects_on_nation": {
+        "100pct": {"gdp_bonus":0.10, "stability_bonus":3},
+        "50pct": {"gdp_penalty":0.05, "stability_penalty":2},
+        "0pct": {"gdp_penalty":0.20, "stability_penalty":10, "event":"energy_crisis"}
+      },
+      "upgrade_cost_wrb": 5000,
+      "sabotage_cost_wrb": 2000,
+      "special_mechanics": {
+        "opec_cartel": "Oil nations can form OPEC to set prices",
+        "energy_embargo": "Cut energy to enemy nation — GDP -10%",
+        "nuclear_energy": "0 emissions — climate stability bonus",
+        "oil_curse": "Nations too dependent on oil: corruption +20%"
+      }
+    },
+    {
+      "id": "defense",
+      "name": "Defense Industry",
+      "emoji": "🛡️",
+      "description": "Weapons manufacturing, PMCs, aerospace, and cyber defense.",
+      "subsectors": ["Weapons Manufacturing","PMC Operations","Aerospace","Cyber Defense"],
+      "roles": ["Defense Contractor CEO","PMC Commander","Aerospace Director","Cyber Defense Chief"],
+      "income_wrb_per_day": {"tier1_nation": 150, "tier2_nation": 70, "tier3_nation": 20},
+      "gdp_contribution_pct": 8,
+      "health_effects_on_nation": {
+        "100pct": {"military_bonus":10, "export_income":50},
+        "50pct": {"military_penalty":5},
+        "0pct": {"military_penalty":20, "event":"defense_industry_collapse"}
+      },
+      "upgrade_cost_wrb": 8000,
+      "special_mechanics": {
+        "arms_export": "Sell weapons to other nations for WRB",
+        "pmc_deployment": "Send mercenaries to any conflict",
+        "tech_transfer": "Share/steal military tech",
+        "defense_lobby": "Increase defense budget via lobbying"
+      }
+    },
+    {
+      "id": "financial",
+      "name": "Financial Sector",
+      "emoji": "💰",
+      "description": "Central banks, investment banking, crypto exchanges, hedge funds.",
+      "subsectors": ["Central Bank","Investment Bank","Crypto Exchange","Hedge Fund"],
+      "roles": ["Central Bank Governor","Investment Bank CEO","Crypto Exchange Director","Hedge Fund Manager"],
+      "income_wrb_per_day": {"tier1_nation": 300, "tier2_nation": 120, "tier3_nation": 25},
+      "gdp_contribution_pct": 20,
+      "health_effects_on_nation": {
+        "100pct": {"gdp_bonus":0.15, "currency_stability":5},
+        "50pct": {"gdp_penalty":0.08, "inflation_increase":5},
+        "0pct": {"gdp_penalty":0.30, "event":"financial_crisis", "contagion_risk":true}
+      },
+      "upgrade_cost_wrb": 10000,
+      "special_mechanics": {
+        "currency_attack": "Short a nation's currency (hedge fund power)",
+        "sanctions_bust": "Alternative payment rails to bypass SWIFT",
+        "crypto_integration": "Nations can mine/hold crypto officially",
+        "sovereign_debt": "Issue bonds, create debt traps for smaller nations"
+      }
+    },
+    {
+      "id": "technology",
+      "name": "Technology Sector",
+      "emoji": "🖥️",
+      "description": "Tech giants, semiconductor fabs, AI labs, surveillance tech.",
+      "subsectors": ["Tech Giants","Semiconductor Fab","AI Research Lab","Surveillance Tech"],
+      "roles": ["Tech CEO","Semiconductor Director","AI Lab Director","Surveillance Minister"],
+      "income_wrb_per_day": {"tier1_nation": 250, "tier2_nation": 80, "tier3_nation": 10},
+      "gdp_contribution_pct": 18,
+      "health_effects_on_nation": {
+        "100pct": {"intel_bonus":25, "military_tech_bonus":15, "gdp_bonus":0.12},
+        "50pct": {"intel_penalty":10},
+        "0pct": {"intel_penalty":30, "event":"tech_sanctions_crisis"}
+      },
+      "upgrade_cost_wrb": 12000,
+      "special_mechanics": {
+        "semiconductor_control": "Gate enemy nation from advanced chips",
+        "ai_warfare": "AI improves intelligence ops by 30%",
+        "social_media_ops": "Tech company cooperates with intel ops",
+        "tech_export_control": "Deny or allow tech transfer to rivals"
+      }
+    },
+    {
+      "id": "pharmaceutical",
+      "name": "Pharmaceutical & Biotech",
+      "emoji": "💊",
+      "description": "Pharma corporations, bioweapon labs, vaccine manufacturers.",
+      "subsectors": ["Pharmaceutical Corp","Bio Research Lab","Vaccine Manufacturing","Medical Equipment"],
+      "roles": ["Pharma CEO","Bio Lab Director","Health Minister","Vaccine Czar"],
+      "income_wrb_per_day": {"tier1_nation": 120, "tier2_nation": 50, "tier3_nation": 10},
+      "gdp_contribution_pct": 6,
+      "health_effects_on_nation": {
+        "100pct": {"pandemic_resistance":30, "morale_bonus":5, "gdp_bonus":0.05},
+        "0pct": {"pandemic_vulnerability":50, "event":"health_system_collapse"}
+      },
+      "upgrade_cost_wrb": 7000,
+      "special_mechanics": {
+        "bioweapon_program": "Secret — detected by intel ops. ICC war crime if used.",
+        "vaccine_diplomacy": "Supply vaccines = +20 diplomatic reputation",
+        "drug_pricing": "Control global medicine prices (controversial)",
+        "pandemic_response": "Determine survival rate if pandemic hits"
+      }
+    },
+    {
+      "id": "agriculture",
+      "name": "Agriculture & Food",
+      "emoji": "🌾",
+      "description": "Grain production, food exports, famine relief, agricultural policy.",
+      "subsectors": ["Grain Production","Food Export","Livestock","Agri-Tech"],
+      "roles": ["Agriculture Minister","Food Security Chief","Grain Cartel Director","FAO Representative"],
+      "income_wrb_per_day": {"tier1_nation": 80, "tier2_nation": 40, "tier3_nation": 15},
+      "gdp_contribution_pct": 5,
+      "health_effects_on_nation": {
+        "100pct": {"food_security":5, "refugee_capacity":20, "stability_bonus":5},
+        "0pct": {"event":"famine", "stability_penalty":25, "refugees_generated":500000}
+      },
+      "upgrade_cost_wrb": 3000,
+      "special_mechanics": {
+        "grain_embargo": "Stop food exports to enemy",
+        "food_weapon": "Use food aid as political leverage",
+        "grain_cartel": "Russia+Ukraine+US can control global food prices",
+        "famine_relief": "Send aid to failed states for diplomacy bonus"
+      }
+    },
+    {
+      "id": "media",
+      "name": "Media & Information",
+      "emoji": "📺",
+      "description": "State TV, independent news, propaganda bureaus, social media.",
+      "subsectors": ["State Television","Independent News","Propaganda Bureau","Social Media Operations"],
+      "roles": ["State Media Director","Propaganda Minister","Independent Editor","Disinformation Chief"],
+      "income_wrb_per_day": {"tier1_nation": 60, "tier2_nation": 30, "tier3_nation": 10},
+      "gdp_contribution_pct": 3,
+      "health_effects_on_nation": {
+        "100pct": {"narrative_control":true, "morale_bonus":8, "propaganda_effectiveness":30},
+        "0pct": {"information_chaos":true, "stability_penalty":10}
+      },
+      "upgrade_cost_wrb": 4000,
+      "special_mechanics": {
+        "global_narrative": "Win narrative war = international support",
+        "media_blackout": "Authoritarian nations can cut internet",
+        "fake_news_campaign": "Destabilize enemy with disinformation",
+        "press_freedom": "Free press reduces coup risk but exposes corruption"
+      }
+    },
+    {
+      "id": "criminal_shadow",
+      "name": "Criminal & Shadow Economy",
+      "emoji": "🕶️",
+      "description": "Drug cartels, arms smuggling, money laundering, hacker groups.",
+      "subsectors": ["Drug Cartel","Arms Smuggling","Money Laundering","Hacker Collective"],
+      "roles": ["Cartel Boss","Arms Dealer","Money Launderer","Hacker Commander"],
+      "income_wrb_per_day": {"always": 500},
+      "gdp_contribution_pct": 0,
+      "health_effects_on_nation": {
+        "active": {"stability_penalty":8, "corruption_increase":15, "black_market_access":true},
+        "controlled": {"extra_wrb_income":200, "leverage_over_officials":true}
+      },
+      "unlock_cost_wrb": 2000,
+      "special_mechanics": {
+        "black_market_access": "Required item to access Black Market",
+        "bribe_officials": "Corrupt enemy nation's leaders",
+        "money_laundering": "Convert CP to WRB (limited, risky)",
+        "sanctions_busting": "Move sanctioned goods across borders",
+        "state_capture": "Criminal groups can effectively control weak states"
+      },
+      "risk": "ICC arrest warrant, international law enforcement, exposure events"
+    }
+  ]
+}

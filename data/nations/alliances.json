@@ -1,0 +1,241 @@
+[
+  {
+    "id": "NATO",
+    "name": "North Atlantic Treaty Organization",
+    "shortName": "NATO",
+    "flag": "🛡️",
+    "type": "military",
+    "founded": 1949,
+    "headquarters": "Brussels, Belgium",
+    "motto": "Animus in consulendo liber",
+    "members": ["US","CA","GB","FR","DE","IT","ES","PL","TR","NL","BE","GR","CZ","HU","RO","PT","DK","NO","IS","AL","LT","LV","EE","BG","SK","SI","HR","ME","MK","FI","SE","LU"],
+    "article5": true,
+    "collectiveDefense": true,
+    "nuclearSharing": ["US","GB","FR","DE","BE","NL","IT","TR"],
+    "militaryBudgetRequired": 2.0,
+    "benefits": {
+      "collective_defense": true,
+      "intel_sharing": true,
+      "joint_exercises": true,
+      "equipment_standardization": true,
+      "military_bonus_pct": 15
+    },
+    "penalties_if_left": {
+      "stability": -10,
+      "us_aid_loss": true,
+      "security_decrease": -20
+    },
+    "description": "The world's most powerful military alliance. Article 5: attack on one = attack on all."
+  },
+  {
+    "id": "SCO",
+    "name": "Shanghai Cooperation Organisation",
+    "shortName": "SCO",
+    "flag": "🤝",
+    "type": "security_economic",
+    "founded": 2001,
+    "headquarters": "Beijing, China",
+    "members": ["CN","RU","IN","PK","KZ","KG","TJ","UZ","IR","BY","MN"],
+    "observers": ["AF","TR","AZ","TM","QA"],
+    "benefits": {
+      "economic_cooperation": true,
+      "counter_terrorism": true,
+      "intel_sharing_partial": true,
+      "gdp_bonus_pct": 3,
+      "military_coordination": true
+    },
+    "description": "China + Russia led security bloc. Counter to Western alliances."
+  },
+  {
+    "id": "CSTO",
+    "name": "Collective Security Treaty Organization",
+    "shortName": "CSTO",
+    "flag": "⚔️",
+    "type": "military",
+    "founded": 2002,
+    "headquarters": "Moscow, Russia",
+    "members": ["RU","BY","AM","KZ","KG","TJ"],
+    "article4": true,
+    "collectiveDefense": true,
+    "benefits": {
+      "collective_defense": true,
+      "military_bonus_pct": 10,
+      "russia_equipment_access": true,
+      "joint_rapid_reaction": true
+    },
+    "description": "Russia-led military alliance. The Eastern NATO equivalent."
+  },
+  {
+    "id": "BRICS",
+    "name": "BRICS Alliance",
+    "shortName": "BRICS",
+    "flag": "🌍",
+    "type": "economic",
+    "founded": 2009,
+    "members": ["BR","RU","IN","CN","ZA","ET","EG","IR","SA","AE","AR"],
+    "benefits": {
+      "trade_bonus_pct": 8,
+      "development_bank_access": true,
+      "us_dollar_bypass": true,
+      "gdp_bonus_pct": 5,
+      "alternative_swift": true
+    },
+    "description": "Rising economies challenging Western financial dominance."
+  },
+  {
+    "id": "OIC",
+    "name": "Organisation of Islamic Cooperation",
+    "shortName": "OIC",
+    "flag": "☪️",
+    "type": "religious_political",
+    "founded": 1969,
+    "headquarters": "Jeddah, Saudi Arabia",
+    "members": ["SA","TR","PK","ID","NG","EG","IR","IQ","MY","BD","UZ","KZ","AF","AZ","TJ","TM","KG","ML","SN","GN","MR","NE","TD","CM","GN","SL","BF","GH","GM","DJ","SD","SO","ET","MZ","LB","JO","KW","QA","AE","BH","OM","YE","LY","TN","DZ","MA","MR","GA","TG","GN","CI","SL","LB","SY","BN","MV","KM","GY","SR"],
+    "benefits": {
+      "solidarity_bonus": true,
+      "trade_preferences": true,
+      "religious_stability_bonus": 5,
+      "anti_islamophobia_coordination": true
+    },
+    "description": "Islamic world cooperation on political, economic, and religious matters."
+  },
+  {
+    "id": "Arab_League",
+    "name": "League of Arab States",
+    "shortName": "Arab League",
+    "flag": "🌙",
+    "type": "political",
+    "founded": 1945,
+    "headquarters": "Cairo, Egypt",
+    "members": ["EG","SA","IQ","SY","LB","JO","YE","LY","TN","DZ","MA","SD","SO","KW","QA","AE","BH","OM","DZ","TN","MR","SY"],
+    "benefits": {
+      "trade_facilitation": true,
+      "political_coordination": true,
+      "gdp_bonus_pct": 2
+    },
+    "description": "Pan-Arab political coordination organization."
+  },
+  {
+    "id": "AUKUS",
+    "name": "AUKUS Trilateral Security Partnership",
+    "shortName": "AUKUS",
+    "flag": "🦅",
+    "type": "military_tech",
+    "founded": 2021,
+    "members": ["AU","GB","US"],
+    "benefits": {
+      "nuclear_submarine_tech": true,
+      "ai_defense_sharing": true,
+      "cyber_warfare_cooperation": true,
+      "intel_sharing": true,
+      "military_bonus_pct": 20
+    },
+    "description": "Advanced military tech sharing. Includes nuclear submarine deal."
+  },
+  {
+    "id": "QUAD",
+    "name": "Quadrilateral Security Dialogue",
+    "shortName": "QUAD",
+    "flag": "🔷",
+    "type": "security",
+    "founded": 2007,
+    "members": ["US","AU","IN","JP"],
+    "benefits": {
+      "indo_pacific_coordination": true,
+      "maritime_security": true,
+      "tech_supply_chain": true,
+      "china_containment": true,
+      "intel_sharing": true
+    },
+    "description": "Indo-Pacific security dialogue. Focused on countering Chinese expansion."
+  },
+  {
+    "id": "Five_Eyes",
+    "name": "Five Eyes Intelligence Alliance",
+    "shortName": "Five Eyes",
+    "flag": "👁️",
+    "type": "intelligence",
+    "founded": 1946,
+    "members": ["US","GB","CA","AU","NZ"],
+    "benefits": {
+      "global_surveillance_access": true,
+      "signals_intelligence": true,
+      "counter_terrorism": true,
+      "intel_bonus_pct": 30,
+      "enemy_comms_intercept": true
+    },
+    "description": "Most powerful intelligence sharing network. Total signals intelligence coverage."
+  },
+  {
+    "id": "GCC",
+    "name": "Gulf Cooperation Council",
+    "shortName": "GCC",
+    "flag": "🛢️",
+    "type": "economic_security",
+    "founded": 1981,
+    "headquarters": "Riyadh, Saudi Arabia",
+    "members": ["SA","AE","KW","QA","BH","OM"],
+    "benefits": {
+      "oil_coordination": true,
+      "free_trade_zone": true,
+      "gdp_bonus_pct": 6,
+      "common_defense": true,
+      "opec_coordination": true
+    },
+    "description": "Gulf Arab states cooperation. Controls huge oil reserves."
+  },
+  {
+    "id": "EU",
+    "name": "European Union",
+    "shortName": "EU",
+    "flag": "🇪🇺",
+    "type": "political_economic",
+    "founded": 1993,
+    "headquarters": "Brussels, Belgium",
+    "members": ["DE","FR","IT","ES","PL","NL","BE","PT","GR","AT","SE","DK","FI","CZ","HU","RO","BG","SK","SI","HR","LT","LV","EE","LU","CY","MT","IE"],
+    "benefits": {
+      "single_market": true,
+      "common_currency": true,
+      "free_movement": true,
+      "gdp_bonus_pct": 10,
+      "trade_power": true,
+      "sanctions_coordination": true
+    },
+    "description": "Political and economic union. Largest single market. Common foreign policy."
+  },
+  {
+    "id": "Axis_of_Resistance",
+    "name": "Axis of Resistance",
+    "shortName": "Axis",
+    "flag": "✊",
+    "type": "ideological_military",
+    "founded": 1980,
+    "members": ["IR","SY","LB"],
+    "proxies": ["Hezbollah","Hamas","Houthis","PMF"],
+    "benefits": {
+      "proxy_warfare": true,
+      "weapons_supply": true,
+      "anti_israel_coordination": true,
+      "anti_us_coordination": true,
+      "unconventional_warfare": true
+    },
+    "description": "Iran-led coalition opposing US/Israel influence in Middle East."
+  },
+  {
+    "id": "ASEAN",
+    "name": "Association of Southeast Asian Nations",
+    "shortName": "ASEAN",
+    "flag": "🌸",
+    "type": "economic_political",
+    "founded": 1967,
+    "headquarters": "Jakarta, Indonesia",
+    "members": ["ID","MY","TH","PH","SG","VN","MM","LA","KH","BN"],
+    "benefits": {
+      "free_trade": true,
+      "regional_stability": true,
+      "gdp_bonus_pct": 5,
+      "neutrality_bonus": true
+    },
+    "description": "Southeast Asian cooperation. Strategic neutrality between US and China."
+  }
+]

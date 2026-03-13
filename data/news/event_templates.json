@@ -1,0 +1,14 @@
+{
+  "templates": [
+    {"id":"war_declaration","title":"{aggressor} declares war on {defender}","type":"military","effects":{"aggressor_morale":8,"defender_morale":10,"global_stability":-5}},
+    {"id":"nuclear_test","title":"{nation} conducts nuclear test","type":"nuclear","effects":{"global_stability":-10,"un_emergency":true}},
+    {"id":"coup_attempt","title":"Coup attempt reported in {nation}","type":"political","effects":{"stability":-20}},
+    {"id":"economic_collapse","title":"{nation} economy collapses — GDP -15%","type":"economic","effects":{"gdp_modifier":0.85,"stability":-10}},
+    {"id":"pandemic_outbreak","title":"New pathogen detected in {nation}","type":"pandemic","effects":{"global_health_alert":true,"pharma_stocks":1.20}},
+    {"id":"peace_treaty","title":"{nation1} and {nation2} sign peace treaty","type":"diplomatic","effects":{"both_stability":10}},
+    {"id":"oil_embargo","title":"OPEC announces oil embargo on {target}","type":"economic","effects":{"oil_price_modifier":1.40}},
+    {"id":"space_launch","title":"{nation} launches satellite into orbit","type":"space","effects":{"stability":5,"space_race_progress":10}},
+    {"id":"assassination","title":"BREAKING: {role} of {nation} assassinated","type":"political","effects":{"stability":-15}},
+    {"id":"nuclear_launch","title":"⚠️ NUCLEAR LAUNCH DETECTED — {nation}","type":"nuclear","effects":{"target_stability":-50,"global_stability":-20,"defcon":1}}
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "total_nations": 195,
+  "seeded_nations": 28,
+  "seeded_ids": ["US","CN","RU","DE","GB","FR","IN","PK","SA","IR","IL","TR","KP","KR","JP","BR","ZA","SY","AF","UA","IQ","VE","YE","NG","EG","AU","CA","MX","ID"],
+  "fragile_states": ["SY","AF","VE","YE","NG","UA"],
+  "nuclear_states": ["US","RU","CN","GB","FR","IN","PK","IL","KP"],
+  "p5_un_nations": ["US","RU","CN","GB","FR"],
+  "opec_nations": ["SA","IR","IQ","KW","AE","VE","NG","LY","DZ","GA","GQ","CG"],
+  "note": "Remaining 167 nations auto-seeded from REST Countries API on first bot run"
+}

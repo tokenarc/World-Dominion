@@ -1,0 +1,176 @@
+{
+  "liquidity_system": {
+    "model": "HYBRID",
+    "description": "House liquidity for small orders, P2P matching for large orders. House always available as market maker of last resort.",
+
+    "war_bonds_economics": {
+      "buy_rate": "1000 WRB = $10.00 USD",
+      "sell_rate": "1000 WRB = $9.80 USD",
+      "spread_pct": 2,
+      "your_revenue_per_10_dollars": "$0.20",
+      "packages": [
+        { "name": "Recruit", "usd": 5, "wrb": 500, "bonus_wrb": 0 },
+        { "name": "Soldier", "usd": 10, "wrb": 1000, "bonus_wrb": 50 },
+        { "name": "Commander", "usd": 25, "wrb": 2500, "bonus_wrb": 200 },
+        { "name": "General", "usd": 50, "wrb": 5000, "bonus_wrb": 600 },
+        { "name": "Supreme", "usd": 100, "wrb": 10000, "bonus_wrb": 1500 }
+      ]
+    },
+
+    "treasury_allocation": {
+      "description": "How every $10 deposit is split",
+      "liquidity_pool_pct": 60,
+      "development_fund_pct": 25,
+      "emergency_reserve_pct": 15,
+      "example_1000_players_depositing_10_each": {
+        "total_deposits": "$10,000",
+        "liquidity_pool": "$6,000",
+        "development_fund": "$2,500",
+        "emergency_reserve": "$1,500"
+      }
+    },
+
+    "order_routing": {
+      "small_orders": {
+        "threshold_wrb": 500,
+        "threshold_usd": 4.90,
+        "routing": "HOUSE_LIQUIDITY",
+        "description": "Instant — house fills immediately from liquidity pool",
+        "processing_time": "Instant (after 48hr hold)"
+      },
+      "medium_orders": {
+        "threshold_wrb": "501-5000",
+        "threshold_usd": "4.91-49.00",
+        "routing": "P2P_FIRST_THEN_HOUSE",
+        "description": "Try P2P order book first. If no match in 24hrs, house fills.",
+        "processing_time": "Up to 24 hours"
+      },
+      "large_orders": {
+        "threshold_wrb": "5001+",
+        "threshold_usd": "$49.01+",
+        "routing": "P2P_ONLY_WITH_KYC",
+        "description": "Must go through P2P. Requires KYC verification.",
+        "processing_time": "24-72 hours"
+      }
+    },
+
+    "withdrawal_rules": {
+      "minimum_wrb": 500,
+      "minimum_usd": 4.90,
+      "maximum_per_day_wrb": 10000,
+      "maximum_per_day_usd": 98,
+      "maximum_per_month_wrb": 50000,
+      "maximum_per_month_usd": 490,
+      "holding_period_hours": 48,
+      "kyc_required_above_usd": 50,
+      "processing_time": "24-48 hours",
+      "supported_networks": ["TON", "USDT_TRC20"],
+      "anti_abuse_rules": [
+        "Same IP: max 1 withdrawal per day",
+        "New account: first withdrawal delayed 72 hours",
+        "Suspicious activity: flagged for manual review",
+        "Buy + immediately sell without any gameplay: flagged"
+      ]
+    },
+
+    "p2p_order_book": {
+      "description": "Player-to-player WRB exchange",
+      "how_it_works": [
+        "Player A lists: SELL 1000 WRB for $9.80",
+        "Listing visible to all players in P2P market",
+        "Player B sees listing and accepts",
+        "Game holds WRB in escrow until payment confirmed",
+        "Player B sends crypto to Player A's wallet",
+        "Player B submits TX hash",
+        "Game verifies on blockchain",
+        "WRB released to Player B",
+        "Game takes 1% fee from each side (2% total)"
+      ],
+      "order_types": ["SELL_WRB", "BUY_WRB"],
+      "expiry_hours": 48,
+      "minimum_order_wrb": 100,
+      "fee_pct": 1
+    },
+
+    "blockchain_verification": {
+      "TON": {
+        "explorer": "https://toncenter.com/api/v2",
+        "api_key_needed": true,
+        "confirmations_required": 3,
+        "average_confirmation_time_seconds": 5,
+        "verification_endpoint": "https://toncenter.com/api/v2/getTransactions?address={wallet}&limit=10",
+        "how_to_verify": [
+          "Player sends TON to game TON wallet",
+          "Player submits TX hash in game",
+          "Bot calls TonCenter API with TX hash",
+          "Verify: to=game_wallet, amount=correct, confirmed=true",
+          "Credit WRB to player balance",
+          "Log transaction in Firestore /cryptoTransactions"
+        ]
+      },
+      "USDT_TRC20": {
+        "explorer": "https://apilist.tronscanapi.com",
+        "api_key_needed": false,
+        "confirmations_required": 20,
+        "average_confirmation_time_seconds": 60,
+        "verification_endpoint": "https://apilist.tronscanapi.com/api/transaction-info?hash={txhash}",
+        "how_to_verify": [
+          "Player sends USDT (TRC-20) to game TRON wallet",
+          "Player submits TX hash in game",
+          "Bot calls TronScan API with TX hash",
+          "Verify: to=game_wallet, tokenSymbol=USDT, amount=correct",
+          "Wait for 20 confirmations",
+          "Credit WRB to player balance"
+        ]
+      }
+    },
+
+    "reserve_health_monitor": {
+      "description": "Automatic alerts when liquidity is low",
+      "warning_threshold_pct": 40,
+      "critical_threshold_pct": 20,
+      "actions_on_critical": [
+        "Pause new WRB purchases temporarily",
+        "Alert admin via Telegram message",
+        "Slow withdrawal processing",
+        "Show maintenance notice to players"
+      ],
+      "reserve_calculation": "total_WRB_outstanding * 0.01 * 1.2 = minimum_reserve_USD"
+    },
+
+    "marketplace_taxes": {
+      "official_store": 3,
+      "arms_bazaar": 5,
+      "black_market_secret_cut": 5,
+      "stock_exchange": 0.5,
+      "commodity_exchange": 2,
+      "p2p_marketplace": 3,
+      "territory_auctions": 10,
+      "tax_destination": "nation_treasury_controlled_by_finance_minister"
+    },
+
+    "revenue_projections": {
+      "100_active_players": {
+        "monthly_deposits_est": "$500",
+        "spread_revenue": "$10",
+        "marketplace_tax_revenue": "$50",
+        "premium_items_revenue": "$150",
+        "total_monthly": "$210"
+      },
+      "1000_active_players": {
+        "monthly_deposits_est": "$5,000",
+        "spread_revenue": "$100",
+        "marketplace_tax_revenue": "$500",
+        "premium_items_revenue": "$1,500",
+        "total_monthly": "$2,100"
+      },
+      "10000_active_players": {
+        "monthly_deposits_est": "$50,000",
+        "spread_revenue": "$1,000",
+        "marketplace_tax_revenue": "$5,000",
+        "premium_items_revenue": "$15,000",
+        "total_monthly": "$21,000"
+      }
+    }
+  }
+}
