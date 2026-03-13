@@ -29,8 +29,8 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
-      const webApp = window.Telegram.WebApp
+    if (typeof window !== 'undefined' && (window as any).Telegram?.WebApp) {
+      const webApp = (window as any).Telegram.WebApp
       
       // Get user data
       if (webApp.initDataUnsafe?.user) {
@@ -66,14 +66,14 @@ export const TelegramProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [])
 
   const expand = () => {
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.expand()
+    if ((window as any).Telegram?.WebApp) {
+      (window as any).Telegram.WebApp.expand()
     }
   }
 
   const close = () => {
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.close()
+    if ((window as any).Telegram?.WebApp) {
+      (window as any).Telegram.WebApp.close()
     }
   }
 

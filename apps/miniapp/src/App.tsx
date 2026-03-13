@@ -9,8 +9,8 @@ function App() {
 
   useEffect(() => {
     // Initialize Telegram WebApp
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.ready()
+    if ((window as any).Telegram?.WebApp) {
+      (window as any).Telegram.WebApp.ready()
       setIsReady(true)
     } else {
       // Fallback for development

@@ -1,5 +1,4 @@
-
-type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events'
+type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events' | 'war' | 'apply'
 
 interface NavigationProps {
   currentPage: Page
@@ -8,11 +7,12 @@ interface NavigationProps {
 
 export default function Navigation({ currentPage, onPageChange }: NavigationProps) {
   const navItems: Array<{ id: Page; label: string; icon: string }> = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+    { id: 'dashboard', label: 'Home', icon: '📊' },
     { id: 'nations', label: 'Nations', icon: '🌍' },
+    { id: 'war', label: 'War', icon: '⚔️' },
     { id: 'market', label: 'Market', icon: '📈' },
     { id: 'wallet', label: 'Wallet', icon: '💰' },
-    { id: 'events', label: 'Events', icon: '📰' }
+    { id: 'apply', label: 'Apply', icon: '📋' }
   ]
 
   return (
@@ -21,7 +21,7 @@ export default function Navigation({ currentPage, onPageChange }: NavigationProp
         {navItems.map(item => (
           <button
             key={item.id}
-            className={`nav-item ${currentPage === item.id ? 'active' : ''}`}
+            className={`nav-item \${currentPage === item.id ? 'active' : ''}`}
             onClick={() => onPageChange(item.id)}
             title={item.label}
           >

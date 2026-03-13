@@ -8,3 +8,8 @@ build/
 .firebase/
 serviceAccountKey.json
 *.pem
+
+apps/miniapp/out/
+apps/miniapp/.next/
+functions/lib/
+*.tsbuildinfo

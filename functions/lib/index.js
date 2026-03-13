@@ -44,8 +44,8 @@ const axios_1 = __importDefault(require("axios"));
 admin.initializeApp();
 const db = admin.firestore();
 const rtdb = admin.database();
-const groq = new groq_sdk_1.default({ apiKey: process.env.GROQ_API_KEY });
-const BOT_TOKEN = process.env.BOT_TOKEN;
+const groq = new groq_sdk_1.default({ apiKey: process.env.GROQ_API_KEY || '' });
+const BOT_TOKEN = process.env.BOT_TOKEN || '';
 const BOT_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 // ================================================================
 // HELPER FUNCTIONS

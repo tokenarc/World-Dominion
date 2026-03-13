@@ -1,116 +1,87 @@
-import { Context, Markup } from 'telegraf';
-import { getPlayer, getNation } from '../services/firebaseService';
-import { db } from '../lib/firebase-admin';
+import { Context } from 'telegraf'
+import { getPlayer, getNation } from '../services/firebaseService'
+import { declareWar, getActiveWars, getNationWars } from '../services/warService'
 
 export const warCommand = async (ctx: Context) => {
-  if (!ctx.from || !ctx.message || !('text' in ctx.message)) return;
+  const player = await getPlayer(String(ctx.from!.id))
 
-  const player = await getPlayer(ctx.from.id.toString());
-  if (!player || !player.role) {
-    return ctx.reply('⚠️ You must have a leadership role to declare war.');
+  if (!player?.currentNation) {
+    return ctx.reply('⚠️ You need a nation role to declare war.\n\nUse /apply to get started.')
   }
 
-  // Check if player has General+ role (Supreme Commander or General)
-  const allowedRoles = ['supreme_commander', 'general', 'president', 'prime_minister'];
-  if (!allowedRoles.includes(player.role)) {
-    return ctx.reply('⚠️ Only high-ranking Military or Political leaders can declare war.');
-  }
+  const args = (ctx.message as any)?.text?.split(' ')
+  const targetCode = args?.[1]?.toUpperCase()
 
-  const args = ctx.message.text.split(' ');
-  if (args.length < 2) {
-    return ctx.reply('⚠️ Please specify a target nation ISO code. Example: /war RU');
-  }
-
-  const targetIso = args[1].toUpperCase();
-  if (targetIso === player.nationId) {
-    return ctx.reply('⚠️ You cannot declare war on your own nation.');
-  }
-
-  try {
-    const targetNation = await getNation(targetIso);
-    if (!targetNation) {
-      return ctx.reply(`⚠️ Nation with ISO code ${targetIso} not found.`);
+  if (!targetCode) {
+    // Show current wars
+    const wars = await getNationWars(player.currentNation)
+    if (wars.length === 0) {
+      return ctx.reply(
+        `⚔️ *WAR COMMAND CENTER*\n\n${player.currentNation} is not at war.\n\nUsage: /war [nation_code]\nExample: /war RU\n\nThis will declare war on that nation.`,
+        {
+          parse_mode: 'MarkdownV2',
+          reply_markup: {
+            inline_keyboard: [[
+              { text: '🌍 View All Active Wars', web_app: { url: `${process.env.MINI_APP_URL}/war` } }
+            ]]
+          }
+        }
+      )
     }
 
-    const message = `⚔️ *WAR DECLARATION*\n\nAre you sure you want to declare war on *${targetNation.name}* (${targetIso})?\n\nThis will trigger immediate battle rounds and notify all players in both nations.`;
+    const warList = wars.map(w =>
+      `⚔️ ${w.aggressorName} vs ${w.defenderName} — Score: ${w.warScore}/100 — Round: ${w.currentRound}`
+    ).join('\n')
 
-    const keyboard = Markup.inlineKeyboard([
-      [
-        Markup.button.callback('🔥 CONFIRM WAR', `confirm_war:${targetIso}`),
-        Markup.button.callback('❌ CANCEL', 'cancel_war')
-      ]
-    ]);
-
-    await ctx.replyWithMarkdown(message, keyboard);
-  } catch (error) {
-    console.error('Error in warCommand:', error);
-    await ctx.reply('⚠️ Error processing war declaration.');
+    return ctx.reply(`⚔️ *ACTIVE WARS*\n\n${warList}`, { parse_mode: 'MarkdownV2' })
   }
-};
+
+  // Confirm war declaration
+  const target = await getNation(targetCode)
+  if (!target) {
+    return ctx.reply(`❌ Nation "${targetCode}" not found.\n\nExample: /war RU`)
+  }
+
+  await ctx.reply(
+    `⚠️ *WAR DECLARATION*\n\nYou are about to declare war on:\n\n${target.flag || ''} *${target.name}*\nStability: ${target.stability}/100\nMilitary: ${target.militaryStrength}/100\n\nThis action cannot be undone\\. Confirm?`,
+    {
+      parse_mode: 'MarkdownV2',
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: '⚔️ DECLARE WAR', callback_data: `confirm_war:${targetCode}` },
+            { text: '❌ Cancel', callback_data: 'cancel_war' }
+          ]
+        ]
+      }
+    }
+  )
+}
 
 export const handleWarAction = async (ctx: Context) => {
-  const query = ctx.callbackQuery;
-  if (!query || !('data' in query)) return;
+  const data = (ctx.callbackQuery as any)?.data
+  await ctx.answerCbQuery()
 
-  const data = query.data;
   if (data === 'cancel_war') {
-    await ctx.editMessageText('❌ War declaration cancelled.');
-    return;
+    return ctx.editMessageText('War declaration cancelled.')
   }
 
-  if (data.startsWith('confirm_war:')) {
-    const targetIso = data.split(':')[1];
-    const player = await getPlayer(ctx.from!.id.toString());
-    
-    if (!player) return;
+  if (data?.startsWith('confirm_war:')) {
+    const targetCode = data.split(':')[1]
+    const player = await getPlayer(String(ctx.from!.id))
 
-    try {
-      // In a real implementation, we would call warService.declareWar()
-      // For now, we'll simulate the process and update Firestore
-      
-      const warRef = db.collection('wars').doc();
-      const warData = {
-        id: warRef.id,
-        attacker: player.nationId,
-        defender: targetIso,
-        status: 'active',
-        startedAt: Date.now(),
-        rounds: [],
-        currentRound: 1
-      };
-      
-      await warRef.set(warData);
-      
-      // Update nations' atWarWith status
-      const attackerRef = db.collection('nations').doc(player.nationId!);
-      const defenderRef = db.collection('nations').doc(targetIso);
-      
-      await db.runTransaction(async (transaction) => {
-        const attackerDoc = await transaction.get(attackerRef);
-        const defenderDoc = await transaction.get(defenderRef);
-        
-        if (attackerDoc.exists && defenderDoc.exists) {
-          const attackerData = attackerDoc.data()!;
-          const defenderData = defenderDoc.data()!;
-          
-          transaction.update(attackerRef, {
-            atWarWith: [...(attackerData.atWarWith || []), targetIso]
-          });
-          
-          transaction.update(defenderRef, {
-            atWarWith: [...(defenderData.atWarWith || []), player.nationId]
-          });
-        }
-      });
+    if (!player?.currentNation) {
+      return ctx.editMessageText('❌ No nation found.')
+    }
 
-      await ctx.editMessageText(`🔥 *WAR DECLARED!* \n\n${player.nationId} is now at war with ${targetIso}. All forces mobilized.`);
-      
-      // Notify players (In a real app, this would use a notification service)
-      console.log(`Notifying players in ${player.nationId} and ${targetIso} about the war.`);
-      
-    } catch (error) {
-      console.error('Error declaring war:', error);
-      await ctx.reply('⚠️ Failed to declare war. Please try again.');
+    const result = await declareWar(player.currentNation, targetCode, String(ctx.from!.id))
+
+    if (result.success) {
+      await ctx.editMessageText(
+        `⚔️ WAR DECLARED!\n\n${player.currentNation} is now at war with ${targetCode}.\n\nBattle rounds every 6 hours. Check /status for updates.`
+      )
+    } else {
+      await ctx.editMessageText(`❌ ${result.message}`)
     }
   }
-};
+}

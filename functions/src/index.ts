@@ -6,8 +6,8 @@ import axios from 'axios'
 admin.initializeApp()
 const db = admin.firestore()
 const rtdb = admin.database()
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
-const BOT_TOKEN = process.env.BOT_TOKEN
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' })
+const BOT_TOKEN = process.env.BOT_TOKEN || ''
 const BOT_API = `https://api.telegram.org/bot${BOT_TOKEN}`
 
 // ================================================================
