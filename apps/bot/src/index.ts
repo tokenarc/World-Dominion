@@ -4,6 +4,14 @@ import * as dotenv from 'dotenv';
 import { seedNations } from './services/firebaseService';
 import * as cron from 'node-cron';
 import { runNPCCycle, seedAllNPCRoles } from './services/npcService';
+import { startCommand } from './commands/start';
+import { statusCommand } from './commands/status';
+import { myRoleCommand } from './commands/myrole';
+import { applyCommand } from './commands/apply';
+import { nationCommand } from './commands/nation';
+import { eventsCommand } from './commands/events';
+import { leaderboardCommand } from './commands/leaderboard';
+import { helpCommand } from './commands/help';
 
 dotenv.config();
 
@@ -11,8 +19,20 @@ const bot = new Telegraf(process.env.BOT_TOKEN || '');
 const app = express();
 const port = process.env.PORT || 8080;
 
-// Basic command
-bot.start((ctx) => ctx.reply('Welcome to World Dominion! Use /play to start your journey.'));
+// Register Commands
+bot.start(startCommand);
+bot.command('status', statusCommand);
+bot.command('myrole', myRoleCommand);
+bot.command('apply', applyCommand);
+bot.command('nation', nationCommand);
+bot.command('events', eventsCommand);
+bot.command('leaderboard', leaderboardCommand);
+bot.command('help', helpCommand);
+
+// Handle Callback Queries (from inline buttons)
+bot.action('apply_role', applyCommand);
+bot.action('world_status', statusCommand);
+bot.action('help', helpCommand);
 
 // Webhook setup for Express
 app.use(express.json());
