@@ -220,8 +220,8 @@
       "cost_wrb": 500,
       "missions": [
         {"id":"assassinate_leader","name":"Assassinate Leader","description":"Eliminate target nation's role holder","duration_hours":24,"base_success":0.40,"reward":{"removes_role":true,"target_stability":-15,"intel_points":100},"risk":"diplomatic_incident if caught"},
-        {"id":"coup_support","name":"Support Coup","description":"Fund and coordinate coup attempt","duration_hours":48,"base_success":0.45,"reward":{"target_stability":-15,"resistance_meter":+20,"intel_points":80}},
-        {"id":"false_flag","name":"False Flag Operation","description":"Create incident blaming different nation","duration_hours":24,"base_success":0.50,"reward":{"fake_war_trigger_possible":true,"international_tension":+20,"intel_points":60}},
+        {"id":"coup_support","name":"Support Coup","description":"Fund and coordinate coup attempt","duration_hours":48,"base_success":0.45,"reward":{"target_stability":-15,"resistance_meter":20,"intel_points":80}},
+        {"id":"false_flag","name":"False Flag Operation","description":"Create incident blaming different nation","duration_hours":24,"base_success":0.50,"reward":{"fake_war_trigger_possible":true,"international_tension":20,"intel_points":60}},
         {"id":"nuclear_secrets","name":"Steal Nuclear Secrets","description":"Access nuclear program data","duration_hours":48,"base_success":0.35,"reward":{"target_nuclear_data_stolen":true,"intel_points":120},"requires":"nuclear_site_territory_access"},
         {"id":"sleeper_agent","name":"Plant Sleeper Agent","description":"Embed agent for 30 days continuous intel","duration_hours":72,"base_success":0.40,"reward":{"continuous_intel":true,"duration_days":30,"intel_points":90}}
       ]
@@ -231,7 +231,7 @@
       "missions": [
         {"id":"nuke_location","name":"Nuclear Location Intelligence","description":"Find exact location of enemy nukes","duration_hours":72,"base_success":0.30,"reward":{"reveals_nuclear_locations":true,"intel_points":200}},
         {"id":"launch_code_intercept","name":"Launch Code Intercept","description":"Steal nuclear launch authorization codes","duration_hours":96,"base_success":0.20,"reward":{"can_prevent_nuclear_launch":true,"intel_points":500},"world_event_on_success":true},
-        {"id":"double_agent_reveal","name":"Expose Double Agent","description":"Reveal enemy double agent in your organization","duration_hours":48,"base_success":0.55,"reward":{"reveals_traitors":true,"counter_intel_bonus":+20,"intel_points":150}}
+        {"id":"double_agent_reveal","name":"Expose Double Agent","description":"Reveal enemy double agent in your organization","duration_hours":48,"base_success":0.55,"reward":{"reveals_traitors":true,"counter_intel_bonus":20,"intel_points":150}}
       ]
     }
   },
