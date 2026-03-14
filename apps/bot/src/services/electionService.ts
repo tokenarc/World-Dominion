@@ -1,5 +1,5 @@
 import { db, rtdb } from '../lib/firebase-admin';
-import { Nation, Player, WorldEvent, Election } from '../../../../data/types';
+import { Nation, Player, WorldEvent, Election } from '../lib/types';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Telegraf } from 'telegraf';
