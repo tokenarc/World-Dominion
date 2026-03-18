@@ -162,8 +162,8 @@ export const seedNations = async () => {
 };
 
 export const seedMarketData = async () => {
-  const marketCount = (await db.collection('market').count().get()).data().count;
-  if (marketCount > 0) return;
+  const stocksCount = (await db.collection('stocks').count().get()).data().count;
+  if (stocksCount > 0) return;
 
   const marketPath = path.join(__dirname, '../../../../data/economics/marketplaces_config.json');
   if (!fs.existsSync(marketPath)) {
@@ -174,13 +174,16 @@ export const seedMarketData = async () => {
   const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'));
   const batch = db.batch();
   
-  // Assuming marketData is an array of stocks/commodities
   const stocks = Array.isArray(marketData) ? marketData : (marketData.stocks || []);
   
   for (const stock of stocks) {
-    const stockRef = db.collection('market').doc(stock.id || stock.symbol);
+    const stockId = stock.id || stock.symbol;
+    if (!stockId) continue;
+    
+    const stockRef = db.collection('stocks').doc(stockId);
     batch.set(stockRef, {
       ...stock,
+      id: stockId,
       currentPrice: stock.basePrice || stock.currentPrice || 100,
       change: 0,
       changePercent: 0,
@@ -188,7 +191,7 @@ export const seedMarketData = async () => {
     });
   }
   await batch.commit();
-  console.log(`Seeded ${stocks.length} market items.`);
+  console.log(`Seeded ${stocks.length} stocks into 'stocks' collection.`);
 };
 
 export const seedNPCPlayers = async () => {
