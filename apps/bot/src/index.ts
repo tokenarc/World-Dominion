@@ -36,6 +36,7 @@ import warRoutes from './routes/war';
 import intelRoutes from './routes/intel';
 import eventRoutes from './routes/events';
 import playerRoutes from './routes/player';
+import pingRoute from './routes/ping';
 
 // Import Middleware
 import { authMiddleware } from './middleware/auth';
@@ -110,6 +111,7 @@ app.use('/api/war', authMiddleware, warRoutes);
 app.use('/api/intel', authMiddleware, intelRoutes);
 app.use('/api/events', authMiddleware, eventRoutes);
 app.use('/api/player', authMiddleware, playerRoutes);
+app.use('/', pingRoute);
 
 const startServer = async () => {
   try {

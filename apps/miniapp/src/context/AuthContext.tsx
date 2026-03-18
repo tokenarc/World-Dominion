@@ -34,27 +34,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [initData, user])
 
+  const setGuestPlayer = (initData: string) => {
+    try {
+      const params = new URLSearchParams(initData)
+      const userJson = params.get('user')
+      if (userJson) {
+        const user = JSON.parse(userJson)
+        setPlayer({
+          id: user.id.toString(),
+          telegramId: user.id,
+          username: user.username || 'Commander',
+          currentNation: '',
+          currentRole: '',
+          isNPC: false,
+          createdAt: new Date()
+        })
+      }
+    } catch(e) {
+      // Fallback guest
+      setPlayer({
+        id: 'guest',
+        telegramId: 0,
+        username: 'Commander',
+        currentNation: '',
+        currentRole: '',
+        isNPC: false,
+        createdAt: new Date()
+      })
+    }
+  }
+
   const login = async (initData: string) => {
     setIsLoading(true)
     setError(null)
     try {
       const BOT_API = process.env.NEXT_PUBLIC_BOT_API_URL || 'https://world-dominion.onrender.com'
+      const controller = new AbortController()
+      // 3 second timeout only
+      const timeout = setTimeout(() => controller.abort(), 3000)
+      
       const response = await fetch(`${BOT_API}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData })
+        body: JSON.stringify({ initData }),
+        signal: controller.signal
       })
+      clearTimeout(timeout)
 
-      if (!response.ok) {
-        throw new Error('Authentication failed')
+      if (response.ok) {
+        const data = await response.json()
+        setPlayer(data.player)
+      } else {
+        // Set guest player from Telegram data
+        setGuestPlayer(initData)
       }
-
-      const data = await response.json()
-      setPlayer(data.player)
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error'
-      setError(message)
-      console.error('Login error:', err)
+      // Render sleeping — use Telegram data directly
+      console.log('Bot sleeping, using guest mode')
+      setGuestPlayer(initData)
     } finally {
       setIsLoading(false)
     }
