@@ -24,12 +24,8 @@ export default function Layout() {
     )
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="auth-screen">
-        <p>🔐 Authenticating with Telegram...</p>
-      </div>
-    )
+  if (!isAuthenticated && !isLoading) {
+    return <Dashboard />
   }
 
   const renderPage = () => {
