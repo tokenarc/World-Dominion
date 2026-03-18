@@ -38,7 +38,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/auth/login', {
+      const BOT_API = process.env.NEXT_PUBLIC_BOT_API_URL || 'https://world-dominion.onrender.com'
+      const response = await fetch(`${BOT_API}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ initData })
