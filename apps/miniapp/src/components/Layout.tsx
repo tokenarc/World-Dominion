@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
 import Header from './Header'
 import Navigation from './Navigation'
 import Dashboard from '../pages/Dashboard'
@@ -13,20 +12,7 @@ import Apply from '../pages/Apply'
 type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events' | 'war' | 'apply'
 
 export default function Layout() {
-  const { isAuthenticated, isLoading } = useAuth()
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
-
-  if (isLoading) {
-    return (
-      <div className="loading-screen">
-        <p>🌍 Loading...</p>
-      </div>
-    )
-  }
-
-  if (!isAuthenticated && !isLoading) {
-    return <Dashboard />
-  }
 
   const renderPage = () => {
     switch (currentPage) {
