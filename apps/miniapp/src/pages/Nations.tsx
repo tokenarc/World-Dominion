@@ -5,22 +5,23 @@ export default function Nations() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
+  const fetchNations = async () => {
+    setLoading(true)
+    fetch('https://world-dominion.onrender.com/api/nations')
+      .then(r => r.json())
+      .then(data => {
+        // Try different response formats
+        const nations = data.nations || data.data || data || []
+        setNations(Array.isArray(nations) ? nations : [])
+        setLoading(false)
+      })
+      .catch(err => {
+        console.error('Nations fetch error:', err)
+        setLoading(false)
+      })
+  }
+
   useEffect(() => {
-    const fetchNations = async () => {
-      setLoading(true)
-      fetch('https://world-dominion.onrender.com/api/nations')
-        .then(r => r.json())
-        .then(data => {
-          // Try different response formats
-          const nations = data.nations || data.data || data || []
-          setNations(Array.isArray(nations) ? nations : [])
-          setLoading(false)
-        })
-        .catch(err => {
-          console.error('Nations fetch error:', err)
-          setLoading(false)
-        })
-    }
     fetchNations()
   }, [])
 
@@ -69,8 +70,18 @@ export default function Nations() {
 
       {!loading && filtered.length === 0 && (
         <div style={{ textAlign: 'center', color: '#8892a4',
-          fontSize: '11px', padding: '40px' }}>
-          NO NATIONS FOUND IN DATABASE
+          fontSize: '11px', padding: '40px', display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+          <div>NO NATIONS FOUND IN DATABASE</div>
+          <button 
+            onClick={fetchNations}
+            style={{
+              background: '#8B0000', color: 'white', border: 'none',
+              padding: '8px 16px', borderRadius: '4px', fontSize: '10px',
+              letterSpacing: '1px', cursor: 'pointer'
+            }}
+          >
+            RETRY SYNC
+          </button>
         </div>
       )}
 

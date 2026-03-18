@@ -93,10 +93,21 @@ app.post('/webhook', (req, res) => {
   bot.handleUpdate(req.body, res);
 });
 
-// Health check
-app.get('/health', (req, res) => {
-  res.send('Bot is running');
-});
+  // Health check
+  app.get('/health', (req, res) => {
+    res.send('Bot is running');
+  });
+
+  // FIX 1: Force Webhook Update
+  app.get('/api/setup-webhook', async (req, res) => {
+    try {
+      await bot.telegram.setWebhook('https://world-dominion.onrender.com/webhook');
+      res.json({ success: true, message: 'Webhook updated to https://world-dominion.onrender.com/webhook' });
+    } catch (error: any) {
+      console.error('Failed to set webhook:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
 
 // REST API Routes
 // Auth route has special handling as it needs to validate initData before full auth middleware

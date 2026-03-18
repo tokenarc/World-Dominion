@@ -1,18 +1,18 @@
 import { Router, Request, Response } from 'express';
-import { getAllNations, getNation, db, seedNations } from '../services/firebaseService';
+import { getAllNationsRTDB, getNation, db, seedNations } from '../services/firebaseService';
 
 const router = Router();
 
 /**
  * GET /api/nations
- * Get all nations with stats
+ * Get all nations with stats (RTDB)
  */
 router.get('/', async (req: Request, res: Response) => {
   try {
-    const nations = await getAllNations();
+    const nations = await getAllNationsRTDB();
     res.json({ nations });
   } catch (error) {
-    console.error('Error fetching nations:', error);
+    console.error('Error fetching nations from RTDB:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

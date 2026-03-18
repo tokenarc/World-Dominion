@@ -117,6 +117,14 @@ export const getAllNations = async (): Promise<Nation[]> => {
   return snapshot.docs.map(doc => doc.data() as Nation);
 };
 
+export const getAllNationsRTDB = async (): Promise<Nation[]> => {
+  console.log("Fetching nations from RTDB...");
+  const snapshot = await rtdb.ref('nations').once('value');
+  const data = snapshot.val();
+  if (!data) return [];
+  return Object.values(data) as Nation[];
+};
+
 export const getRecentEvents = async (limit: number = 10): Promise<WorldEvent[]> => {
   const snapshot = await db.collection('events')
     .orderBy('timestamp', 'desc')
