@@ -64,13 +64,8 @@ function App() {
     initApp()
   }, [])
 
-  if (!isReady) {
-    return (
-      <LoadingScreen
-        progress={loadProgress}
-        status={loadStatus}
-      />
-    )
+  if (!isReady || loadProgress < 100) {
+    return <LoadingScreen progress={loadProgress} status={loadStatus} />
   }
 
   return (
