@@ -58,33 +58,11 @@ export async function seedNationsOnly() {
   await rtdb.ref('nations').set(rtdbNations);
   console.log(`✅ RTDB nations node replaced with ${Object.keys(rtdbNations).length} entries.`);
   
-  // Update Firestore in batches
-  console.log('🔥 Updating Firestore nations...');
-  let count = 0
-  for (const nation of nations) {
-    const ref = db.collection('nations').doc(nation.id)
-    
-    const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
-      v === undefined ? null : v
-    ))
-    
-    // SILENT NPC SEEDING: No NPCs, just basic nation info
-    await ref.set({
-      ...cleanNation,
-      lastUpdated: Date.now()
-    })
-    
-    count++
-    if (count % 20 === 0) {
-      console.log(`✅ Firestore: Seeded ${count}/${nations.length} nations...`)
-    }
-    
-    // Small delay to prevent overhead
-    await sleep(50)
-  }
+  // Firestore update SKIPPED due to quota exhaustion
+  console.log('🔥 Firestore update SKIPPED (Quota exhausted)');
 
   console.log(`🎉 Total Nations in RTDB: ${Object.keys(rtdbNations).length}`)
-  console.log(`🎉 DATABASE SEEDING COMPLETE! Total: ${count} nations`)
+  console.log(`🎉 DATABASE SEEDING COMPLETE! Total: ${Object.keys(rtdbNations).length} nations in RTDB`)
 }
 
 seedNationsOnly()

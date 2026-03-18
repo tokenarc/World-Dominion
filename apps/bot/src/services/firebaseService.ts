@@ -108,13 +108,15 @@ export const updatePlayer = async (telegramId: string, data: Partial<Player>) =>
 };
 
 export const getNation = async (isoCode: string): Promise<Nation | null> => {
-  const doc = await db.collection('nations').doc(isoCode.toUpperCase()).get();
-  return doc.exists ? (doc.data() as Nation) : null;
+  // Use RTDB instead of Firestore due to quota exhaustion
+  const snapshot = await rtdb.ref(`nations/${isoCode.toUpperCase()}`).once('value');
+  const data = snapshot.val();
+  return data ? (data as Nation) : null;
 };
 
 export const getAllNations = async (): Promise<Nation[]> => {
-  const snapshot = await db.collection('nations').orderBy('stability', 'desc').get();
-  return snapshot.docs.map(doc => doc.data() as Nation);
+  // Use RTDB instead of Firestore due to quota exhaustion
+  return getAllNationsRTDB();
 };
 
 export const getAllNationsRTDB = async (): Promise<Nation[]> => {
@@ -186,41 +188,24 @@ export const seedNations = async () => {
   await rtdb.ref('nations').set(rtdbNations);
   console.log(`✅ RTDB nations node replaced with ${Object.keys(rtdbNations).length} entries.`);
 
-  // Update Firestore in batches
-  console.log('🔥 Updating Firestore nations...');
-  let count = 0;
-  for (const nation of nationsData) {
-    const nationRef = db.collection('nations').doc(nation.id);
-    
-    const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
-      v === undefined ? null : v
-    ));
-
-    // SILENT NPC SEEDING: No NPCs, just basic nation info
-    await nationRef.set({
-      ...cleanNation,
-      lastUpdated: Date.now()
-    });
-
-    count++;
-    if (count % 20 === 0) {
-      console.log(`✅ Firestore: Seeded ${count}/${nationsData.length} nations...`);
-    }
-    
-    // Small delay to prevent overhead
-    await sleep(50);
-  }
+  // Firestore seeding disabled due to quota exhaustion
+  console.log('🔥 Firestore update SKIPPED (Quota exhausted)');
   
   console.log(`🎉 Total Nations in RTDB: ${Object.keys(rtdbNations).length}`);
-  console.log(`🎉 Successfully seeded ${count} nations into Firestore and RTDB.`);
+  console.log(`🎉 Successfully seeded ${Object.keys(rtdbNations).length} nations into RTDB.`);
 };
 
 export const seedMarketData = async () => {
+  // Skipping Firestore check due to quota
+  console.log('📈 Skipping seedMarketData Firestore check (Quota exhausted)');
+  return;
+  /*
   const stocksCount = (await db.collection('stocks').count().get()).data().count;
   if (stocksCount > 0) {
     console.log(`📈 Stocks collection already has ${stocksCount} documents. Skipping seed.`);
     return;
   }
+  */
 
   const marketPath = path.join(__dirname, '../../../../data/economics/marketplaces_config.json');
   if (!fs.existsSync(marketPath)) {

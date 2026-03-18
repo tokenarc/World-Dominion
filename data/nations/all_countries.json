@@ -1,59 +1,1952 @@
 [
-  {"id":"US","name":"United States","flag":"🇺🇸","capital":"Washington D.C.","continent":"North America","region":"Americas","gdp":25460000,"gdpPerCapita":76370,"population":331000000,"ideology":"liberal_democracy","governmentType":"federal_republic","stability":72,"morale":68,"militaryStrength":95,"militaryBudget":858000,"nuclearWarheads":5550,"activePersonnel":1400000,"reservePersonnel":800000,"navyShips":480,"airForceJets":13000,"tanks":6600,"alliances":["NATO","AUKUS","QUAD","Five_Eyes"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","coal","rare_earth","semiconductors","wheat","corn"],"religions":["Christianity","None","Judaism","Islam"],"primaryReligion":"Christianity","languages":["English"],"borders":["CA","MX"],"gdpGrowth":2.1,"inflation":3.4,"unemployment":3.7,"tradeBalance":-944000,"debtToGdp":129,"corruptionIndex":67,"pressuredomIndex":73,"nuclearDoctype":"second_strike","spaceProgram":"nasa","stockMarket":"NYSE","currency":"USD","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":50000,"commandPoints":500000},"fragile":false},
-
-  {"id":"CN","name":"China","flag":"🇨🇳","capital":"Beijing","continent":"Asia","region":"East Asia","gdp":17960000,"gdpPerCapita":12720,"population":1411000000,"ideology":"communist","governmentType":"single_party_state","stability":78,"morale":75,"militaryStrength":88,"militaryBudget":292000,"nuclearWarheads":350,"activePersonnel":2185000,"reservePersonnel":510000,"navyShips":355,"airForceJets":3285,"tanks":5800,"alliances":["SCO","BRICS","BRI"],"atWarWith":[],"sanctionedBy":[],"resources":["coal","rare_earth","semiconductors","steel","wheat","rice"],"religions":["None","Buddhism","Christianity","Islam"],"primaryReligion":"None","languages":["Mandarin"],"borders":["RU","MN","KZ","KG","TJ","AF","PK","IN","NP","BT","MM","LA","VN"],"gdpGrowth":5.2,"inflation":0.7,"unemployment":5.1,"tradeBalance":823000,"debtToGdp":77,"corruptionIndex":42,"pressuredomIndex":9,"nuclearDoctype":"no_first_use","spaceProgram":"cnsa","stockMarket":"SSE","currency":"CNY","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":45000,"commandPoints":450000},"fragile":false},
-
-  {"id":"RU","name":"Russia","flag":"🇷🇺","capital":"Moscow","continent":"Europe","region":"Eastern Europe","gdp":2240000,"gdpPerCapita":15400,"population":145000000,"ideology":"authoritarian_nationalism","governmentType":"federal_semi_presidential","stability":58,"morale":55,"militaryStrength":85,"militaryBudget":86000,"nuclearWarheads":6257,"activePersonnel":900000,"reservePersonnel":2000000,"navyShips":600,"airForceJets":4173,"tanks":12950,"alliances":["CSTO","SCO","BRICS"],"atWarWith":[],"sanctionedBy":["US","EU","GB","CA","AU","JP"],"resources":["oil","gas","coal","wheat","diamonds","rare_earth","timber"],"religions":["Christianity","Islam","None"],"primaryReligion":"Christianity","languages":["Russian"],"borders":["NO","FI","EE","LV","LT","PL","BY","UA","GE","AZ","KZ","CN","MN","KP"],"gdpGrowth":-2.1,"inflation":7.4,"unemployment":3.2,"tradeBalance":227000,"debtToGdp":21,"corruptionIndex":28,"pressuredomIndex":22,"nuclearDoctype":"escalate_to_deescalate","spaceProgram":"roscosmos","stockMarket":"MOEX","currency":"RUB","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":20000,"commandPoints":200000},"fragile":false},
-
-  {"id":"DE","name":"Germany","flag":"🇩🇪","capital":"Berlin","continent":"Europe","region":"Western Europe","gdp":4260000,"gdpPerCapita":51200,"population":83000000,"ideology":"liberal_democracy","governmentType":"federal_parliamentary","stability":82,"morale":70,"militaryStrength":55,"militaryBudget":55900,"nuclearWarheads":0,"activePersonnel":183000,"reservePersonnel":30000,"navyShips":65,"airForceJets":140,"tanks":312,"alliances":["NATO","EU"],"atWarWith":[],"sanctionedBy":[],"resources":["coal","steel","semiconductors","chemicals","automotive"],"religions":["Christianity","None","Islam"],"primaryReligion":"Christianity","languages":["German"],"borders":["DK","PL","CZ","AT","CH","FR","LU","BE","NL"],"gdpGrowth":0.2,"inflation":5.9,"unemployment":3.0,"tradeBalance":254000,"debtToGdp":66,"corruptionIndex":79,"pressuredomIndex":73,"nuclearDoctype":"nato_sharing","spaceProgram":"esa","stockMarket":"DAX","currency":"EUR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":30000,"commandPoints":300000},"fragile":false},
-
-  {"id":"GB","name":"United Kingdom","flag":"🇬🇧","capital":"London","continent":"Europe","region":"Western Europe","gdp":3070000,"gdpPerCapita":46100,"population":67000000,"ideology":"liberal_democracy","governmentType":"constitutional_monarchy","stability":75,"morale":65,"militaryStrength":62,"militaryBudget":68500,"nuclearWarheads":225,"activePersonnel":153000,"reservePersonnel":37500,"navyShips":75,"airForceJets":900,"tanks":227,"alliances":["NATO","AUKUS","Five_Eyes","CPTPP"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","finance","pharmaceuticals"],"religions":["Christianity","None","Islam","Hinduism"],"primaryReligion":"Christianity","languages":["English"],"borders":["IE"],"gdpGrowth":0.4,"inflation":6.7,"unemployment":4.2,"tradeBalance":-252000,"debtToGdp":101,"corruptionIndex":73,"pressuredomIndex":79,"nuclearDoctype":"second_strike","spaceProgram":"uksa","stockMarket":"LSE","currency":"GBP","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":28000,"commandPoints":280000},"fragile":false},
-
-  {"id":"FR","name":"France","flag":"🇫🇷","capital":"Paris","continent":"Europe","region":"Western Europe","gdp":2920000,"gdpPerCapita":44400,"population":67400000,"ideology":"liberal_democracy","governmentType":"semi_presidential_republic","stability":70,"morale":62,"militaryStrength":65,"militaryBudget":53100,"nuclearWarheads":290,"activePersonnel":205000,"reservePersonnel":72000,"navyShips":180,"airForceJets":1055,"tanks":222,"alliances":["NATO","EU"],"atWarWith":[],"sanctionedBy":[],"resources":["nuclear_power","aerospace","wine","luxury_goods","wheat"],"religions":["Christianity","None","Islam","Judaism"],"primaryReligion":"Christianity","languages":["French"],"borders":["BE","LU","DE","CH","IT","MC","ES","AD"],"gdpGrowth":0.9,"inflation":5.7,"unemployment":7.3,"tradeBalance":-162000,"debtToGdp":112,"corruptionIndex":71,"pressuredomIndex":74,"nuclearDoctype":"independent_deterrent","spaceProgram":"cnes","stockMarket":"CAC","currency":"EUR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":25000,"commandPoints":250000},"fragile":false},
-
-  {"id":"IN","name":"India","flag":"🇮🇳","capital":"New Delhi","continent":"Asia","region":"South Asia","gdp":3730000,"gdpPerCapita":2600,"population":1428000000,"ideology":"liberal_democracy","governmentType":"federal_parliamentary","stability":65,"morale":72,"militaryStrength":78,"militaryBudget":81400,"nuclearWarheads":164,"activePersonnel":1455000,"reservePersonnel":1155000,"navyShips":295,"airForceJets":2100,"tanks":4614,"alliances":["QUAD","BRICS","SCO"],"atWarWith":[],"sanctionedBy":[],"resources":["coal","steel","rice","wheat","pharmaceuticals","software","rare_earth"],"religions":["Hinduism","Islam","Christianity","Sikhism"],"primaryReligion":"Hinduism","languages":["Hindi","English","Bengali","Telugu"],"borders":["PK","CN","NP","BT","BD","MM"],"gdpGrowth":6.3,"inflation":5.7,"unemployment":7.8,"tradeBalance":-265000,"debtToGdp":83,"corruptionIndex":40,"pressuredomIndex":41,"nuclearDoctype":"no_first_use","spaceProgram":"isro","stockMarket":"BSE","currency":"INR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":22000,"commandPoints":220000},"fragile":false},
-
-  {"id":"PK","name":"Pakistan","flag":"🇵🇰","capital":"Islamabad","continent":"Asia","region":"South Asia","gdp":376000,"gdpPerCapita":1680,"population":231000000,"ideology":"islamic_republic","governmentType":"federal_parliamentary","stability":42,"morale":55,"militaryStrength":60,"militaryBudget":10300,"nuclearWarheads":165,"activePersonnel":654000,"reservePersonnel":550000,"navyShips":120,"airForceJets":1372,"tanks":2627,"alliances":["OIC","SCO","CSTO_observer"],"atWarWith":[],"sanctionedBy":[],"resources":["coal","cotton","wheat","textiles","gas"],"religions":["Islam"],"primaryReligion":"Islam","languages":["Urdu","English","Punjabi","Pashto"],"borders":["IN","CN","AF","IR"],"gdpGrowth":2.0,"inflation":29.0,"unemployment":8.5,"tradeBalance":-27000,"debtToGdp":77,"corruptionIndex":28,"pressuredomIndex":34,"nuclearDoctype":"first_use_possible","spaceProgram":"suparco","stockMarket":"PSX","currency":"PKR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":5000,"commandPoints":50000},"fragile":true},
-
-  {"id":"SA","name":"Saudi Arabia","flag":"🇸🇦","capital":"Riyadh","continent":"Asia","region":"Middle East","gdp":1100000,"gdpPerCapita":30400,"population":35000000,"ideology":"theocratic_monarchy","governmentType":"absolute_monarchy","stability":68,"morale":65,"militaryStrength":65,"militaryBudget":75000,"nuclearWarheads":0,"activePersonnel":257000,"reservePersonnel":25000,"navyShips":55,"airForceJets":900,"tanks":1142,"alliances":["GCC","OIC","Arab_League"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","gold","phosphates"],"religions":["Islam"],"primaryReligion":"Islam","languages":["Arabic"],"borders":["JO","IQ","KW","QA","AE","OM","YE"],"gdpGrowth":0.1,"inflation":2.3,"unemployment":5.6,"tradeBalance":218000,"debtToGdp":26,"corruptionIndex":52,"pressuredomIndex":7,"nuclearDoctype":"none","spaceProgram":"ksa_space","stockMarket":"Tadawul","currency":"SAR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":18000,"commandPoints":180000},"fragile":false},
-
-  {"id":"IR","name":"Iran","flag":"🇮🇷","capital":"Tehran","continent":"Asia","region":"Middle East","gdp":367000,"gdpPerCapita":4300,"population":86000000,"ideology":"theocratic_republic","governmentType":"islamic_republic","stability":50,"morale":52,"militaryStrength":62,"militaryBudget":9900,"nuclearWarheads":0,"activePersonnel":610000,"reservePersonnel":350000,"navyShips":398,"airForceJets":551,"tanks":4071,"alliances":["SCO","Axis_of_Resistance"],"atWarWith":[],"sanctionedBy":["US","EU","UN"],"resources":["oil","gas","copper","iron","carpets"],"religions":["Islam"],"primaryReligion":"Islam","languages":["Persian","Azerbaijani","Kurdish"],"borders":["IQ","TR","AM","AZ","TM","AF","PK"],"gdpGrowth":5.0,"inflation":44.5,"unemployment":10.5,"tradeBalance":15000,"debtToGdp":42,"corruptionIndex":25,"pressuredomIndex":17,"nuclearDoctype":"suspected_development","spaceProgram":"isa_iran","stockMarket":"TSE","currency":"IRR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":6000,"commandPoints":60000},"fragile":false},
-
-  {"id":"IL","name":"Israel","flag":"🇮🇱","capital":"Jerusalem","continent":"Asia","region":"Middle East","gdp":525000,"gdpPerCapita":54900,"population":9500000,"ideology":"liberal_democracy","governmentType":"parliamentary","stability":58,"morale":68,"militaryStrength":68,"militaryBudget":23400,"nuclearWarheads":90,"activePersonnel":173000,"reservePersonnel":465000,"navyShips":65,"airForceJets":601,"tanks":1650,"alliances":["US_ally"],"atWarWith":[],"sanctionedBy":[],"resources":["diamonds","software","pharmaceuticals","gas","desalination_tech"],"religions":["Judaism","Islam","Christianity"],"primaryReligion":"Judaism","languages":["Hebrew","Arabic"],"borders":["LB","SY","JO","EG"],"gdpGrowth":3.5,"inflation":4.2,"unemployment":3.9,"tradeBalance":23000,"debtToGdp":61,"corruptionIndex":63,"pressuredomIndex":76,"nuclearDoctype":"ambiguity","spaceProgram":"isa_israel","stockMarket":"TASE","currency":"ILS","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":12000,"commandPoints":120000},"fragile":false},
-
-  {"id":"TR","name":"Turkey","flag":"🇹🇷","capital":"Ankara","continent":"Asia","region":"Middle East","gdp":906000,"gdpPerCapita":10500,"population":85000000,"ideology":"nationalist_democracy","governmentType":"presidential_republic","stability":55,"morale":60,"militaryStrength":68,"militaryBudget":18200,"nuclearWarheads":0,"activePersonnel":355000,"reservePersonnel":378000,"navyShips":194,"airForceJets":1057,"tanks":3022,"alliances":["NATO","OIC"],"atWarWith":[],"sanctionedBy":[],"resources":["coal","chromite","copper","boron","textiles","agriculture"],"religions":["Islam","Christianity"],"primaryReligion":"Islam","languages":["Turkish"],"borders":["GR","BG","GE","AM","AZ","IR","IQ","SY"],"gdpGrowth":4.5,"inflation":64.8,"unemployment":10.7,"tradeBalance":-110000,"debtToGdp":32,"corruptionIndex":36,"pressuredomIndex":54,"nuclearDoctype":"nato_sharing","spaceProgram":"tua","stockMarket":"BIST","currency":"TRY","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":9000,"commandPoints":90000},"fragile":false},
-
-  {"id":"KP","name":"North Korea","flag":"🇰🇵","capital":"Pyongyang","continent":"Asia","region":"East Asia","gdp":18000,"gdpPerCapita":700,"population":25800000,"ideology":"juche","governmentType":"totalitarian_dictatorship","stability":88,"morale":80,"militaryStrength":65,"militaryBudget":11000,"nuclearWarheads":40,"activePersonnel":1280000,"reservePersonnel":600000,"navyShips":967,"airForceJets":940,"tanks":5500,"alliances":[],"atWarWith":[],"sanctionedBy":["US","EU","UN","KR","JP"],"resources":["coal","iron","zinc","magnesite","uranium"],"religions":["None","Cheondoism"],"primaryReligion":"None","languages":["Korean"],"borders":["CN","RU","KR"],"gdpGrowth":-1.5,"inflation":null,"unemployment":null,"tradeBalance":-500,"debtToGdp":null,"corruptionIndex":8,"pressuredomIndex":0,"nuclearDoctype":"first_strike","spaceProgram":"nada_dprk","stockMarket":"none","currency":"KPW","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":1000,"commandPoints":10000},"fragile":false},
-
-  {"id":"KR","name":"South Korea","flag":"🇰🇷","capital":"Seoul","continent":"Asia","region":"East Asia","gdp":1665000,"gdpPerCapita":32400,"population":51700000,"ideology":"liberal_democracy","governmentType":"presidential_republic","stability":74,"morale":68,"militaryStrength":72,"militaryBudget":46400,"nuclearWarheads":0,"activePersonnel":600000,"reservePersonnel":3100000,"navyShips":234,"airForceJets":1590,"tanks":2300,"alliances":["US_ally","QUAD_observer"],"atWarWith":[],"sanctionedBy":[],"resources":["semiconductors","steel","ships","automobiles","electronics"],"religions":["None","Christianity","Buddhism"],"primaryReligion":"None","languages":["Korean"],"borders":["KP"],"gdpGrowth":1.4,"inflation":3.6,"unemployment":2.8,"tradeBalance":70000,"debtToGdp":53,"corruptionIndex":63,"pressuredomIndex":67,"nuclearDoctype":"us_extended_deterrence","spaceProgram":"kari","stockMarket":"KRX","currency":"KRW","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":16000,"commandPoints":160000},"fragile":false},
-
-  {"id":"JP","name":"Japan","flag":"🇯🇵","capital":"Tokyo","continent":"Asia","region":"East Asia","gdp":4230000,"gdpPerCapita":33800,"population":125000000,"ideology":"liberal_democracy","governmentType":"constitutional_monarchy","stability":80,"morale":65,"militaryStrength":58,"militaryBudget":50000,"nuclearWarheads":0,"activePersonnel":247000,"reservePersonnel":56000,"navyShips":155,"airForceJets":790,"tanks":1004,"alliances":["US_ally","QUAD","AUKUS_observer"],"atWarWith":[],"sanctionedBy":[],"resources":["semiconductors","automobiles","electronics","robotics","fishing"],"religions":["None","Buddhism","Shintoism","Christianity"],"primaryReligion":"None","languages":["Japanese"],"borders":[],"gdpGrowth":1.9,"inflation":3.3,"unemployment":2.6,"tradeBalance":-69000,"debtToGdp":261,"corruptionIndex":73,"pressuredomIndex":70,"nuclearDoctype":"pacifist_constitution","spaceProgram":"jaxa","stockMarket":"TSE","currency":"JPY","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":35000,"commandPoints":350000},"fragile":false},
-
-  {"id":"BR","name":"Brazil","flag":"🇧🇷","capital":"Brasília","continent":"South America","region":"Latin America","gdp":2080000,"gdpPerCapita":9700,"population":215000000,"ideology":"liberal_democracy","governmentType":"federal_presidential","stability":58,"morale":60,"militaryStrength":55,"militaryBudget":20200,"nuclearWarheads":0,"activePersonnel":366000,"reservePersonnel":1340000,"navyShips":110,"airForceJets":721,"tanks":469,"alliances":["BRICS","Mercosur","UNASUR"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","iron_ore","soybeans","sugar","coffee","gold","timber"],"religions":["Christianity","None","Spiritism"],"primaryReligion":"Christianity","languages":["Portuguese"],"borders":["VE","GY","SR","FR","UY","AR","PY","BO","PE","CO"],"gdpGrowth":2.9,"inflation":4.8,"unemployment":8.1,"tradeBalance":66000,"debtToGdp":89,"corruptionIndex":38,"pressuredomIndex":65,"nuclearDoctype":"none","spaceProgram":"aeb","stockMarket":"B3","currency":"BRL","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":14000,"commandPoints":140000},"fragile":false},
-
-  {"id":"ZA","name":"South Africa","flag":"🇿🇦","capital":"Pretoria","continent":"Africa","region":"Southern Africa","gdp":405000,"gdpPerCapita":6700,"population":60400000,"ideology":"liberal_democracy","governmentType":"constitutional_republic","stability":48,"morale":50,"militaryStrength":38,"militaryBudget":3100,"nuclearWarheads":0,"activePersonnel":79000,"reservePersonnel":15000,"navyShips":26,"airForceJets":228,"tanks":0,"alliances":["BRICS","AU","SADC"],"atWarWith":[],"sanctionedBy":[],"resources":["gold","diamonds","platinum","coal","chromium","iron_ore"],"religions":["Christianity","None","Islam","Hinduism"],"primaryReligion":"Christianity","languages":["Zulu","Xhosa","Afrikaans","English"],"borders":["NA","BW","ZW","MZ","SZ","LS"],"gdpGrowth":0.6,"inflation":6.0,"unemployment":32.7,"tradeBalance":5000,"debtToGdp":72,"corruptionIndex":43,"pressuredomIndex":57,"nuclearDoctype":"dismantled","spaceProgram":"sansa","stockMarket":"JSE","currency":"ZAR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":5000,"commandPoints":50000},"fragile":false},
-
-  {"id":"SY","name":"Syria","flag":"🇸🇾","capital":"Damascus","continent":"Asia","region":"Middle East","gdp":21000,"gdpPerCapita":1200,"population":22000000,"ideology":"authoritarian_baathism","governmentType":"dictatorship","stability":18,"morale":30,"militaryStrength":30,"militaryBudget":900,"nuclearWarheads":0,"activePersonnel":170000,"reservePersonnel":280000,"navyShips":20,"airForceJets":361,"tanks":4950,"alliances":["Axis_of_Resistance"],"atWarWith":[],"sanctionedBy":["US","EU","Arab_League"],"resources":["oil","gas","phosphates","cotton"],"religions":["Islam","Christianity"],"primaryReligion":"Islam","languages":["Arabic","Kurdish"],"borders":["TR","IQ","JO","IL","LB"],"gdpGrowth":-1.0,"inflation":120.0,"unemployment":50.0,"tradeBalance":-2000,"debtToGdp":null,"corruptionIndex":13,"pressuredomIndex":1,"nuclearDoctype":"none","spaceProgram":"none","stockMarket":"DSE","currency":"SYP","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":60,"treasury":{"warBonds":500,"commandPoints":5000},"fragile":true},
-
-  {"id":"AF","name":"Afghanistan","flag":"🇦🇫","capital":"Kabul","continent":"Asia","region":"South Asia","gdp":14000,"gdpPerCapita":360,"population":40000000,"ideology":"theocratic_emirate","governmentType":"theocracy","stability":22,"morale":45,"militaryStrength":22,"militaryBudget":null,"nuclearWarheads":0,"activePersonnel":null,"reservePersonnel":null,"navyShips":0,"airForceJets":0,"tanks":100,"alliances":["OIC"],"atWarWith":[],"sanctionedBy":["US","EU","UN"],"resources":["lithium","iron","copper","opium","natural_gas"],"religions":["Islam"],"primaryReligion":"Islam","languages":["Pashto","Dari"],"borders":["PK","IR","TM","UZ","TJ","CN"],"gdpGrowth":-6.0,"inflation":18.0,"unemployment":60.0,"tradeBalance":-4000,"debtToGdp":null,"corruptionIndex":16,"pressuredomIndex":0,"nuclearDoctype":"none","spaceProgram":"none","stockMarket":"none","currency":"AFN","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":200,"commandPoints":2000},"fragile":true},
-
-  {"id":"UA","name":"Ukraine","flag":"🇺🇦","capital":"Kyiv","continent":"Europe","region":"Eastern Europe","gdp":160000,"gdpPerCapita":4000,"population":43500000,"ideology":"liberal_democracy","governmentType":"semi_presidential","stability":35,"morale":78,"militaryStrength":55,"militaryBudget":44000,"nuclearWarheads":0,"activePersonnel":700000,"reservePersonnel":900000,"navyShips":38,"airForceJets":98,"tanks":2884,"alliances":["NATO_applicant","EU_applicant"],"atWarWith":["RU"],"sanctionedBy":[],"resources":["wheat","sunflower","steel","coal","manganese","titanium","lithium"],"religions":["Christianity","None"],"primaryReligion":"Christianity","languages":["Ukrainian","Russian"],"borders":["RU","BY","PL","SK","HU","RO","MD"],"gdpGrowth":-5.0,"inflation":26.0,"unemployment":15.0,"tradeBalance":-10000,"debtToGdp":85,"corruptionIndex":36,"pressuredomIndex":55,"nuclearDoctype":"none","spaceProgram":"ssa_ukraine","stockMarket":"PFTS","currency":"UAH","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":85,"treasury":{"warBonds":4000,"commandPoints":40000},"fragile":true},
-
-  {"id":"IQ","name":"Iraq","flag":"🇮🇶","capital":"Baghdad","continent":"Asia","region":"Middle East","gdp":264000,"gdpPerCapita":6500,"population":41000000,"ideology":"fragile_democracy","governmentType":"federal_parliamentary","stability":38,"morale":45,"militaryStrength":42,"militaryBudget":7500,"nuclearWarheads":0,"activePersonnel":270000,"reservePersonnel":0,"navyShips":7,"airForceJets":274,"tanks":670,"alliances":["Arab_League","OIC"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","phosphates","salt"],"religions":["Islam","Christianity","Yazidism"],"primaryReligion":"Islam","languages":["Arabic","Kurdish"],"borders":["TR","IR","KW","SA","JO","SY"],"gdpGrowth":4.0,"inflation":5.0,"unemployment":15.7,"tradeBalance":15000,"debtToGdp":49,"corruptionIndex":23,"pressuredomIndex":40,"nuclearDoctype":"none","spaceProgram":"none","stockMarket":"ISX","currency":"IQD","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":4000,"commandPoints":40000},"fragile":true},
-
-  {"id":"VE","name":"Venezuela","flag":"🇻🇪","capital":"Caracas","continent":"South America","region":"Latin America","gdp":97000,"gdpPerCapita":3400,"population":28000000,"ideology":"socialist","governmentType":"presidential_republic","stability":28,"morale":35,"militaryStrength":32,"militaryBudget":1700,"nuclearWarheads":0,"activePersonnel":367000,"reservePersonnel":0,"navyShips":59,"airForceJets":237,"tanks":460,"alliances":["ALBA","BRICS_partner"],"atWarWith":[],"sanctionedBy":["US","EU","Canada"],"resources":["oil","gas","gold","diamonds","bauxite","iron"],"religions":["Christianity","None"],"primaryReligion":"Christianity","languages":["Spanish"],"borders":["CO","GY","BR","TT"],"gdpGrowth":5.0,"inflation":400.0,"unemployment":25.0,"tradeBalance":5000,"debtToGdp":300,"corruptionIndex":13,"pressuredomIndex":22,"nuclearDoctype":"none","spaceProgram":"none","stockMarket":"BVC","currency":"VES","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":1000,"commandPoints":10000},"fragile":true},
-
-  {"id":"YE","name":"Yemen","flag":"🇾🇪","capital":"Sanaa","continent":"Asia","region":"Middle East","gdp":21000,"gdpPerCapita":660,"population":32000000,"ideology":"failed_state","governmentType":"fragmented","stability":5,"morale":40,"militaryStrength":18,"militaryBudget":400,"nuclearWarheads":0,"activePersonnel":0,"reservePersonnel":0,"navyShips":3,"airForceJets":0,"tanks":100,"alliances":[],"atWarWith":["SA"],"sanctionedBy":[],"resources":["oil","gas","fish","cotton"],"religions":["Islam"],"primaryReligion":"Islam","languages":["Arabic"],"borders":["SA","OM"],"gdpGrowth":-2.0,"inflation":55.0,"unemployment":70.0,"tradeBalance":-4000,"debtToGdp":77,"corruptionIndex":15,"pressuredomIndex":0,"nuclearDoctype":"none","spaceProgram":"none","stockMarket":"none","currency":"YER","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":100,"commandPoints":1000},"fragile":true},
-
-  {"id":"NG","name":"Nigeria","flag":"🇳🇬","capital":"Abuja","continent":"Africa","region":"West Africa","gdp":477000,"gdpPerCapita":2200,"population":218000000,"ideology":"fragile_democracy","governmentType":"federal_presidential","stability":40,"morale":50,"militaryStrength":42,"militaryBudget":3100,"nuclearWarheads":0,"activePersonnel":135000,"reservePersonnel":0,"navyShips":91,"airForceJets":108,"tanks":350,"alliances":["AU","ECOWAS","OIC","Commonwealth"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","tin","iron_ore","coal","limestone","niobium"],"religions":["Islam","Christianity","Indigenous"],"primaryReligion":"Islam","languages":["English","Hausa","Yoruba","Igbo"],"borders":["BJ","NE","CM","TD"],"gdpGrowth":2.9,"inflation":26.7,"unemployment":33.3,"tradeBalance":4000,"debtToGdp":38,"corruptionIndex":24,"pressuredomIndex":40,"nuclearDoctype":"none","spaceProgram":"nasrda","stockMarket":"NGX","currency":"NGN","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":5000,"commandPoints":50000},"fragile":true},
-
-  {"id":"EG","name":"Egypt","flag":"🇪🇬","capital":"Cairo","continent":"Africa","region":"North Africa","gdp":476000,"gdpPerCapita":4400,"population":104000000,"ideology":"authoritarian_military","governmentType":"presidential_republic","stability":52,"morale":55,"militaryStrength":55,"militaryBudget":11800,"nuclearWarheads":0,"activePersonnel":440000,"reservePersonnel":479000,"navyShips":221,"airForceJets":1062,"tanks":4767,"alliances":["Arab_League","AU","OIC"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","gold","suez_canal","cotton","phosphates"],"religions":["Islam","Christianity"],"primaryReligion":"Islam","languages":["Arabic"],"borders":["LY","SD","IL"],"gdpGrowth":3.8,"inflation":38.0,"unemployment":7.3,"tradeBalance":-40000,"debtToGdp":96,"corruptionIndex":35,"pressuredomIndex":27,"nuclearDoctype":"none","spaceProgram":"nssa","stockMarket":"EGX","currency":"EGP","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":7000,"commandPoints":70000},"fragile":false},
-
-  {"id":"AU","name":"Australia","flag":"🇦🇺","capital":"Canberra","continent":"Oceania","region":"Oceania","gdp":1690000,"gdpPerCapita":64600,"population":26000000,"ideology":"liberal_democracy","governmentType":"federal_parliamentary_monarchy","stability":84,"morale":72,"militaryStrength":52,"militaryBudget":32300,"nuclearWarheads":0,"activePersonnel":59000,"reservePersonnel":27600,"navyShips":52,"airForceJets":387,"tanks":59,"alliances":["AUKUS","QUAD","Five_Eyes","NATO_partner"],"atWarWith":[],"sanctionedBy":[],"resources":["iron_ore","coal","gold","uranium","LNG","wheat","wool","rare_earth"],"religions":["Christianity","None","Buddhism","Islam"],"primaryReligion":"Christianity","languages":["English"],"borders":[],"gdpGrowth":2.0,"inflation":4.9,"unemployment":3.7,"tradeBalance":75000,"debtToGdp":50,"corruptionIndex":75,"pressuredomIndex":84,"nuclearDoctype":"aukus_partner","spaceProgram":"asa","stockMarket":"ASX","currency":"AUD","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":20000,"commandPoints":200000},"fragile":false},
-
-  {"id":"CA","name":"Canada","flag":"🇨🇦","capital":"Ottawa","continent":"North America","region":"Americas","gdp":2140000,"gdpPerCapita":55100,"population":38000000,"ideology":"liberal_democracy","governmentType":"federal_parliamentary_monarchy","stability":82,"morale":70,"militaryStrength":45,"militaryBudget":26500,"nuclearWarheads":0,"activePersonnel":68000,"reservePersonnel":22500,"navyShips":33,"airForceJets":391,"tanks":82,"alliances":["NATO","NORAD","Five_Eyes","G7"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","uranium","potash","lumber","wheat","gold","nickel"],"religions":["Christianity","None","Islam","Hinduism"],"primaryReligion":"Christianity","languages":["English","French"],"borders":["US"],"gdpGrowth":1.1,"inflation":3.4,"unemployment":5.3,"tradeBalance":20000,"debtToGdp":107,"corruptionIndex":74,"pressuredomIndex":84,"nuclearDoctype":"nato_sharing","spaceProgram":"csa","stockMarket":"TSX","currency":"CAD","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":22000,"commandPoints":220000},"fragile":false},
-
-  {"id":"MX","name":"Mexico","flag":"🇲🇽","capital":"Mexico City","continent":"North America","region":"Latin America","gdp":1322000,"gdpPerCapita":10200,"population":130000000,"ideology":"liberal_democracy","governmentType":"federal_presidential","stability":48,"morale":52,"militaryStrength":42,"militaryBudget":8500,"nuclearWarheads":0,"activePersonnel":277000,"reservePersonnel":82000,"navyShips":98,"airForceJets":276,"tanks":550,"alliances":["OAS","USMCA","Pacific_Alliance"],"atWarWith":[],"sanctionedBy":[],"resources":["oil","gas","silver","gold","copper","zinc","avocados","automobiles"],"religions":["Christianity","None","Indigenous"],"primaryReligion":"Christianity","languages":["Spanish"],"borders":["US","GT","BZ"],"gdpGrowth":3.2,"inflation":4.6,"unemployment":2.9,"tradeBalance":24000,"debtToGdp":54,"corruptionIndex":31,"pressuredomIndex":60,"nuclearDoctype":"none","spaceProgram":"aexa","stockMarket":"BMV","currency":"MXN","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":12000,"commandPoints":120000},"fragile":false},
-
-  {"id":"ID","name":"Indonesia","flag":"🇮🇩","capital":"Jakarta","continent":"Asia","region":"Southeast Asia","gdp":1319000,"gdpPerCapita":4800,"population":273000000,"ideology":"liberal_democracy","governmentType":"presidential_republic","stability":65,"morale":62,"militaryStrength":52,"militaryBudget":9000,"nuclearWarheads":0,"activePersonnel":395000,"reservePersonnel":400000,"navyShips":282,"airForceJets":462,"tanks":404,"alliances":["ASEAN","G20","OIC","BRICS"],"atWarWith":[],"sanctionedBy":[],"resources":["palm_oil","coal","LNG","nickel","gold","copper","tin","rubber"],"religions":["Islam","Christianity","Hinduism","Buddhism"],"primaryReligion":"Islam","languages":["Indonesian"],"borders":["PG","TL","MY"],"gdpGrowth":5.0,"inflation":3.7,"unemployment":5.7,"tradeBalance":39000,"debtToGdp":39,"corruptionIndex":34,"pressuredomIndex":54,"nuclearDoctype":"none","spaceProgram":"lapan","stockMarket":"IDX","currency":"IDR","telegramGroupId":null,"telegramChannelId":null,"occupiedBy":null,"occupationLevel":"none","resistanceMeter":0,"treasury":{"warBonds":12000,"commandPoints":120000},"fragile":false}
+  {
+    "id": "AF",
+    "name": "Afghanistan",
+    "flag": "\ud83c\udde6\ud83c\uddeb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AL",
+    "name": "Albania",
+    "flag": "\ud83c\udde6\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "DZ",
+    "name": "Algeria",
+    "flag": "\ud83c\udde9\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AD",
+    "name": "Andorra",
+    "flag": "\ud83c\udde6\ud83c\udde9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AO",
+    "name": "Angola",
+    "flag": "\ud83c\udde6\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AG",
+    "name": "Antigua and Barbuda",
+    "flag": "\ud83c\udde6\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AR",
+    "name": "Argentina",
+    "flag": "\ud83c\udde6\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AM",
+    "name": "Armenia",
+    "flag": "\ud83c\udde6\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AU",
+    "name": "Australia",
+    "flag": "\ud83c\udde6\ud83c\uddfa",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AT",
+    "name": "Austria",
+    "flag": "\ud83c\udde6\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AZ",
+    "name": "Azerbaijan",
+    "flag": "\ud83c\udde6\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BS",
+    "name": "Bahamas",
+    "flag": "\ud83c\udde7\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BH",
+    "name": "Bahrain",
+    "flag": "\ud83c\udde7\ud83c\udded",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BD",
+    "name": "Bangladesh",
+    "flag": "\ud83c\udde7\ud83c\udde9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BB",
+    "name": "Barbados",
+    "flag": "\ud83c\udde7\ud83c\udde7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BY",
+    "name": "Belarus",
+    "flag": "\ud83c\udde7\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BE",
+    "name": "Belgium",
+    "flag": "\ud83c\udde7\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BZ",
+    "name": "Belize",
+    "flag": "\ud83c\udde7\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BJ",
+    "name": "Benin",
+    "flag": "\ud83c\udde7\ud83c\uddef",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BT",
+    "name": "Bhutan",
+    "flag": "\ud83c\udde7\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BO",
+    "name": "Bolivia",
+    "flag": "\ud83c\udde7\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BA",
+    "name": "Bosnia and Herzegovina",
+    "flag": "\ud83c\udde7\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BW",
+    "name": "Botswana",
+    "flag": "\ud83c\udde7\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BR",
+    "name": "Brazil",
+    "flag": "\ud83c\udde7\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BN",
+    "name": "Brunei",
+    "flag": "\ud83c\udde7\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BG",
+    "name": "Bulgaria",
+    "flag": "\ud83c\udde7\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BF",
+    "name": "Burkina Faso",
+    "flag": "\ud83c\udde7\ud83c\uddeb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "BI",
+    "name": "Burundi",
+    "flag": "\ud83c\udde7\ud83c\uddee",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KH",
+    "name": "Cambodia",
+    "flag": "\ud83c\uddf0\ud83c\udded",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CM",
+    "name": "Cameroon",
+    "flag": "\ud83c\udde8\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CA",
+    "name": "Canada",
+    "flag": "\ud83c\udde8\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CV",
+    "name": "Cape Verde",
+    "flag": "\ud83c\udde8\ud83c\uddfb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CF",
+    "name": "Central African Republic",
+    "flag": "\ud83c\udde8\ud83c\uddeb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TD",
+    "name": "Chad",
+    "flag": "\ud83c\uddf9\ud83c\udde9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CL",
+    "name": "Chile",
+    "flag": "\ud83c\udde8\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CN",
+    "name": "China",
+    "flag": "\ud83c\udde8\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CO",
+    "name": "Colombia",
+    "flag": "\ud83c\udde8\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KM",
+    "name": "Comoros",
+    "flag": "\ud83c\uddf0\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CG",
+    "name": "Congo",
+    "flag": "\ud83c\udde8\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CR",
+    "name": "Costa Rica",
+    "flag": "\ud83c\udde8\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CI",
+    "name": "Cote d'Ivoire",
+    "flag": "\ud83c\udde8\ud83c\uddee",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "HR",
+    "name": "Croatia",
+    "flag": "\ud83c\udded\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CU",
+    "name": "Cuba",
+    "flag": "\ud83c\udde8\ud83c\uddfa",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CY",
+    "name": "Cyprus",
+    "flag": "\ud83c\udde8\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CZ",
+    "name": "Czech Republic",
+    "flag": "\ud83c\udde8\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "DK",
+    "name": "Denmark",
+    "flag": "\ud83c\udde9\ud83c\uddf0",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "DJ",
+    "name": "Djibouti",
+    "flag": "\ud83c\udde9\ud83c\uddef",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "DM",
+    "name": "Dominica",
+    "flag": "\ud83c\udde9\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "DO",
+    "name": "Dominican Republic",
+    "flag": "\ud83c\udde9\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "EC",
+    "name": "Ecuador",
+    "flag": "\ud83c\uddea\ud83c\udde8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "EG",
+    "name": "Egypt",
+    "flag": "\ud83c\uddea\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SV",
+    "name": "El Salvador",
+    "flag": "\ud83c\uddf8\ud83c\uddfb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GQ",
+    "name": "Equatorial Guinea",
+    "flag": "\ud83c\uddec\ud83c\uddf6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ER",
+    "name": "Eritrea",
+    "flag": "\ud83c\uddea\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "EE",
+    "name": "Estonia",
+    "flag": "\ud83c\uddea\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SZ",
+    "name": "Eswatini",
+    "flag": "\ud83c\uddf8\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ET",
+    "name": "Ethiopia",
+    "flag": "\ud83c\uddea\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "FJ",
+    "name": "Fiji",
+    "flag": "\ud83c\uddeb\ud83c\uddef",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "FI",
+    "name": "Finland",
+    "flag": "\ud83c\uddeb\ud83c\uddee",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "FR",
+    "name": "France",
+    "flag": "\ud83c\uddeb\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GA",
+    "name": "Gabon",
+    "flag": "\ud83c\uddec\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GM",
+    "name": "Gambia",
+    "flag": "\ud83c\uddec\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GE",
+    "name": "Georgia",
+    "flag": "\ud83c\uddec\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "DE",
+    "name": "Germany",
+    "flag": "\ud83c\udde9\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GH",
+    "name": "Ghana",
+    "flag": "\ud83c\uddec\ud83c\udded",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GR",
+    "name": "Greece",
+    "flag": "\ud83c\uddec\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GD",
+    "name": "Grenada",
+    "flag": "\ud83c\uddec\ud83c\udde9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GT",
+    "name": "Guatemala",
+    "flag": "\ud83c\uddec\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GN",
+    "name": "Guinea",
+    "flag": "\ud83c\uddec\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GW",
+    "name": "Guinea-Bissau",
+    "flag": "\ud83c\uddec\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GY",
+    "name": "Guyana",
+    "flag": "\ud83c\uddec\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "HT",
+    "name": "Haiti",
+    "flag": "\ud83c\udded\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "HN",
+    "name": "Honduras",
+    "flag": "\ud83c\udded\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "HU",
+    "name": "Hungary",
+    "flag": "\ud83c\udded\ud83c\uddfa",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "IS",
+    "name": "Iceland",
+    "flag": "\ud83c\uddee\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "IN",
+    "name": "India",
+    "flag": "\ud83c\uddee\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ID",
+    "name": "Indonesia",
+    "flag": "\ud83c\uddee\ud83c\udde9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "IR",
+    "name": "Iran",
+    "flag": "\ud83c\uddee\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "IQ",
+    "name": "Iraq",
+    "flag": "\ud83c\uddee\ud83c\uddf6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "IE",
+    "name": "Ireland",
+    "flag": "\ud83c\uddee\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "IL",
+    "name": "Israel",
+    "flag": "\ud83c\uddee\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "IT",
+    "name": "Italy",
+    "flag": "\ud83c\uddee\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "JM",
+    "name": "Jamaica",
+    "flag": "\ud83c\uddef\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "JP",
+    "name": "Japan",
+    "flag": "\ud83c\uddef\ud83c\uddf5",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "JO",
+    "name": "Jordan",
+    "flag": "\ud83c\uddef\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KZ",
+    "name": "Kazakhstan",
+    "flag": "\ud83c\uddf0\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KE",
+    "name": "Kenya",
+    "flag": "\ud83c\uddf0\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KI",
+    "name": "Kiribati",
+    "flag": "\ud83c\uddf0\ud83c\uddee",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KP",
+    "name": "North Korea",
+    "flag": "\ud83c\uddf0\ud83c\uddf5",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KR",
+    "name": "South Korea",
+    "flag": "\ud83c\uddf0\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KW",
+    "name": "Kuwait",
+    "flag": "\ud83c\uddf0\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KG",
+    "name": "Kyrgyzstan",
+    "flag": "\ud83c\uddf0\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LA",
+    "name": "Laos",
+    "flag": "\ud83c\uddf1\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LV",
+    "name": "Latvia",
+    "flag": "\ud83c\uddf1\ud83c\uddfb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LB",
+    "name": "Lebanon",
+    "flag": "\ud83c\uddf1\ud83c\udde7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LS",
+    "name": "Lesotho",
+    "flag": "\ud83c\uddf1\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LR",
+    "name": "Liberia",
+    "flag": "\ud83c\uddf1\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LY",
+    "name": "Libya",
+    "flag": "\ud83c\uddf1\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LI",
+    "name": "Liechtenstein",
+    "flag": "\ud83c\uddf1\ud83c\uddee",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LT",
+    "name": "Lithuania",
+    "flag": "\ud83c\uddf1\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LU",
+    "name": "Luxembourg",
+    "flag": "\ud83c\uddf1\ud83c\uddfa",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MG",
+    "name": "Madagascar",
+    "flag": "\ud83c\uddf2\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MW",
+    "name": "Malawi",
+    "flag": "\ud83c\uddf2\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MY",
+    "name": "Malaysia",
+    "flag": "\ud83c\uddf2\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MV",
+    "name": "Maldives",
+    "flag": "\ud83c\uddf2\ud83c\uddfb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ML",
+    "name": "Mali",
+    "flag": "\ud83c\uddf2\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MT",
+    "name": "Malta",
+    "flag": "\ud83c\uddf2\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MH",
+    "name": "Marshall Islands",
+    "flag": "\ud83c\uddf2\ud83c\udded",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MR",
+    "name": "Mauritania",
+    "flag": "\ud83c\uddf2\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MU",
+    "name": "Mauritius",
+    "flag": "\ud83c\uddf2\ud83c\uddfa",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MX",
+    "name": "Mexico",
+    "flag": "\ud83c\uddf2\ud83c\uddfd",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "FM",
+    "name": "Micronesia",
+    "flag": "\ud83c\uddeb\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MD",
+    "name": "Moldova",
+    "flag": "\ud83c\uddf2\ud83c\udde9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MC",
+    "name": "Monaco",
+    "flag": "\ud83c\uddf2\ud83c\udde8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MN",
+    "name": "Mongolia",
+    "flag": "\ud83c\uddf2\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ME",
+    "name": "Montenegro",
+    "flag": "\ud83c\uddf2\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MA",
+    "name": "Morocco",
+    "flag": "\ud83c\uddf2\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MZ",
+    "name": "Mozambique",
+    "flag": "\ud83c\uddf2\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MM",
+    "name": "Myanmar",
+    "flag": "\ud83c\uddf2\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NA",
+    "name": "Namibia",
+    "flag": "\ud83c\uddf3\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NR",
+    "name": "Nauru",
+    "flag": "\ud83c\uddf3\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NP",
+    "name": "Nepal",
+    "flag": "\ud83c\uddf3\ud83c\uddf5",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NL",
+    "name": "Netherlands",
+    "flag": "\ud83c\uddf3\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NZ",
+    "name": "New Zealand",
+    "flag": "\ud83c\uddf3\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NI",
+    "name": "Nicaragua",
+    "flag": "\ud83c\uddf3\ud83c\uddee",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NE",
+    "name": "Niger",
+    "flag": "\ud83c\uddf3\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NG",
+    "name": "Nigeria",
+    "flag": "\ud83c\uddf3\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "MK",
+    "name": "North Macedonia",
+    "flag": "\ud83c\uddf2\ud83c\uddf0",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NO",
+    "name": "Norway",
+    "flag": "\ud83c\uddf3\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "OM",
+    "name": "Oman",
+    "flag": "\ud83c\uddf4\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PK",
+    "name": "Pakistan",
+    "flag": "\ud83c\uddf5\ud83c\uddf0",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PW",
+    "name": "Palau",
+    "flag": "\ud83c\uddf5\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PA",
+    "name": "Panama",
+    "flag": "\ud83c\uddf5\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PG",
+    "name": "Papua New Guinea",
+    "flag": "\ud83c\uddf5\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PY",
+    "name": "Paraguay",
+    "flag": "\ud83c\uddf5\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PE",
+    "name": "Peru",
+    "flag": "\ud83c\uddf5\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PH",
+    "name": "Philippines",
+    "flag": "\ud83c\uddf5\ud83c\udded",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PL",
+    "name": "Poland",
+    "flag": "\ud83c\uddf5\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PT",
+    "name": "Portugal",
+    "flag": "\ud83c\uddf5\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "QA",
+    "name": "Qatar",
+    "flag": "\ud83c\uddf6\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "RO",
+    "name": "Romania",
+    "flag": "\ud83c\uddf7\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "RU",
+    "name": "Russia",
+    "flag": "\ud83c\uddf7\ud83c\uddfa",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "RW",
+    "name": "Rwanda",
+    "flag": "\ud83c\uddf7\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "KN",
+    "name": "Saint Kitts and Nevis",
+    "flag": "\ud83c\uddf0\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LC",
+    "name": "Saint Lucia",
+    "flag": "\ud83c\uddf1\ud83c\udde8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "VC",
+    "name": "Saint Vincent and the Grenadines",
+    "flag": "\ud83c\uddfb\ud83c\udde8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "WS",
+    "name": "Samoa",
+    "flag": "\ud83c\uddfc\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SM",
+    "name": "San Marino",
+    "flag": "\ud83c\uddf8\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ST",
+    "name": "Sao Tome and Principe",
+    "flag": "\ud83c\uddf8\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SA",
+    "name": "Saudi Arabia",
+    "flag": "\ud83c\uddf8\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SN",
+    "name": "Senegal",
+    "flag": "\ud83c\uddf8\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "RS",
+    "name": "Serbia",
+    "flag": "\ud83c\uddf7\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SC",
+    "name": "Seychelles",
+    "flag": "\ud83c\uddf8\ud83c\udde8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SL",
+    "name": "Sierra Leone",
+    "flag": "\ud83c\uddf8\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SG",
+    "name": "Singapore",
+    "flag": "\ud83c\uddf8\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SK",
+    "name": "Slovakia",
+    "flag": "\ud83c\uddf8\ud83c\uddf0",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SI",
+    "name": "Slovenia",
+    "flag": "\ud83c\uddf8\ud83c\uddee",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SB",
+    "name": "Solomon Islands",
+    "flag": "\ud83c\uddf8\ud83c\udde7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SO",
+    "name": "Somalia",
+    "flag": "\ud83c\uddf8\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ZA",
+    "name": "South Africa",
+    "flag": "\ud83c\uddff\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SS",
+    "name": "South Sudan",
+    "flag": "\ud83c\uddf8\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ES",
+    "name": "Spain",
+    "flag": "\ud83c\uddea\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "LK",
+    "name": "Sri Lanka",
+    "flag": "\ud83c\uddf1\ud83c\uddf0",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SD",
+    "name": "Sudan",
+    "flag": "\ud83c\uddf8\ud83c\udde9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SR",
+    "name": "Suriname",
+    "flag": "\ud83c\uddf8\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SE",
+    "name": "Sweden",
+    "flag": "\ud83c\uddf8\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "CH",
+    "name": "Switzerland",
+    "flag": "\ud83c\udde8\ud83c\udded",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "SY",
+    "name": "Syria",
+    "flag": "\ud83c\uddf8\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TJ",
+    "name": "Tajikistan",
+    "flag": "\ud83c\uddf9\ud83c\uddef",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TZ",
+    "name": "Tanzania",
+    "flag": "\ud83c\uddf9\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TH",
+    "name": "Thailand",
+    "flag": "\ud83c\uddf9\ud83c\udded",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TL",
+    "name": "Timor-Leste",
+    "flag": "\ud83c\uddf9\ud83c\uddf1",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TG",
+    "name": "Togo",
+    "flag": "\ud83c\uddf9\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TO",
+    "name": "Tonga",
+    "flag": "\ud83c\uddf9\ud83c\uddf4",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TT",
+    "name": "Trinidad and Tobago",
+    "flag": "\ud83c\uddf9\ud83c\uddf9",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TN",
+    "name": "Tunisia",
+    "flag": "\ud83c\uddf9\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TR",
+    "name": "Turkey",
+    "flag": "\ud83c\uddf9\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TM",
+    "name": "Turkmenistan",
+    "flag": "\ud83c\uddf9\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "TV",
+    "name": "Tuvalu",
+    "flag": "\ud83c\uddf9\ud83c\uddfb",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "UG",
+    "name": "Uganda",
+    "flag": "\ud83c\uddfa\ud83c\uddec",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "UA",
+    "name": "Ukraine",
+    "flag": "\ud83c\uddfa\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "AE",
+    "name": "United Arab Emirates",
+    "flag": "\ud83c\udde6\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "GB",
+    "name": "United Kingdom",
+    "flag": "\ud83c\uddec\ud83c\udde7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "US",
+    "name": "United States",
+    "flag": "\ud83c\uddfa\ud83c\uddf8",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "UY",
+    "name": "Uruguay",
+    "flag": "\ud83c\uddfa\ud83c\uddfe",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "UZ",
+    "name": "Uzbekistan",
+    "flag": "\ud83c\uddfa\ud83c\uddff",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "VU",
+    "name": "Vanuatu",
+    "flag": "\ud83c\uddfb\ud83c\uddfa",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "VA",
+    "name": "Vatican City",
+    "flag": "\ud83c\uddfb\ud83c\udde6",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "VE",
+    "name": "Venezuela",
+    "flag": "\ud83c\uddfb\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "VN",
+    "name": "Vietnam",
+    "flag": "\ud83c\uddfb\ud83c\uddf3",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "YE",
+    "name": "Yemen",
+    "flag": "\ud83c\uddfe\ud83c\uddea",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ZM",
+    "name": "Zambia",
+    "flag": "\ud83c\uddff\ud83c\uddf2",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "ZW",
+    "name": "Zimbabwe",
+    "flag": "\ud83c\uddff\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "PW",
+    "name": "Palau",
+    "flag": "\ud83c\uddf5\ud83c\uddfc",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  },
+  {
+    "id": "NR",
+    "name": "Nauru",
+    "flag": "\ud83c\uddf3\ud83c\uddf7",
+    "stability": 70,
+    "morale": 70,
+    "militaryStrength": 50,
+    "atWar": false,
+    "lastUpdated": 0
+  }
 ]

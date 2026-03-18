@@ -58,86 +58,11 @@ export async function seedAll() {
   await rtdb.ref('nations').set(rtdbNations);
   console.log(`✅ RTDB nations node replaced with ${Object.keys(rtdbNations).length} entries.`);
   
-  // Update Firestore in batches
-  console.log('🔥 Updating Firestore nations...');
-  let count = 0
-  for (const nation of nations) {
-    const ref = db.collection('nations').doc(nation.id)
-    
-    const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
-      v === undefined ? null : v
-    ))
-    
-    // SILENT NPC SEEDING: No NPCs, just basic nation info
-    await ref.set({
-      ...cleanNation,
-      lastUpdated: Date.now()
-    })
-    
-    count++
-    if (count % 20 === 0) {
-      console.log(`✅ Firestore: Seeded ${count}/${nations.length} nations...`)
-    }
-    
-    // Small delay to prevent overhead
-    await sleep(50)
-  }
-
-  // Seed stocks from marketplaces_config.json
-  console.log('📈 Seeding stocks...')
-  const marketPath = path.join(__dirname, '../../../../data/economics/marketplaces_config.json')
-  if (fs.existsSync(marketPath)) {
-    const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'))
-    if (marketData.stock_exchange?.companies) {
-      for (const company of marketData.stock_exchange.companies) {
-        const ref = db.collection('stocks').doc(company.id)
-        await ref.set({
-          ...company,
-          currentPrice: company.base_price || 100,
-          priceHistory: [company.base_price || 100],
-          lastUpdated: Date.now()
-        })
-        await sleep(20)
-      }
-      console.log('✅ Stocks seeded!')
-    }
-  }
-
-  // Seed initial world events
-  console.log('📰 Seeding initial events...')
-  const events = [
-    {
-      type: 'political',
-      title: 'World Dominion Season 1 Begins',
-      description: '195 nations stand ready. The age of conquest begins. Apply for your role now.',
-      affectedNations: [],
-      effects: { stability_change: 0 },
-      fromNews: false,
-      timestamp: Date.now(),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    },
-    {
-      type: 'economic',
-      title: 'Global Markets Open',
-      description: 'The World Dominion Stock Exchange opens for trading. War Bonds now available.',
-      affectedNations: [],
-      effects: { gdp_modifier: 1.02 },
-      fromNews: false,
-      timestamp: Date.now(),
-      createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    }
-  ]
-
-  for (const event of events) {
-    await db.collection('events').add(event)
-    await sleep(20)
-  }
-  console.log('✅ Events seeded!')
+  // Firestore updates SKIPPED due to quota exhaustion
+  console.log('🔥 Firestore updates SKIPPED (Quota exhausted)');
 
   console.log(`🎉 Total Nations in RTDB: ${Object.keys(rtdbNations).length}`)
-  console.log(`🎉 DATABASE SEEDING COMPLETE! Total: ${count} nations`)
+  console.log(`🎉 DATABASE SEEDING COMPLETE! Total: ${Object.keys(rtdbNations).length} nations in RTDB`)
 }
 
 // Only run if called directly

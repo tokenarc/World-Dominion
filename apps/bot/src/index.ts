@@ -139,6 +139,11 @@ const startServer = async () => {
     // Launch bot
     if (process.env.NODE_ENV === 'production') {
       console.log('Bot starting in webhook mode...');
+      // In webhook mode, we don't call bot.launch() as express handles it,
+      // but we ensure the webhook is set.
+      bot.telegram.setWebhook('https://world-dominion.onrender.com/webhook')
+        .then(() => console.log('✅ Webhook set to https://world-dominion.onrender.com/webhook'))
+        .catch(err => console.error('❌ Failed to set webhook:', err));
     } else {
       bot.launch();
       console.log('Bot starting in polling mode...');
