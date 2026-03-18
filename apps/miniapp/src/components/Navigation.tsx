@@ -1,3 +1,5 @@
+import { haptics } from '../lib/haptics'
+
 type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events' | 'war' | 'apply'
 
 interface NavigationProps {
@@ -28,7 +30,7 @@ export default function Navigation({ currentPage, onPageChange }: any) {
         {navItems.map((item: any) => (
           <button
             key={item.id}
-            onClick={() => onPageChange(item.id)}
+            onClick={() => { haptics.select(); onPageChange(item.id) }}
             style={{
               background: 'none', border: 'none',
               display: 'flex', flexDirection: 'column',
