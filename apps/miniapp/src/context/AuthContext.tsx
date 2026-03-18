@@ -67,30 +67,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (initData: string) => {
     setIsLoading(true)
     setError(null)
+    
+    const BOT_API = 'https://world-dominion.onrender.com'
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => {
+      controller.abort()
+      console.log('Auth timeout - switching to Guest Commander mode')
+    }, 3000)
+
     try {
-      const BOT_API = process.env.NEXT_PUBLIC_BOT_API_URL || 'https://world-dominion.onrender.com'
-      const controller = new AbortController()
-      // 3 second timeout only
-      const timeout = setTimeout(() => controller.abort(), 3000)
-      
       const response = await fetch(`${BOT_API}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ initData }),
         signal: controller.signal
       })
-      clearTimeout(timeout)
+      clearTimeout(timeoutId)
 
       if (response.ok) {
         const data = await response.json()
         setPlayer(data.player)
       } else {
-        // Set guest player from Telegram data
         setGuestPlayer(initData)
       }
     } catch (err) {
-      // Render sleeping — use Telegram data directly
-      console.log('Bot sleeping, using guest mode')
+      clearTimeout(timeoutId)
+      console.log('Auth failed or timed out, using guest mode')
       setGuestPlayer(initData)
     } finally {
       setIsLoading(false)

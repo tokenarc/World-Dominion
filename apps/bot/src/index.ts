@@ -1,7 +1,7 @@
 import { Telegraf } from 'telegraf';
 import express from 'express';
 import * as dotenv from 'dotenv';
-import { seedNations, getOrCreatePlayer } from './services/firebaseService';
+import { seedNations, seedMarketData, getOrCreatePlayer } from './services/firebaseService';
 import * as cron from 'node-cron';
 import { runNPCCycle, seedAllNPCRoles } from './services/npcService';
 
@@ -117,6 +117,8 @@ const startServer = async () => {
   try {
     // Seed nations if necessary
     await seedNations();
+    // Seed market data if necessary
+    await seedMarketData();
     // Seed NPC roles if necessary
     await seedAllNPCRoles();
     

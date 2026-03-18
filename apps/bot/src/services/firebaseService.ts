@@ -161,6 +161,36 @@ export const seedNations = async () => {
   await batch.commit();
 };
 
+export const seedMarketData = async () => {
+  const marketCount = (await db.collection('market').count().get()).data().count;
+  if (marketCount > 0) return;
+
+  const marketPath = path.join(__dirname, '../../../../data/economics/marketplaces_config.json');
+  if (!fs.existsSync(marketPath)) {
+    console.error('Market config file not found at:', marketPath);
+    return;
+  }
+  
+  const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'));
+  const batch = db.batch();
+  
+  // Assuming marketData is an array of stocks/commodities
+  const stocks = Array.isArray(marketData) ? marketData : (marketData.stocks || []);
+  
+  for (const stock of stocks) {
+    const stockRef = db.collection('market').doc(stock.id || stock.symbol);
+    batch.set(stockRef, {
+      ...stock,
+      currentPrice: stock.basePrice || stock.currentPrice || 100,
+      change: 0,
+      changePercent: 0,
+      lastUpdated: Date.now()
+    });
+  }
+  await batch.commit();
+  console.log(`Seeded ${stocks.length} market items.`);
+};
+
 export const seedNPCPlayers = async () => {
   // This is a placeholder for creating AI players for unoccupied roles
   // In a real implementation, this would check which nations lack leaders
