@@ -141,12 +141,24 @@ export const updateNationRTDB = async (nationId: string, data: any) => {
 
 export const seedNations = async () => {
   const nationsCount = (await db.collection('nations').count().get()).data().count;
-  if (nationsCount > 0) return;
+  if (nationsCount > 0) {
+    console.log(`Nations collection already has ${nationsCount} documents. Skipping seed.`);
+    return;
+  }
 
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json');
-  const nationsData = JSON.parse(fs.readFileSync(nationsPath, 'utf8'));
+  if (!fs.existsSync(nationsPath)) {
+    console.error('Nations data file not found at:', nationsPath);
+    return;
+  }
 
-  const batch = db.batch();
+  const nationsData = JSON.parse(fs.readFileSync(nationsPath, 'utf8'));
+  console.log(`Starting seed of ${nationsData.length} nations...`);
+
+  // Firestore batch limit is 500 operations
+  let batch = db.batch();
+  let count = 0;
+
   for (const nation of nationsData) {
     const nationRef = db.collection('nations').doc(nation.id);
     batch.set(nationRef, nation);
@@ -155,15 +167,30 @@ export const seedNations = async () => {
     await rtdb.ref(`nations/${nation.id}`).set({
       stability: nation.stability,
       morale: nation.morale,
-      atWar: nation.atWarWith.length > 0,
+      atWar: nation.atWarWith?.length > 0,
     });
+
+    count++;
+    if (count % 400 === 0) {
+      await batch.commit();
+      batch = db.batch();
+      console.log(`Committed batch of ${count} nations...`);
+    }
   }
-  await batch.commit();
+  
+  if (count % 400 !== 0) {
+    await batch.commit();
+  }
+  
+  console.log(`Successfully seeded ${count} nations into Firestore and RTDB.`);
 };
 
 export const seedMarketData = async () => {
   const stocksCount = (await db.collection('stocks').count().get()).data().count;
-  if (stocksCount > 0) return;
+  if (stocksCount > 0) {
+    console.log(`Stocks collection already has ${stocksCount} documents. Skipping seed.`);
+    return;
+  }
 
   const marketPath = path.join(__dirname, '../../../../data/economics/marketplaces_config.json');
   if (!fs.existsSync(marketPath)) {
@@ -174,8 +201,17 @@ export const seedMarketData = async () => {
   const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'));
   const batch = db.batch();
   
-  const stocks = Array.isArray(marketData) ? marketData : (marketData.stocks || []);
+  // Extract companies from stock_exchange and commodities from commodity_exchange
+  const stockExchange = marketData.marketplaces.find((m: any) => m.id === 'stock_exchange');
+  const commodityExchange = marketData.marketplaces.find((m: any) => m.id === 'commodity_exchange');
   
+  const stocks = [
+    ...(stockExchange?.companies || []),
+    ...(commodityExchange?.commodities || [])
+  ];
+  
+  console.log(`Starting seed of ${stocks.length} stocks/commodities...`);
+
   for (const stock of stocks) {
     const stockId = stock.id || stock.symbol;
     if (!stockId) continue;
@@ -184,14 +220,15 @@ export const seedMarketData = async () => {
     batch.set(stockRef, {
       ...stock,
       id: stockId,
-      currentPrice: stock.basePrice || stock.currentPrice || 100,
+      currentPrice: stock.basePrice || stock.base_price_wrb || 100,
       change: 0,
       changePercent: 0,
       lastUpdated: Date.now()
     });
   }
+  
   await batch.commit();
-  console.log(`Seeded ${stocks.length} stocks into 'stocks' collection.`);
+  console.log(`Successfully seeded ${stocks.length} stocks into 'stocks' collection.`);
 };
 
 export const seedNPCPlayers = async () => {
