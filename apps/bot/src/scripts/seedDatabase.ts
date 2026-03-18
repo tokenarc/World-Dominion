@@ -23,11 +23,7 @@ async function seedAll() {
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json')
   const nations = JSON.parse(fs.readFileSync(nationsPath, 'utf8'))
   
-  // Check count
-  const existing = await db.collection('nations').count().get()
-  if (existing.data().count > 0) {
-    console.log(`Nations already seeded: ${existing.data().count}`)
-  }
+  // Seeding nations...
 
   // Batch write — 500 at a time
   const batchSize = 400

@@ -140,11 +140,7 @@ export const updateNationRTDB = async (nationId: string, data: any) => {
 };
 
 export const seedNations = async () => {
-  const nationsCount = (await db.collection('nations').count().get()).data().count;
-  if (nationsCount > 0) {
-    console.log(`Nations collection already has ${nationsCount} documents. Skipping seed.`);
-    return;
-  }
+  console.log('Starting seed of nations...');
 
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json');
   if (!fs.existsSync(nationsPath)) {
