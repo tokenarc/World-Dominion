@@ -143,7 +143,7 @@ export const updateNationRTDB = async (nationId: string, data: any) => {
 };
 
 export const seedNations = async () => {
-  console.log('🚀 Starting optimized seed of nations...');
+  console.log('🚀 Starting FORCE seed of 195 nations...');
 
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json');
   if (!fs.existsSync(nationsPath)) {
@@ -152,51 +152,58 @@ export const seedNations = async () => {
   }
 
   const nationsData = JSON.parse(fs.readFileSync(nationsPath, 'utf8'));
-  console.log(`📦 Starting seed of ${nationsData.length} nations...`);
+  console.log(`📦 Loaded ${nationsData.length} nations from JSON`);
 
-  // Wipe old nations list in RTDB to ensure full 195 nations replacement
-  console.log('🧹 Wiping old nations list in RTDB...');
-  await rtdb.ref('nations').set(null);
-
-  let count = 0;
+  // FORCE GLOBAL UPDATE (RTDB): Use .set() on the entire nations node to wipe and replace
+  console.log('🧹 Wiping and replacing entire nations node in RTDB...');
+  const rtdbNations: Record<string, any> = {};
+  
   for (const nation of nationsData) {
-    const nationRef = db.collection('nations').doc(nation.id);
-    
     // Clean undefined values
     const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
       v === undefined ? null : v
     ));
 
-    // OPTIMIZATION: Disable heavy NPC generation loop during initial seed
-    // Only create essential leaders if needed
-    const essentialLeaders = [
-      { id: `pres_${nation.id}`, role: 'President', name: `Leader of ${nation.name}` }
-    ];
-
-    await nationRef.set({
-      ...cleanNation,
-      leaders: essentialLeaders,
-      lastUpdated: Date.now()
-    });
-    
-    // Also seed RTDB initial state using .set() to ensure full replacement
-    await rtdb.ref(`nations/${nation.id}`).set({
+    // SILENT NPC SEEDING: Disable all NPC generation, only basic nation info
+    rtdbNations[nation.id] = {
       ...cleanNation,
       stability: nation.stability || 50,
       morale: nation.morale || 50,
       atWar: false,
       lastUpdated: Date.now()
+    };
+  }
+
+  // Set the entire object at once to ensure atomic replacement
+  await rtdb.ref('nations').set(rtdbNations);
+  console.log(`✅ RTDB nations node replaced with ${Object.keys(rtdbNations).length} entries.`);
+
+  // Update Firestore in batches
+  console.log('🔥 Updating Firestore nations...');
+  let count = 0;
+  for (const nation of nationsData) {
+    const nationRef = db.collection('nations').doc(nation.id);
+    
+    const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
+      v === undefined ? null : v
+    ));
+
+    // SILENT NPC SEEDING: No NPCs, just basic nation info
+    await nationRef.set({
+      ...cleanNation,
+      lastUpdated: Date.now()
     });
 
     count++;
     if (count % 20 === 0) {
-      console.log(`✅ Seeded ${count}/${nationsData.length} nations...`);
+      console.log(`✅ Firestore: Seeded ${count}/${nationsData.length} nations...`);
     }
     
-    // Small delay to prevent Firebase/Render overhead
+    // Small delay to prevent overhead
     await sleep(50);
   }
   
+  console.log(`🎉 Total Nations in RTDB: ${Object.keys(rtdbNations).length}`);
   console.log(`🎉 Successfully seeded ${count} nations into Firestore and RTDB.`);
 };
 
@@ -215,7 +222,6 @@ export const seedMarketData = async () => {
   
   const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'));
   
-  // Extract companies from stock_exchange and commodities from commodity_exchange
   const stockExchange = marketData.marketplaces?.find((m: any) => m.id === 'stock_exchange');
   const commodityExchange = marketData.marketplaces?.find((m: any) => m.id === 'commodity_exchange');
   
@@ -246,7 +252,7 @@ export const seedMarketData = async () => {
 };
 
 export const seedNPCPlayers = async () => {
-  console.log('🤖 Seeding NPC players (placeholder)...');
+  console.log('🤖 NPC seeding is currently DISABLED.');
 };
 
 export const setPlayerOnline = async (telegramId: string, nationId: string, role: string) => {
@@ -257,7 +263,6 @@ export const setPlayerOnline = async (telegramId: string, nationId: string, role
     online: true,
   });
   
-  // Set up disconnect hook
   await presenceRef.onDisconnect().update({
     online: false,
     lastSeen: Date.now(),

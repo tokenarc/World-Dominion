@@ -23,7 +23,7 @@ const rtdb = admin.database()
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 export async function seedAll() {
-  console.log('🌍 Seeding 195 nations...')
+  console.log('🌍 Starting FORCE seed of 195 nations...');
   
   // Load nations data
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json')
@@ -34,47 +34,52 @@ export async function seedAll() {
   const nations = JSON.parse(fs.readFileSync(nationsPath, 'utf8'))
   console.log(`📦 Loaded ${nations.length} nations from JSON`)
   
-  // Wipe old nations list in RTDB
-  console.log('🧹 Wiping old nations list in RTDB...')
-  await rtdb.ref('nations').set(null)
+  // FORCE GLOBAL UPDATE (RTDB): Use .set() on the entire nations node to wipe and replace
+  console.log('🧹 Wiping and replacing entire nations node in RTDB...')
+  const rtdbNations: Record<string, any> = {};
   
-  // Seeding nations with for...of loop and delay to prevent overhead
-  let count = 0
   for (const nation of nations) {
-    const ref = db.collection('nations').doc(nation.id)
-    
     // Clean undefined values
     const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
       v === undefined ? null : v
-    ))
-    
-    // OPTIMIZATION: Disable heavy NPC generation loop
-    // Only create essential leaders if needed, but for now just the nation
-    const essentialLeaders = [
-      { id: `pres_${nation.id}`, role: 'President', name: `Leader of ${nation.name}` }
-    ]
-    
-    await ref.set({
-      ...cleanNation,
-      leaders: essentialLeaders,
-      lastUpdated: admin.firestore.FieldValue.serverTimestamp()
-    })
-    
-    // Also seed RTDB for live state
-    await rtdb.ref(`nations/${nation.id}`).set({
+    ));
+
+    // SILENT NPC SEEDING: Disable all NPC generation, only basic nation info
+    rtdbNations[nation.id] = {
       ...cleanNation,
       stability: nation.stability || 50,
       morale: nation.morale || 50,
       atWar: false,
       lastUpdated: Date.now()
+    };
+  }
+
+  // Set the entire object at once to ensure atomic replacement
+  await rtdb.ref('nations').set(rtdbNations);
+  console.log(`✅ RTDB nations node replaced with ${Object.keys(rtdbNations).length} entries.`);
+  
+  // Update Firestore in batches
+  console.log('🔥 Updating Firestore nations...');
+  let count = 0
+  for (const nation of nations) {
+    const ref = db.collection('nations').doc(nation.id)
+    
+    const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
+      v === undefined ? null : v
+    ))
+    
+    // SILENT NPC SEEDING: No NPCs, just basic nation info
+    await ref.set({
+      ...cleanNation,
+      lastUpdated: Date.now()
     })
     
     count++
-    if (count % 10 === 0) {
-      console.log(`✅ Seeded ${count}/${nations.length} nations...`)
+    if (count % 20 === 0) {
+      console.log(`✅ Firestore: Seeded ${count}/${nations.length} nations...`)
     }
     
-    // Small delay to prevent Firebase/Render overhead
+    // Small delay to prevent overhead
     await sleep(50)
   }
 
@@ -131,6 +136,7 @@ export async function seedAll() {
   }
   console.log('✅ Events seeded!')
 
+  console.log(`🎉 Total Nations in RTDB: ${Object.keys(rtdbNations).length}`)
   console.log(`🎉 DATABASE SEEDING COMPLETE! Total: ${count} nations`)
 }
 
