@@ -143,5 +143,14 @@ const startServer = async () => {
 startServer();
 
 // Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => {
+  console.log('SIGINT received, stopping bot...')
+  try { bot.stop('SIGINT') } catch(e) { console.log('Bot already stopped') }
+  process.exit(0)
+})
+
+process.once('SIGTERM', () => {
+  console.log('SIGTERM received, stopping bot...')
+  try { bot.stop('SIGTERM') } catch(e) { console.log('Bot already stopped') }
+  process.exit(0)
+})

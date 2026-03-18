@@ -53,12 +53,6 @@ export interface WorldEvent {
   expiresAt?: number | null;
 }
 
-const removeUndefined = (obj: any): any => {
-  return JSON.parse(JSON.stringify(obj, (key, value) => 
-    value === undefined ? null : value
-  ))
-}
-
 export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
   const playerRef = db.collection('players').doc(telegramUser.id.toString());
   const doc = await playerRef.get();
@@ -67,11 +61,11 @@ export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
     return doc.data() as Player;
   }
 
-  const newPlayer: Player = {
+  const newPlayer = {
     telegramId: telegramUser.id.toString(),
-    username: telegramUser.username || '',
-    firstName: telegramUser.first_name || '',
-    lastName: telegramUser.last_name || '',
+    username: telegramUser.username ?? '',
+    firstName: telegramUser.first_name ?? '',
+    lastName: telegramUser.last_name ?? '',
     nationId: '',
     currentNation: '',
     role: '',
@@ -81,20 +75,21 @@ export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
       warBonds: 1000,
       commandPoints: 100,
       reputation: 50,
+      militaryKnowledge: 0
     },
-    wallet: {
-      warBonds: 1000,
-      commandPoints: 100,
-    },
+    wallet: { warBonds: 1000, commandPoints: 100 },
     reputation: 50,
     kycVerified: false,
     isNPC: false,
     joinedAt: Date.now(),
     lastActive: Date.now(),
-  };
+    referralCount: 0,
+    referralCpEarned: 0
+  }
 
-  await playerRef.set(removeUndefined(newPlayer));
-  return newPlayer;
+  const cleanPlayer = JSON.parse(JSON.stringify(newPlayer))
+  await playerRef.set(cleanPlayer)
+  return cleanPlayer as Player
 };
 
 export const getPlayer = async (telegramId: string): Promise<Player | null> => {
