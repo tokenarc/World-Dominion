@@ -1,3 +1,4 @@
+import '../src/styles/global.css'
 import '../src/index.css'
 import '../src/App.css'
 import '../src/pages/Dashboard.css'

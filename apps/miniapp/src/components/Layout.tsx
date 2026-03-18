@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
 import Header from './Header'
 import Navigation from './Navigation'
 import Dashboard from '../pages/Dashboard'
@@ -13,21 +12,7 @@ import Apply from '../pages/Apply'
 type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events' | 'war' | 'apply'
 
 export default function Layout() {
-  const { isLoading } = useAuth()
   const [currentPage, setCurrentPage] = useState<Page>('dashboard')
-
-  if (isLoading) {
-    return (
-      <div style={{
-        display:'flex', alignItems:'center', 
-        justifyContent:'center', height:'100vh',
-        background:'#050810', color:'#ffd700',
-        fontSize:'14px', letterSpacing:'3px'
-      }}>
-        ⚔️ LOADING...
-      </div>
-    )
-  }
 
   const renderPage = () => {
     switch (currentPage) {
@@ -43,9 +28,16 @@ export default function Layout() {
   }
 
   return (
-    <div className="layout">
+    <div style={{
+      minHeight: '100vh',
+      background: '#050810',
+      backgroundImage: `
+        radial-gradient(circle at 20% 50%, rgba(139,0,0,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255,215,0,0.03) 0%, transparent 50%)
+      `
+    }}>
       <Header />
-      <main className="layout-main">
+      <main style={{ paddingTop: '0', paddingBottom: '70px' }}>
         {renderPage()}
       </main>
       <Navigation currentPage={currentPage} onPageChange={setCurrentPage} />

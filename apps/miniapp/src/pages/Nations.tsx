@@ -1,85 +1,97 @@
 import { useState, useEffect } from 'react'
 
-interface Nation {
-  id: string
-  name: string
-  flag: string
-  gdp: number
-  stability: number
-  militaryStrength: number
-}
-
 export default function Nations() {
-  const [nations, setNations] = useState<Nation[]>([])
+  const [nations, setNations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
-    // Fetch nations from API
-    const fetchNations = async () => {
-      try {
-        const response = await fetch('/api/nations')
-        if (response.ok) {
-          const data = await response.json()
-          setNations(data.slice(0, 10))
-        }
-      } catch (error) {
-        console.error('Failed to fetch nations:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchNations()
+    fetch('https://world-dominion.onrender.com/api/nations')
+      .then(r => r.json())
+      .then(data => { setNations(data.nations || []); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [])
 
-  if (loading) {
-    return <div className="page nations"><p>Loading nations...</p></div>
-  }
+  const filtered = nations.filter((n: any) =>
+    n.name?.toLowerCase().includes(search.toLowerCase())
+  )
 
   return (
-    <div className="page nations">
-      <div className="page-header">
-        <h2>🌍 Nations</h2>
-        <p>Explore the world's nations and their stats</p>
+    <div style={{ padding: '16px', paddingBottom: '80px' }}>
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ fontSize: '10px', color: '#8B0000', letterSpacing: '3px', marginBottom: '8px' }}>
+          🌍 GLOBAL INTELLIGENCE DATABASE
+        </div>
+        <input
+          placeholder="SEARCH NATIONS..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{
+            width: '100%', padding: '10px 14px',
+            background: '#0d1117', border: '1px solid #8B0000',
+            borderRadius: '6px', color: '#e8e8e8',
+            fontSize: '12px', letterSpacing: '2px',
+            outline: 'none'
+          }}
+        />
       </div>
 
-      <div className="nations-list">
-        {nations.length === 0 ? (
-          <p className="empty-state">No nations available</p>
-        ) : (
-          nations.map(nation => (
-            <div key={nation.id} className="nation-card">
-              <div className="nation-header">
-                <span className="nation-flag">{nation.flag}</span>
-                <div className="nation-info">
-                  <h3>{nation.name}</h3>
-                  <p className="nation-id">{nation.id}</p>
+      {loading && (
+        <div style={{ textAlign: 'center', color: '#8B0000', 
+          letterSpacing: '3px', fontSize: '11px', padding: '40px' }}>
+          ⚡ LOADING INTEL...
+        </div>
+      )}
+
+      {!loading && filtered.length === 0 && (
+        <div style={{ textAlign: 'center', color: '#8892a4',
+          fontSize: '11px', padding: '40px' }}>
+          NO NATIONS FOUND
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+        {filtered.map((nation: any) => (
+          <div key={nation.id} style={{
+            background: 'linear-gradient(135deg, #0d1117, #161b22)',
+            border: '1px solid #8B0000',
+            borderRadius: '8px',
+            padding: '12px',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute', left: 0, top: 0, bottom: 0,
+              width: '3px',
+              background: nation.stability > 70 ? '#00ff88' : 
+                         nation.stability > 40 ? '#FFD700' : '#cc0000'
+            }} />
+            <div style={{ paddingLeft: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <div>
+                  <span style={{ fontSize: '16px', marginRight: '6px' }}>{nation.flag}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#e8e8e8' }}>
+                    {nation.name}
+                  </span>
+                </div>
+                <span style={{ 
+                  fontSize: '9px', color: '#8B0000',
+                  letterSpacing: '1px', alignSelf: 'center'
+                }}>
+                  {nation.id}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ fontSize: '10px', color: '#8892a4' }}>
+                  STABILITY: <span style={{ color: '#FFD700' }}>{nation.stability}/100</span>
+                </div>
+                <div style={{ fontSize: '10px', color: '#8892a4' }}>
+                  MILITARY: <span style={{ color: '#cc0000' }}>{nation.militaryStrength}/100</span>
                 </div>
               </div>
-
-              <div className="nation-stats">
-                <div className="stat">
-                  <span className="stat-label">GDP</span>
-                  <span className="stat-value">${nation.gdp}B</span>
-                </div>
-                <div className="stat">
-                  <span className="stat-label">Stability</span>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${nation.stability}%` }}></div>
-                  </div>
-                </div>
-                <div className="stat">
-                  <span className="stat-label">Military</span>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${nation.militaryStrength}%` }}></div>
-                  </div>
-                </div>
-              </div>
-
-              <button className="view-btn">View Details</button>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   )
