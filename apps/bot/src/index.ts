@@ -115,6 +115,30 @@ app.use('/', pingRoute);
 
 const startServer = async () => {
   try {
+    // TIMEOUT BYPASS: Start listening on the port BEFORE starting the heavy seeding process
+    // This ensures Render sees the app as "started" immediately.
+    app.listen(port, () => {
+      console.log(`🚀 Server is running on port ${port}`);
+      
+      // Start background seeding after server is up
+      console.log('⏳ Starting background seeding process...');
+      runSeeding().catch(err => console.error('❌ Background seeding failed:', err));
+    });
+
+    // Launch bot
+    if (process.env.NODE_ENV === 'production') {
+      console.log('Bot starting in webhook mode...');
+    } else {
+      bot.launch();
+      console.log('Bot starting in polling mode...');
+    }
+  } catch (error) {
+    console.error('Failed to start server:', error);
+  }
+};
+
+const runSeeding = async () => {
+  try {
     // Seed nations if necessary
     await seedNations();
     // Seed market data if necessary
@@ -127,20 +151,10 @@ const startServer = async () => {
       console.log('Running scheduled NPC cycle...');
       runNPCCycle().catch(console.error);
     });
-
-    // Launch bot
-    if (process.env.NODE_ENV === 'production') {
-      console.log('Bot starting in webhook mode...');
-    } else {
-      bot.launch();
-      console.log('Bot starting in polling mode...');
-    }
-
-    app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
-    });
+    
+    console.log('✅ All background seeding and scheduling complete!');
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error('❌ Error during background seeding:', error);
   }
 };
 

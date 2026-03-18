@@ -53,6 +53,9 @@ export interface WorldEvent {
   expiresAt?: number | null;
 }
 
+// Helper for delay
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
   const playerRef = db.collection('players').doc(telegramUser.id.toString());
   const doc = await playerRef.get();
@@ -140,80 +143,95 @@ export const updateNationRTDB = async (nationId: string, data: any) => {
 };
 
 export const seedNations = async () => {
-  console.log('Starting seed of nations...');
+  console.log('🚀 Starting optimized seed of nations...');
 
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json');
   if (!fs.existsSync(nationsPath)) {
-    console.error('Nations data file not found at:', nationsPath);
+    console.error('❌ Nations data file not found at:', nationsPath);
     return;
   }
 
   const nationsData = JSON.parse(fs.readFileSync(nationsPath, 'utf8'));
-  console.log(`Starting seed of ${nationsData.length} nations...`);
+  console.log(`📦 Starting seed of ${nationsData.length} nations...`);
 
-  // Firestore batch limit is 500 operations
-  let batch = db.batch();
+  // Wipe old nations list in RTDB to ensure full 195 nations replacement
+  console.log('🧹 Wiping old nations list in RTDB...');
+  await rtdb.ref('nations').set(null);
+
   let count = 0;
-
   for (const nation of nationsData) {
     const nationRef = db.collection('nations').doc(nation.id);
-    batch.set(nationRef, nation);
     
-    // Also seed RTDB initial state
+    // Clean undefined values
+    const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
+      v === undefined ? null : v
+    ));
+
+    // OPTIMIZATION: Disable heavy NPC generation loop during initial seed
+    // Only create essential leaders if needed
+    const essentialLeaders = [
+      { id: `pres_${nation.id}`, role: 'President', name: `Leader of ${nation.name}` }
+    ];
+
+    await nationRef.set({
+      ...cleanNation,
+      leaders: essentialLeaders,
+      lastUpdated: Date.now()
+    });
+    
+    // Also seed RTDB initial state using .set() to ensure full replacement
     await rtdb.ref(`nations/${nation.id}`).set({
-      stability: nation.stability,
-      morale: nation.morale,
-      atWar: nation.atWarWith?.length > 0,
+      ...cleanNation,
+      stability: nation.stability || 50,
+      morale: nation.morale || 50,
+      atWar: false,
+      lastUpdated: Date.now()
     });
 
     count++;
-    if (count % 400 === 0) {
-      await batch.commit();
-      batch = db.batch();
-      console.log(`Committed batch of ${count} nations...`);
+    if (count % 20 === 0) {
+      console.log(`✅ Seeded ${count}/${nationsData.length} nations...`);
     }
+    
+    // Small delay to prevent Firebase/Render overhead
+    await sleep(50);
   }
   
-  if (count % 400 !== 0) {
-    await batch.commit();
-  }
-  
-  console.log(`Successfully seeded ${count} nations into Firestore and RTDB.`);
+  console.log(`🎉 Successfully seeded ${count} nations into Firestore and RTDB.`);
 };
 
 export const seedMarketData = async () => {
   const stocksCount = (await db.collection('stocks').count().get()).data().count;
   if (stocksCount > 0) {
-    console.log(`Stocks collection already has ${stocksCount} documents. Skipping seed.`);
+    console.log(`📈 Stocks collection already has ${stocksCount} documents. Skipping seed.`);
     return;
   }
 
   const marketPath = path.join(__dirname, '../../../../data/economics/marketplaces_config.json');
   if (!fs.existsSync(marketPath)) {
-    console.error('Market config file not found at:', marketPath);
+    console.error('❌ Market config file not found at:', marketPath);
     return;
   }
   
   const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'));
-  const batch = db.batch();
   
   // Extract companies from stock_exchange and commodities from commodity_exchange
-  const stockExchange = marketData.marketplaces.find((m: any) => m.id === 'stock_exchange');
-  const commodityExchange = marketData.marketplaces.find((m: any) => m.id === 'commodity_exchange');
+  const stockExchange = marketData.marketplaces?.find((m: any) => m.id === 'stock_exchange');
+  const commodityExchange = marketData.marketplaces?.find((m: any) => m.id === 'commodity_exchange');
   
   const stocks = [
     ...(stockExchange?.companies || []),
     ...(commodityExchange?.commodities || [])
   ];
   
-  console.log(`Starting seed of ${stocks.length} stocks/commodities...`);
+  console.log(`🚀 Starting seed of ${stocks.length} stocks/commodities...`);
 
   for (const stock of stocks) {
     const stockId = stock.id || stock.symbol;
     if (!stockId) continue;
     
     const stockRef = db.collection('stocks').doc(stockId);
-    batch.set(stockRef, {
+    await stockRef.set({
       ...stock,
       id: stockId,
       currentPrice: stock.basePrice || stock.base_price_wrb || 100,
@@ -221,16 +239,14 @@ export const seedMarketData = async () => {
       changePercent: 0,
       lastUpdated: Date.now()
     });
+    await sleep(20);
   }
   
-  await batch.commit();
-  console.log(`Successfully seeded ${stocks.length} stocks into 'stocks' collection.`);
+  console.log(`✅ Successfully seeded ${stocks.length} stocks into 'stocks' collection.`);
 };
 
 export const seedNPCPlayers = async () => {
-  // This is a placeholder for creating AI players for unoccupied roles
-  // In a real implementation, this would check which nations lack leaders
-  console.log('Seeding NPC players...');
+  console.log('🤖 Seeding NPC players (placeholder)...');
 };
 
 export const setPlayerOnline = async (telegramId: string, nationId: string, role: string) => {

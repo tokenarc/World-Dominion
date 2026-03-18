@@ -4,80 +4,98 @@ import * as path from 'path'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/\"/g, '')
-  }),
-  databaseURL: 'https://world-dominion-666b1-default-rtdb.firebaseio.com'
-})
+// Initialize Firebase
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/\"/g, '')
+    }),
+    databaseURL: 'https://world-dominion-666b1-default-rtdb.firebaseio.com'
+  })
+}
 
 const db = admin.firestore()
 const rtdb = admin.database()
 
-async function seedAll() {
+// Helper for delay
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+export async function seedAll() {
   console.log('🌍 Seeding 195 nations...')
   
   // Load nations data
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json')
+  if (!fs.existsSync(nationsPath)) {
+    console.error(`❌ Nations file not found at ${nationsPath}`)
+    return
+  }
   const nations = JSON.parse(fs.readFileSync(nationsPath, 'utf8'))
+  console.log(`📦 Loaded ${nations.length} nations from JSON`)
   
   // Wipe old nations list in RTDB
   console.log('🧹 Wiping old nations list in RTDB...')
   await rtdb.ref('nations').set(null)
   
-  // Seeding nations...
-
-  // Batch write — 500 at a time
-  const batchSize = 400
-  for (let i = 0; i < nations.length; i += batchSize) {
-    const batch = db.batch()
-    const chunk = nations.slice(i, i + batchSize)
+  // Seeding nations with for...of loop and delay to prevent overhead
+  let count = 0
+  for (const nation of nations) {
+    const ref = db.collection('nations').doc(nation.id)
     
-    for (const nation of chunk) {
-      const ref = db.collection('nations').doc(nation.id)
-      // Clean undefined values
-      const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
-        v === undefined ? null : v
-      ))
-      batch.set(ref, cleanNation)
-      
-      // Also seed RTDB for live state
-      // Note: We are using .set() on the individual nation ref, 
-      // but the user wants to wipe the old small list.
-      // We will handle the full wipe before the loop.
-      await rtdb.ref(`nations/${nation.id}`).set({
-        ...nation,
-        stability: nation.stability || 50,
-        morale: nation.morale || 50,
-        atWar: false,
-        lastUpdated: Date.now()
-      })
+    // Clean undefined values
+    const cleanNation = JSON.parse(JSON.stringify(nation, (k, v) => 
+      v === undefined ? null : v
+    ))
+    
+    // OPTIMIZATION: Disable heavy NPC generation loop
+    // Only create essential leaders if needed, but for now just the nation
+    const essentialLeaders = [
+      { id: `pres_${nation.id}`, role: 'President', name: `Leader of ${nation.name}` }
+    ]
+    
+    await ref.set({
+      ...cleanNation,
+      leaders: essentialLeaders,
+      lastUpdated: admin.firestore.FieldValue.serverTimestamp()
+    })
+    
+    // Also seed RTDB for live state
+    await rtdb.ref(`nations/${nation.id}`).set({
+      ...cleanNation,
+      stability: nation.stability || 50,
+      morale: nation.morale || 50,
+      atWar: false,
+      lastUpdated: Date.now()
+    })
+    
+    count++
+    if (count % 10 === 0) {
+      console.log(`✅ Seeded ${count}/${nations.length} nations...`)
     }
     
-    await batch.commit()
-    console.log(`✅ Seeded ${Math.min(i + batchSize, nations.length)}/${nations.length} nations`)
+    // Small delay to prevent Firebase/Render overhead
+    await sleep(50)
   }
 
   // Seed stocks from marketplaces_config.json
   console.log('📈 Seeding stocks...')
   const marketPath = path.join(__dirname, '../../../../data/economics/marketplaces_config.json')
-  const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'))
-  
-  if (marketData.stock_exchange?.companies) {
-    const batch = db.batch()
-    for (const company of marketData.stock_exchange.companies) {
-      const ref = db.collection('stocks').doc(company.id)
-      batch.set(ref, {
-        ...company,
-        currentPrice: company.base_price || 100,
-        priceHistory: [company.base_price || 100],
-        lastUpdated: Date.now()
-      })
+  if (fs.existsSync(marketPath)) {
+    const marketData = JSON.parse(fs.readFileSync(marketPath, 'utf8'))
+    if (marketData.stock_exchange?.companies) {
+      for (const company of marketData.stock_exchange.companies) {
+        const ref = db.collection('stocks').doc(company.id)
+        await ref.set({
+          ...company,
+          currentPrice: company.base_price || 100,
+          priceHistory: [company.base_price || 100],
+          lastUpdated: Date.now()
+        })
+        await sleep(20)
+      }
+      console.log('✅ Stocks seeded!')
     }
-    await batch.commit()
-    console.log('✅ Stocks seeded!')
   }
 
   // Seed initial world events
@@ -109,11 +127,22 @@ async function seedAll() {
 
   for (const event of events) {
     await db.collection('events').add(event)
+    await sleep(20)
   }
   console.log('✅ Events seeded!')
 
-  console.log('🎉 DATABASE SEEDING COMPLETE!')
-  process.exit(0)
+  console.log(`🎉 DATABASE SEEDING COMPLETE! Total: ${count} nations`)
 }
 
-seedAll().catch(console.error)
+// Only run if called directly
+if (require.main === module) {
+  seedAll()
+    .then(() => {
+      console.log('👋 Seeding script finished')
+      process.exit(0)
+    })
+    .catch(err => {
+      console.error('❌ Seeding failed:', err)
+      process.exit(1)
+    })
+}
