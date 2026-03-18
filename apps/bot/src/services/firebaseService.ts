@@ -53,6 +53,12 @@ export interface WorldEvent {
   expiresAt?: number | null;
 }
 
+const removeUndefined = (obj: any): any => {
+  return JSON.parse(JSON.stringify(obj, (key, value) => 
+    value === undefined ? null : value
+  ))
+}
+
 export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
   const playerRef = db.collection('players').doc(telegramUser.id.toString());
   const doc = await playerRef.get();
@@ -63,9 +69,13 @@ export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
 
   const newPlayer: Player = {
     telegramId: telegramUser.id.toString(),
-    username: telegramUser.username,
-    firstName: telegramUser.first_name,
-    lastName: telegramUser.last_name,
+    username: telegramUser.username || '',
+    firstName: telegramUser.first_name || '',
+    lastName: telegramUser.last_name || '',
+    nationId: '',
+    currentNation: '',
+    role: '',
+    currentRole: '',
     stats: {
       totalScore: 0,
       warBonds: 1000,
@@ -83,7 +93,7 @@ export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
     lastActive: Date.now(),
   };
 
-  await playerRef.set(newPlayer);
+  await playerRef.set(removeUndefined(newPlayer));
   return newPlayer;
 };
 
