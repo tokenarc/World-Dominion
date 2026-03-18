@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
 
-export default function LoadingScreen({ progress = 0 }: { progress?: number }) {
-  const [dots, setDots] = useState('')
+interface LoadingScreenProps {
+  progress?: number
+  status?: string
+}
+
+export default function LoadingScreen({ progress = 0, status }: LoadingScreenProps) {
   const [showText, setShowText] = useState(false)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDots(d => d.length >= 3 ? '' : d + '.')
-    }, 500)
-    setTimeout(() => setShowText(true), 800)
-    return () => clearInterval(interval)
+    const timer = setTimeout(() => setShowText(true), 800)
+    return () => clearTimeout(timer)
   }, [])
 
   return (
@@ -200,7 +201,9 @@ export default function LoadingScreen({ progress = 0 }: { progress?: number }) {
             letterSpacing: '3px',
             color: 'rgba(255, 215, 0, 0.6)',
             marginBottom: '4px'
-          }}>INITIALIZING COMMAND CENTER{dots}</p>
+          }}>
+            {status || 'INITIALIZING...'}
+          </p>
           <p style={{
             fontSize: '12px',
             color: 'rgba(255, 50, 50, 0.5)',

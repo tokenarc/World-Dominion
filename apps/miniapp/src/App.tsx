@@ -8,33 +8,54 @@ import LoadingScreen from './components/LoadingScreen'
 function App() {
   const [isReady, setIsReady] = useState(false)
   const [loadProgress, setLoadProgress] = useState(0)
+  const [loadStatus, setLoadStatus] = useState('Initializing...')
 
   useEffect(() => {
-    // Initialize Telegram WebApp
-    if ((window as any).Telegram?.WebApp) {
-      (window as any).Telegram.WebApp.ready()
-      setIsReady(true)
-    } else {
-      // Fallback for development
-      setIsReady(true)
-    }
-  }, [])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setLoadProgress(p => {
-        if (p >= 100) {
-          clearInterval(interval)
-          return 100
+    const initApp = async () => {
+      try {
+        setLoadStatus('Initializing Telegram...')
+        setLoadProgress(10)
+        if ((window as any).Telegram?.WebApp) {
+          (window as any).Telegram.WebApp.ready()
         }
-        return p + 4
-      })
-    }, 80)
-    return () => clearInterval(interval)
+        await new Promise(r => setTimeout(r, 300))
+
+        setLoadStatus('Connecting to servers...')
+        setLoadProgress(30)
+        await new Promise(r => setTimeout(r, 400))
+
+        setLoadStatus('Authenticating commander...')
+        setLoadProgress(50)
+        await new Promise(r => setTimeout(r, 400))
+
+        setLoadStatus('Loading world map...')
+        setLoadProgress(70)
+        await new Promise(r => setTimeout(r, 400))
+
+        setLoadStatus('Briefing intelligence...')
+        setLoadProgress(90)
+        await new Promise(r => setTimeout(r, 300))
+
+        setLoadStatus('COMMAND CENTER READY')
+        setLoadProgress(100)
+        await new Promise(r => setTimeout(r, 600))
+
+        setIsReady(true)
+      } catch (error) {
+        console.error('Init error:', error)
+        setIsReady(true)
+      }
+    }
+    initApp()
   }, [])
 
-  if (!isReady || loadProgress < 100) {
-    return <LoadingScreen progress={loadProgress} />
+  if (!isReady) {
+    return (
+      <LoadingScreen
+        progress={loadProgress}
+        status={loadStatus}
+      />
+    )
   }
 
   return (
