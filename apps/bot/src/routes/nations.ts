@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { getAllNations, getNation, db } from '../services/firebaseService';
+import { getAllNations, getNation, db, seedNations } from '../services/firebaseService';
 
 const router = Router();
 
@@ -67,6 +67,20 @@ router.get('/:id/events', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error fetching nation events:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+/**
+ * POST /api/nations/seed
+ * Trigger database seeding
+ */
+router.post('/seed', async (req: Request, res: Response) => {
+  try {
+    await seedNations();
+    res.json({ success: true, message: 'Nations seeded!' });
+  } catch (error) {
+    console.error('Seed failed:', error);
+    res.status(500).json({ error: 'Seed failed' });
   }
 });
 

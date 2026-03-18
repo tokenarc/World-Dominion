@@ -7,15 +7,19 @@ export default function Nations() {
 
   useEffect(() => {
     const fetchNations = async () => {
-      try {
-        const res = await fetch('https://world-dominion.onrender.com/api/nations')
-        const data = await res.json()
-        setNations(data.nations || [])
-      } catch (error) {
-        console.error('Failed to fetch nations:', error)
-      } finally {
-        setLoading(false)
-      }
+      setLoading(true)
+      fetch('https://world-dominion.onrender.com/api/nations')
+        .then(r => r.json())
+        .then(data => {
+          // Try different response formats
+          const nations = data.nations || data.data || data || []
+          setNations(Array.isArray(nations) ? nations : [])
+          setLoading(false)
+        })
+        .catch(err => {
+          console.error('Nations fetch error:', err)
+          setLoading(false)
+        })
     }
     fetchNations()
   }, [])
