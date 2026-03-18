@@ -8,7 +8,7 @@ admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
+    privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n').replace(/\"/g, '')
   }),
   databaseURL: 'https://world-dominion-666b1-default-rtdb.firebaseio.com'
 })
@@ -22,6 +22,10 @@ async function seedAll() {
   // Load nations data
   const nationsPath = path.join(__dirname, '../../../../data/nations/all_countries.json')
   const nations = JSON.parse(fs.readFileSync(nationsPath, 'utf8'))
+  
+  // Wipe old nations list in RTDB
+  console.log('🧹 Wiping old nations list in RTDB...')
+  await rtdb.ref('nations').set(null)
   
   // Seeding nations...
 
@@ -40,7 +44,11 @@ async function seedAll() {
       batch.set(ref, cleanNation)
       
       // Also seed RTDB for live state
+      // Note: We are using .set() on the individual nation ref, 
+      // but the user wants to wipe the old small list.
+      // We will handle the full wipe before the loop.
       await rtdb.ref(`nations/${nation.id}`).set({
+        ...nation,
         stability: nation.stability || 50,
         morale: nation.morale || 50,
         atWar: false,
