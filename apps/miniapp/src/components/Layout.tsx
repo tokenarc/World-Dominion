@@ -16,7 +16,7 @@ export default function Layout() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'dashboard': return <Dashboard />
+      case 'dashboard': return <Dashboard onNavigate={setCurrentPage as any} />
       case 'nations': return <Nations />
       case 'market': return <Market />
       case 'wallet': return <Wallet />

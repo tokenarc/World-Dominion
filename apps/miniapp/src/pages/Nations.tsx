@@ -34,7 +34,12 @@ export default function Nations() {
   )
 
   return (
-    <div style={{ padding: '16px', paddingBottom: '80px' }}>
+    <div style={{ 
+      padding: '16px', 
+      paddingBottom: '80px',
+      overflowY: 'auto',
+      maxHeight: 'calc(100vh - 140px)'
+    }}>
       <div style={{ marginBottom: '16px' }}>
         <div style={{ fontSize: '10px', color: '#8B0000', letterSpacing: '3px', marginBottom: '8px' }}>
           🌍 GLOBAL INTELLIGENCE DATABASE

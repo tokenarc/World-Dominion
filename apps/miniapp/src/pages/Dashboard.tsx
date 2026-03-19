@@ -24,7 +24,7 @@ const StatCard = ({ icon, label, value, color = '#FFD700' }: any) => (
   </div>
 )
 
-export default function Dashboard() {
+export default function Dashboard({ onNavigate }: { onNavigate?: (page: string) => void }) {
   const { player } = useAuth()
 
   return (
@@ -108,12 +108,15 @@ export default function Dashboard() {
         gap: '8px'
       }}>
         {[
-          { label: 'VIEW NATIONS', icon: '🌍', color: '#8B0000' },
-          { label: 'DAILY MISSIONS', icon: '🎯', color: '#FFD700' },
-          { label: 'WAR ROOM', icon: '⚔️', color: '#cc0000' },
-          { label: 'INTELLIGENCE', icon: '🕵️', color: '#8892a4' }
+          { label: 'VIEW NATIONS', icon: '🌍', color: '#8B0000', page: 'nations' },
+          { label: 'DAILY MISSIONS', icon: '🎯', color: '#FFD700', page: 'missions' },
+          { label: 'WAR ROOM', icon: '⚔️', color: '#cc0000', page: 'war' },
+          { label: 'INTELLIGENCE', icon: '🕵️', color: '#8892a4', page: 'intel' }
         ].map((btn: any) => (
-          <button key={btn.label} style={{
+          <button 
+            key={btn.label} 
+            onClick={() => onNavigate?.(btn.page)}
+            style={{
             background: 'linear-gradient(135deg, #0d1117, #161b22)',
             border: `1px solid ${btn.color}`,
             borderRadius: '8px',
