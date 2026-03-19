@@ -6,19 +6,22 @@ export default function Nations() {
   const [search, setSearch] = useState('')
 
   const fetchNations = async () => {
-    setLoading(true)
-    fetch('https://world-dominion.onrender.com/api/nations')
-      .then(r => r.json())
-      .then(data => {
-        // Try different response formats
-        const nations = data.nations || data.data || data || []
-        setNations(Array.isArray(nations) ? nations : [])
-        setLoading(false)
-      })
-      .catch(err => {
-        console.error('Nations fetch error:', err)
-        setLoading(false)
-      })
+    try {
+      setLoading(true)
+      const res = await fetch(
+        'https://world-dominion-666b1-default-rtdb.firebaseio.com/nations.json?limitToFirst=50'
+      )
+      const data = await res.json()
+      
+      if (data) {
+        const nationsList = Object.values(data) as any[]
+        setNations(nationsList)
+      }
+    } catch(err) {
+      console.error('Nations fetch error:', err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
