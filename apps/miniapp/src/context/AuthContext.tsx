@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface User {
   id: string;
@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [player, setPlayer] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
     const res = await fetch('https://world-dominion.fly.dev/api/auth/email-login', {
@@ -57,10 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(null);
   };
 
-  useEffect(() => {
-    // No persistent token – just set loading false
-    setLoading(false);
-  }, []);
+
 
   return (
     <AuthContext.Provider value={{ user, player, token, loading, login, verifyOtp, logout }}>

@@ -166,7 +166,7 @@ export default function Login() {
                 setLastName('');
               }}
             >
-              Don't have an account? Sign up
+              Need an account? Sign up
             </button>
           </form>
         </div>
@@ -178,7 +178,7 @@ export default function Login() {
     return (
       <div style={styles.container}>
         <div style={styles.card}>
-          <div style={styles.title}>Create Account</div>
+          <div style={styles.title}>CREATE ACCOUNT</div>
           <form onSubmit={handleSendOtp}>
             <input
               type="text"
@@ -231,14 +231,14 @@ export default function Login() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <div style={styles.title}>Verify Email</div>
+        <div style={styles.title}>VERIFY EMAIL</div>
+        <p style={{ color: '#8892a4', textAlign: 'center', marginBottom: '20px' }}>
+          We've sent a 6‑digit code to <strong>{email}</strong>
+        </p>
         <form onSubmit={handleVerifyOtp}>
-          <div style={{ marginBottom: '15px', color: '#8892a4', fontSize: '14px' }}>
-            We sent a 6-digit code to {email}
-          </div>
           <input
             type="text"
-            placeholder="Enter code"
+            placeholder="6‑digit code"
             value={otp}
             onChange={(e) => setOtp(e.target.value)}
             style={styles.input}
@@ -253,7 +253,7 @@ export default function Login() {
             style={styles.toggleButton}
             onClick={() => setStep('signup')}
           >
-            Go back
+            Change email
           </button>
         </form>
       </div>
