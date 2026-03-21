@@ -9,11 +9,23 @@ const db = getFirestore();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// In‑memory OTP store (use Firestore in production)
-const otpStore = new Map<string, { code: string, expires: number }>();
+// Helper for OTP storage (Firestore)
+const getOtpStore = () => ({
+  async set(email: string, code: string, expires: number) {
+    await db.collection(\'otp\').doc(email).set({ code, expires, createdAt: Date.now() });
+  },
+  async get(email: string) {
+    const doc = await db.collection(\'otp\').doc(email).get();
+    if (!doc.exists) return null;
+    return doc.data() as { code: string; expires: number };
+  },
+  async delete(email: string) {
+    await db.collection(\'otp\').doc(email).delete();
+  }
+});
 
-// ==================== Send OTP ====================
-router.post('/send-otp', async (req, res) => {
+// ---------- Send OTP ----------
+router.post("/api/auth/send-otp", async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ success: false, error: 'Email required' });
@@ -29,10 +41,11 @@ router.post('/send-otp', async (req, res) => {
 
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     const expires = Date.now() + 10 * 60 * 1000; // 10 minutes
-    otpStore.set(email, { code, expires });
+    const otpStore = getOtpStore();
+    await otpStore.set(email, code, expires);
 
     await resend.emails.send({
-      from: 'World Dominion <noreply@yourdomain.com>',
+      from: 'World Dominion <noreply@world-dominion.com>', // Change to your verified domain
       to: email,
       subject: 'Verify your email',
       html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes.</p>`,
@@ -45,15 +58,16 @@ router.post('/send-otp', async (req, res) => {
   }
 });
 
-// ==================== Verify OTP & Create Account ====================
-router.post('/verify-otp', async (req, res) => {
+// ---------- Verify OTP and Create Account ----------
+router.post("/api/auth/verify-otp", async (req, res) => {
   try {
     const { email, code, password, firstName, lastName } = req.body;
     if (!email || !code || !password) {
       return res.status(400).json({ success: false, error: 'Missing fields' });
     }
 
-    const stored = otpStore.get(email);
+    const otpStore = getOtpStore();
+    const stored = await otpStore.get(email);
     if (!stored || stored.code !== code || stored.expires < Date.now()) {
       return res.status(400).json({ success: false, error: 'Invalid or expired code' });
     }
@@ -83,7 +97,7 @@ router.post('/verify-otp', async (req, res) => {
     };
     await db.collection('players').doc(userId).set(playerData);
 
-    otpStore.delete(email);
+    await otpStore.delete(email);
 
     const token = jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '7d' });
 
@@ -99,8 +113,8 @@ router.post('/verify-otp', async (req, res) => {
   }
 });
 
-// ==================== Email Login ====================
-router.post('/email-login', async (req, res) => {
+// ---------- Email Login ----------
+router.post("/api/auth/email-login", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
