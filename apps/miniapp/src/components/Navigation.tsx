@@ -1,22 +1,19 @@
-import { haptics } from '../lib/haptics'
-
-type Page = 'dashboard' | 'nations' | 'market' | 'wallet' | 'events' | 'war' | 'apply'
-
-interface NavigationProps {
-  currentPage: Page
-  onPageChange: (page: Page) => void
-}
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const navItems = [
-  { id: 'dashboard', label: 'HQ', icon: '🏛️' },
-  { id: 'nations', label: 'MAP', icon: '🌍' },
-  { id: 'war', label: 'WAR', icon: '⚔️' },
-  { id: 'market', label: 'TRADE', icon: '📈' },
-  { id: 'wallet', label: 'VAULT', icon: '💰' },
-  { id: 'apply', label: 'ENLIST', icon: '🎖️' }
-]
+  { id: '/', label: 'HQ', icon: '🏛️' },
+  { id: '/nations', label: 'MAP', icon: '🌍' },
+  { id: '/war', label: 'WAR', icon: '⚔️' },
+  { id: '/market', label: 'TRADE', icon: '📈' },
+  { id: '/wallet', label: 'VAULT', icon: '💰' },
+  { id: '/apply', label: 'ENLIST', icon: '🎖️' }
+];
 
-export default function Navigation({ currentPage, onPageChange }: any) {
+export default function Navigation() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <nav style={{
       position: 'fixed', bottom: 0, left: 0, right: 0,
@@ -27,10 +24,10 @@ export default function Navigation({ currentPage, onPageChange }: any) {
       zIndex: 100
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-around' }}>
-        {navItems.map((item: any) => (
+        {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => { haptics.select(); onPageChange(item.id) }}
+            onClick={() => navigate(item.id)}
             style={{
               background: 'none', border: 'none',
               display: 'flex', flexDirection: 'column',
@@ -40,7 +37,7 @@ export default function Navigation({ currentPage, onPageChange }: any) {
               transition: 'all 0.2s'
             }}
           >
-            {currentPage === item.id && (
+            {currentPath === item.id && (
               <div style={{
                 position: 'absolute', top: '-6px',
                 left: '50%', transform: 'translateX(-50%)',
@@ -51,17 +48,17 @@ export default function Navigation({ currentPage, onPageChange }: any) {
             )}
             <div style={{
               fontSize: '20px',
-              filter: currentPage === item.id 
+              filter: currentPath === item.id 
                 ? 'drop-shadow(0 0 6px #FFD700)' 
                 : 'grayscale(60%)',
-              transform: currentPage === item.id ? 'scale(1.2)' : 'scale(1)',
+              transform: currentPath === item.id ? 'scale(1.2)' : 'scale(1)',
               transition: 'all 0.2s'
             }}>
               {item.icon}
             </div>
             <div style={{
               fontSize: '8px', letterSpacing: '1px', fontWeight: 'bold',
-              color: currentPage === item.id ? '#FFD700' : '#8892a4'
+              color: currentPath === item.id ? '#FFD700' : '#8892a4'
             }}>
               {item.label}
             </div>
@@ -69,5 +66,5 @@ export default function Navigation({ currentPage, onPageChange }: any) {
         ))}
       </div>
     </nav>
-  )
+  );
 }

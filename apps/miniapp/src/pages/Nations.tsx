@@ -1,29 +1,29 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 export default function Nations() {
-  const [nations, setNations] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [nations, setNations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     const fetchNations = async () => {
       try {
-        const res = await fetch('https://world-dominion.onrender.com/api/nations')
-        const data = await res.json()
-        setNations(data.nations || [])
+        const res = await fetch('https://world-dominion.fly.dev/api/nations');
+        const data = await res.json();
+        setNations(data.nations || []);
       } catch (error) {
-        console.error('Failed to fetch nations:', error)
+        console.error('Failed to fetch nations:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchNations()
-  }, [])
+    };
+    fetchNations();
+  }, []);
 
   const filtered = nations.filter((n: any) =>
     n.name?.toLowerCase().includes(search.toLowerCase()) ||
     n.id?.toLowerCase().includes(search.toLowerCase())
-  )
+  );
 
   return (
     <div style={{ padding: '16px', paddingBottom: '80px' }}>
@@ -114,5 +114,5 @@ export default function Nations() {
         ))}
       </div>
     </div>
-  )
+  );
 }

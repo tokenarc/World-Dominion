@@ -1,82 +1,54 @@
-import { useEffect, useState } from 'react'
-import { TelegramProvider } from './context/TelegramContext'
-import { FirebaseProvider } from './context/FirebaseContext'
-import { AuthProvider } from './context/AuthContext'
-import Layout from './components/Layout'
-import LoadingScreen from './components/LoadingScreen'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { FirebaseProvider } from './context/FirebaseContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
+import Nations from './pages/Nations';
+import War from './pages/War';
+import Market from './pages/Market';
+import Wallet from './pages/Wallet';
+import Apply from './pages/Apply';
+import Profile from './pages/Profile';
+import Missions from './pages/Missions';
 
-function App() {
-  const [isReady, setIsReady] = useState(false)
-  const [loadProgress, setLoadProgress] = useState(0)
-  const [loadStatus, setLoadStatus] = useState('Initializing...')
+function AppContent() {
+  const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const initApp = async () => {
-      try {
-        setLoadStatus('Initializing Telegram...')
-        setLoadProgress(15)
-        if ((window as any).Telegram?.WebApp) {
-          (window as any).Telegram.WebApp.ready()
-          (window as any).Telegram.WebApp.expand()
-        }
-        await new Promise(r => setTimeout(r, 500))
+  if (loading) {
+    return <div style={{ background: '#050810', height: '100vh' }} />;
+  }
 
-        setLoadStatus('Connecting to servers...')
-        setLoadProgress(35)
-        await new Promise(r => setTimeout(r, 600))
-
-        setLoadStatus('Authenticating commander...')
-        setLoadProgress(55)
-        try {
-          const BOT_URL = 'https://world-dominion.onrender.com'
-          const initData = (window as any).Telegram?.WebApp?.initData || ''
-          if (initData) {
-            await fetch(`${BOT_URL}/api/auth/login`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ initData }),
-              signal: (AbortSignal as any).timeout(5000)
-            })
-          }
-        } catch(e) {
-          console.log('Auth in background')
-        }
-        await new Promise(r => setTimeout(r, 400))
-
-        setLoadStatus('Loading world map...')
-        setLoadProgress(75)
-        await new Promise(r => setTimeout(r, 500))
-
-        setLoadStatus('Deploying NPC commanders...')
-        setLoadProgress(90)
-        await new Promise(r => setTimeout(r, 400))
-
-        setLoadStatus('COMMAND CENTER READY')
-        setLoadProgress(100)
-        await new Promise(r => setTimeout(r, 800))
-
-        setIsReady(true)
-      } catch (error) {
-        console.error('Init error:', error)
-        setIsReady(true)
-      }
-    }
-    initApp()
-  }, [])
-
-  if (!isReady || loadProgress < 100) {
-    return <LoadingScreen progress={loadProgress} status={loadStatus} />
+  if (!user) {
+    return <Login />;
   }
 
   return (
-    <TelegramProvider>
-      <FirebaseProvider>
-        <AuthProvider>
-          <Layout />
-        </AuthProvider>
-      </FirebaseProvider>
-    </TelegramProvider>
-  )
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/nations" element={<Nations />} />
+        <Route path="/war" element={<War />} />
+        <Route path="/market" element={<Market />} />
+        <Route path="/wallet" element={<Wallet />} />
+        <Route path="/apply" element={<Apply />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/missions" element={<Missions />} />
+      </Routes>
+    </Layout>
+  );
 }
 
-export default App
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <FirebaseProvider>
+          <AppContent />
+        </FirebaseProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
+
+export default App;

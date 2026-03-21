@@ -1,4 +1,5 @@
-import { useAuth } from '../context/AuthContext'
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const StatCard = ({ icon, label, value, color = '#FFD700' }: any) => (
   <div style={{
@@ -22,10 +23,12 @@ const StatCard = ({ icon, label, value, color = '#FFD700' }: any) => (
       <div style={{ fontSize: '14px', fontWeight: 'bold', color }}>{value}</div>
     </div>
   </div>
-)
+);
 
 export default function Dashboard() {
-  const { player } = useAuth()
+  const navigate = useNavigate();
+  const { user, player } = useAuth();
+  const firstName = user?.firstName?.toUpperCase() || 'COMMANDER';
 
   return (
     <div style={{ padding: '16px', paddingBottom: '80px' }}>
@@ -49,11 +52,11 @@ export default function Dashboard() {
             ⚔️ ACTIVE COMMANDER
           </div>
           <div style={{ fontSize: '22px', fontWeight: 900, color: '#FFD700', letterSpacing: '2px' }}>
-            {player?.username?.toUpperCase() || 'COMMANDER'}
+            {firstName}
           </div>
           <div style={{ fontSize: '11px', color: '#8892a4', marginTop: '4px' }}>
-            {player?.currentRole || 'No Role Assigned'} 
-            {player?.currentNation ? ` • ${player.currentNation}` : ' • Apply for a role'}
+            {player?.stats?.role || 'No Role Assigned'} 
+            {player?.stats?.nation ? ` • ${player.stats.nation}` : ' • Apply for a role'}
           </div>
         </div>
       </div>
@@ -63,8 +66,8 @@ export default function Dashboard() {
         display: 'grid', gridTemplateColumns: '1fr 1fr',
         gap: '8px', marginBottom: '16px'
       }}>
-        <StatCard icon="🌍" label="NATION" value={player?.currentNation || 'UNASSIGNED'} />
-        <StatCard icon="🎖️" label="ROLE" value={player?.currentRole || 'CIVILIAN'} color="#cc0000" />
+        <StatCard icon="🌍" label="NATION" value={player?.stats?.nation || 'UNASSIGNED'} />
+        <StatCard icon="🎖️" label="ROLE" value={player?.stats?.role || 'CIVILIAN'} color="#cc0000" />
         <StatCard icon="⚔️" label="STATUS" value="ACTIVE" color="#00ff88" />
         <StatCard icon="🏆" label="RANK" value="COMMANDER" color="#FFD700" />
       </div>
@@ -87,8 +90,7 @@ export default function Dashboard() {
           <div style={{ 
             marginLeft: 'auto', width: '6px', height: '6px',
             borderRadius: '50%', background: '#00ff88',
-            boxShadow: '0 0 6px #00ff88',
-            animation: 'pulse 2s infinite'
+            boxShadow: '0 0 6px #00ff88'
           }} />
         </div>
         <div style={{ padding: '12px 14px' }}>
@@ -108,31 +110,35 @@ export default function Dashboard() {
         gap: '8px'
       }}>
         {[
-          { label: 'VIEW NATIONS', icon: '🌍', color: '#8B0000' },
-          { label: 'DAILY MISSIONS', icon: '🎯', color: '#FFD700' },
-          { label: 'WAR ROOM', icon: '⚔️', color: '#cc0000' },
-          { label: 'INTELLIGENCE', icon: '🕵️', color: '#8892a4' }
+          { label: 'VIEW NATIONS', icon: '🌍', color: '#8B0000', path: '/nations' },
+          { label: 'DAILY MISSIONS', icon: '🎯', color: '#FFD700', path: '/missions' },
+          { label: 'WAR ROOM', icon: '⚔️', color: '#cc0000', path: '/war' },
+          { label: 'INTELLIGENCE', icon: '🕵️', color: '#8892a4', path: '/profile' }
         ].map((btn: any) => (
-          <button key={btn.label} style={{
-            background: 'linear-gradient(135deg, #0d1117, #161b22)',
-            border: `1px solid ${btn.color}`,
-            borderRadius: '8px',
-            padding: '12px 8px',
-            color: btn.color,
-            fontSize: '10px',
-            letterSpacing: '2px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            boxShadow: `0 0 10px ${btn.color}20`
-          }}>
+          <button 
+            key={btn.label} 
+            onClick={() => navigate(btn.path)}
+            style={{
+              background: 'linear-gradient(135deg, #0d1117, #161b22)',
+              border: `1px solid ${btn.color}`,
+              borderRadius: '8px',
+              padding: '12px 8px',
+              color: btn.color,
+              fontSize: '10px',
+              letterSpacing: '2px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: `0 0 10px ${btn.color}20`
+            }}
+          >
             <span style={{ fontSize: '20px' }}>{btn.icon}</span>
             {btn.label}
           </button>
         ))}
       </div>
     </div>
-  )
+  );
 }

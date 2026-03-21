@@ -1,73 +1,143 @@
-import { Router, Request, Response } from 'express';
-import { getOrCreatePlayer, getPlayer, updatePlayer } from '../services/firebaseService';
+import { Router } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { getFirestore } from 'firebase-admin/firestore';
+import { Resend } from 'resend';
 
 const router = Router();
+const db = getFirestore();
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-/**
- * POST /api/auth/validate
- * Validate initData and return player data
- */
-router.post('/validate', async (req: Request, res: Response) => {
+// In‑memory OTP store (use Firestore in production)
+const otpStore = new Map<string, { code: string, expires: number }>();
+
+// ==================== Send OTP ====================
+router.post('/send-otp', async (req, res) => {
   try {
-    const initData = req.headers['x-telegram-init-data'] as string;
-    if (!initData) {
-      return res.status(400).json({ error: 'Missing x-telegram-init-data' });
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ success: false, error: 'Email required' });
+
+    // Check if email already exists and verified
+    const existingUser = await db.collection('users').where('email', '==', email).get();
+    if (!existingUser.empty) {
+      const user = existingUser.docs[0].data();
+      if (user.emailVerified) {
+        return res.status(400).json({ success: false, error: 'Email already registered' });
+      }
     }
 
-    const urlParams = new URLSearchParams(initData);
-    const userJson = urlParams.get('user');
-    if (!userJson) {
-      return res.status(400).json({ error: 'Missing user in initData' });
-    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    const expires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    otpStore.set(email, { code, expires });
 
-    const userData = JSON.parse(userJson);
-    const player = await getOrCreatePlayer(userData);
+    await resend.emails.send({
+      from: 'World Dominion <noreply@yourdomain.com>',
+      to: email,
+      subject: 'Verify your email',
+      html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes.</p>`,
+    });
 
-    res.json({ player });
-  } catch (error) {
-    console.error('Auth validation error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Send OTP error:', err);
+    res.status(500).json({ success: false, error: 'Failed to send OTP' });
   }
 });
 
-router.post('/login', async (req: Request, res: Response) => {
+// ==================== Verify OTP & Create Account ====================
+router.post('/verify-otp', async (req, res) => {
   try {
-    const { initData } = req.body
-    if (!initData) {
-      return res.status(400).json({ error: 'Missing initData' })
+    const { email, code, password, firstName, lastName } = req.body;
+    if (!email || !code || !password) {
+      return res.status(400).json({ success: false, error: 'Missing fields' });
     }
 
-    const urlParams = new URLSearchParams(initData)
-    const userJson = urlParams.get('user')
-    if (!userJson) {
-      return res.status(400).json({ error: 'Missing user data' })
+    const stored = otpStore.get(email);
+    if (!stored || stored.code !== code || stored.expires < Date.now()) {
+      return res.status(400).json({ success: false, error: 'Invalid or expired code' });
     }
 
-    const userData = JSON.parse(userJson)
-    const player = await getOrCreatePlayer(userData)
+    // Create user with emailVerified = true
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const userId = `email_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
 
-    res.json({ player, success: true })
-  } catch (error) {
-    console.error('Login error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    const userData = {
+      id: userId,
+      email,
+      password: hashedPassword,
+      firstName: firstName || '',
+      lastName: lastName || '',
+      emailVerified: true,
+      createdAt: new Date().toISOString(),
+    };
+
+    await db.collection('users').doc(userId).set(userData);
+
+    // Create default player data
+    const playerData = {
+      userId,
+      wallet: { warBonds: 1000, commandPoints: 100 },
+      stats: { role: 'CIVILIAN', nation: 'UNASSIGNED', reputation: 50 },
+      joinedAt: new Date().toISOString(),
+    };
+    await db.collection('players').doc(userId).set(playerData);
+
+    otpStore.delete(email);
+
+    const token = jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      success: true,
+      token,
+      user: { id: userId, email, firstName: userData.firstName, lastName: userData.lastName },
+      player: playerData,
+    });
+  } catch (err) {
+    console.error('Verify OTP error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
-})
+});
 
-/**
- * POST /api/auth/refresh
- * Refresh player data
- */
-router.post('/refresh', async (req: Request, res: Response) => {
+// ==================== Email Login ====================
+router.post('/email-login', async (req, res) => {
   try {
-    if (!req.player) {
-      return res.status(401).json({ error: 'Unauthorized' });
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Email and password required' });
     }
 
-    const player = await getPlayer(req.player.telegramId);
-    res.json({ player });
-  } catch (error) {
-    console.error('Auth refresh error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    const userSnapshot = await db.collection('users').where('email', '==', email).get();
+    if (userSnapshot.empty) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    const userDoc = userSnapshot.docs[0];
+    const user = userDoc.data();
+
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+
+    if (!user.emailVerified) {
+      return res.status(401).json({ success: false, error: 'Email not verified' });
+    }
+
+    const playerDoc = await db.collection('players').doc(user.id).get();
+    const player = playerDoc.exists ? playerDoc.data() : null;
+
+    const token = jwt.sign({ userId: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      success: true,
+      token,
+      user: { id: user.id, email, firstName: user.firstName, lastName: user.lastName },
+      player,
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
