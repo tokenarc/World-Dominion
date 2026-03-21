@@ -1,12 +1,3 @@
-export interface TelegramUser {
-  id: number;
-  username?: string;
-  first_name: string;
-  last_name?: string;
-  photo_url?: string;
-  language_code?: string;
-}
-
 export interface PlayerStats {
   strategicIq: number;
   militaryKnowledge: number;
@@ -30,7 +21,8 @@ export interface PlayerWallet {
 }
 
 export interface Player {
-  telegramId: string;
+  userId: string;
+  email: string;
   username: string | null;
   firstName: string;
   currentRole: string | null;
@@ -77,8 +69,7 @@ export interface Nation {
   resistanceMeter: number;
   treasury: { warBonds: number; commandPoints: number; };
   stockPrice: number;
-  telegramGroupId: string | null;
-  telegramChannelId: string | null;
+
   updatedAt: any;
 }
 

@@ -4,7 +4,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export interface Player {
-  telegramId: string;
+  userId: string;
+  email: string;
   username?: string;
   firstName?: string;
   lastName?: string;
@@ -53,8 +54,8 @@ export interface WorldEvent {
   expiresAt?: number | null;
 }
 
-export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
-  const playerRef = db.collection('players').doc(telegramUser.id.toString());
+export const getOrCreatePlayer = async (userData: any): Promise<Player> => {
+  const playerRef = db.collection('players').doc(userData.id);
   const doc = await playerRef.get();
 
   if (doc.exists) {
@@ -62,10 +63,11 @@ export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
   }
 
   const newPlayer = {
-    telegramId: telegramUser.id.toString(),
-    username: telegramUser.username ?? '',
-    firstName: telegramUser.first_name ?? '',
-    lastName: telegramUser.last_name ?? '',
+    userId: userData.id,
+    email: userData.email,
+    username: userData.username ?? '',
+    firstName: userData.firstName ?? '',
+    lastName: userData.lastName ?? '',
     nationId: '',
     currentNation: '',
     role: '',
@@ -92,13 +94,13 @@ export const getOrCreatePlayer = async (telegramUser: any): Promise<Player> => {
   return cleanPlayer as Player
 };
 
-export const getPlayer = async (telegramId: string): Promise<Player | null> => {
-  const doc = await db.collection('players').doc(telegramId).get();
+export const getPlayer = async (userId: string): Promise<Player | null> => {
+  const doc = await db.collection('players').doc(userId).get();
   return doc.exists ? (doc.data() as Player) : null;
 };
 
-export const updatePlayer = async (telegramId: string, data: Partial<Player>) => {
-  await db.collection('players').doc(telegramId).update({
+export const updatePlayer = async (userId: string, data: Partial<Player>) => {
+  await db.collection('players').doc(userId).update({
     ...data,
     lastActive: Date.now(),
   });
@@ -237,8 +239,8 @@ export const seedNPCPlayers = async () => {
   console.log('Seeding NPC players...');
 };
 
-export const setPlayerOnline = async (telegramId: string, nationId: string, role: string) => {
-  const presenceRef = rtdb.ref(`presence/${nationId}/${telegramId}`);
+export const setPlayerOnline = async (userId: string, nationId: string, role: string) => {
+  const presenceRef = rtdb.ref(`presence/${nationId}/${userId}`);
   await presenceRef.set({
     role,
     lastSeen: Date.now(),

@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import { getPlayer, Player } from '../services/firebaseService';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 // Extend Express Request type to include player
 declare global {
@@ -16,33 +18,7 @@ const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const MAX_REQUESTS_PER_WINDOW = 30;
 const ipRequestCounts = new Map<string, { count: number; resetTime: number }>();
 
-/**
- * Validate Telegram initData HMAC-SHA256
- */
-const validateTelegramInitData = (initData: string): boolean => {
-  if (!process.env.BOT_TOKEN) return false;
 
-  const urlParams = new URLSearchParams(initData);
-  const hash = urlParams.get('hash');
-  urlParams.delete('hash');
-
-  const dataCheckString = Array.from(urlParams.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('\n');
-
-  const secretKey = crypto
-    .createHmac('sha256', 'WebAppData')
-    .update(process.env.BOT_TOKEN)
-    .digest();
-
-  const calculatedHash = crypto
-    .createHmac('sha256', secretKey)
-    .update(dataCheckString)
-    .digest('hex');
-
-  return calculatedHash === hash;
-};
 
 /**
  * Block VPN/proxy via ip-api.com check
@@ -81,22 +57,18 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     return res.status(403).json({ error: 'Access denied: VPN/Proxy detected' });
   }
 
-  // 3. Auth Validation
-  const initData = req.headers['x-telegram-init-data'] as string;
-  if (!initData || !validateTelegramInitData(initData)) {
-    return res.status(401).json({ error: 'Unauthorized: Invalid initData' });
+  // 3. Auth Validation (JWT)
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized: Missing token' });
   }
+
+  const token = authHeader.split(' ')[1];
 
   // 4. Attach Player Data
   try {
-    const urlParams = new URLSearchParams(initData);
-    const userJson = urlParams.get('user');
-    if (!userJson) {
-      return res.status(401).json({ error: 'Unauthorized: No user data' });
-    }
-
-    const userData = JSON.parse(userJson);
-    const player = await getPlayer(userData.id.toString());
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string };
+    const player = await getPlayer(decoded.userId);
 
     if (!player) {
       return res.status(401).json({ error: 'Unauthorized: Player not found' });
@@ -106,6 +78,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(401).json({ error: 'Unauthorized: Invalid token' });
   }
 };
