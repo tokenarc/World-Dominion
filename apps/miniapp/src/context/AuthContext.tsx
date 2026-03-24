@@ -1,4 +1,3 @@
-'''
 import React, { createContext, useContext, useState } from 'react';
 
 interface User {
@@ -80,4 +79,3 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
-'''
