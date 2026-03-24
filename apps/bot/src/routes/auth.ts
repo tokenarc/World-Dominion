@@ -5,30 +5,41 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { Resend } from 'resend';
 
 const router = Router();
-const db = getFirestore();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Helper to ensure Firestore is available
+const getDb = () => {
+  try {
+    return getFirestore();
+  } catch (err) {
+    throw new Error('Firebase not initialized. Make sure initializeApp() was called.');
+  }
+};
+
+// Helper for OTP storage
 const getOtpStore = () => ({
   async set(email: string, code: string, expires: number) {
-    await db.collection('otp').doc(email).set({ code, expires, createdAt: Date.now() });
+    await getDb().collection('otp').doc(email).set({ code, expires, createdAt: Date.now() });
   },
   async get(email: string) {
-    const doc = await db.collection('otp').doc(email).get();
+    const doc = await getDb().collection('otp').doc(email).get();
     if (!doc.exists) return null;
     return doc.data() as { code: string; expires: number };
   },
   async delete(email: string) {
-    await db.collection('otp').doc(email).delete();
+    await getDb().collection('otp').doc(email).delete();
   }
 });
 
+// Email login
 router.post('/api/auth/email-login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
       return res.status(400).json({ success: false, error: 'Email and password required' });
     }
+    const db = getDb();
     const usersRef = db.collection('users');
     const userSnapshot = await usersRef.where('email', '==', email).get();
     if (userSnapshot.empty) {
@@ -58,11 +69,13 @@ router.post('/api/auth/email-login', async (req, res) => {
   }
 });
 
+// Send OTP
 router.post('/api/auth/send-otp', async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ success: false, error: 'Email required' });
 
+    const db = getDb();
     const usersRef = db.collection('users');
     const existingUser = await usersRef.where('email', '==', email).get();
     if (!existingUser.empty) {
@@ -91,6 +104,7 @@ router.post('/api/auth/send-otp', async (req, res) => {
   }
 });
 
+// Verify OTP and create account
 router.post('/api/auth/verify-otp', async (req, res) => {
   try {
     const { email, code, password, firstName, lastName } = req.body;
@@ -98,6 +112,7 @@ router.post('/api/auth/verify-otp', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Missing fields' });
     }
 
+    const db = getDb();
     const otpStore = getOtpStore();
     const stored = await otpStore.get(email);
     if (!stored || stored.code !== code || stored.expires < Date.now()) {

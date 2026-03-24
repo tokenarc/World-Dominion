@@ -17,10 +17,21 @@ if (!admin.apps.length) {
       });
       console.log('Firebase Admin initialized with service account');
     } else {
-      console.warn('No Firebase service account found. Firestore access may fail.');
+      // Fallback for local development or if service account not provided
+      console.warn('No Firebase service account found. Trying to use default credentials (if running on Google Cloud).');
+      try {
+        admin.initializeApp({
+          databaseURL: 'https://world-dominion-666b1-default-rtdb.firebaseio.com',
+        });
+        console.log('Firebase Admin initialized with default credentials');
+      } catch (err) {
+        console.error('Failed to initialize Firebase Admin with default credentials:', err);
+        process.exit(1);
+      }
     }
   } catch (error) {
     console.error('Failed to initialize Firebase Admin:', error);
+    process.exit(1);
   }
 }
 
