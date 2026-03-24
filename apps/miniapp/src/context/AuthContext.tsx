@@ -1,3 +1,4 @@
+'''
 import React, { createContext, useContext, useState } from 'react';
 
 interface User {
@@ -26,29 +27,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(false);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch('https://world-dominion.fly.dev/api/auth/email-login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error);
-    setUser(data.user);
-    setPlayer(data.player);
-    setToken(data.token);
+    setLoading(true);
+    try {
+      const res = await fetch('https://world-dominion-bot.onrender.com/api/auth/email-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      setUser(data.user);
+      setPlayer(data.player);
+      setToken(data.token);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const verifyOtp = async (email: string, code: string, password: string, firstName?: string, lastName?: string) => {
-    const res = await fetch('https://world-dominion.fly.dev/api/auth/verify-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, code, password, firstName, lastName }),
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error);
-    setUser(data.user);
-    setPlayer(data.player);
-    setToken(data.token);
+    setLoading(true);
+    try {
+      const res = await fetch('https://world-dominion-bot.onrender.com/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code, password, firstName, lastName }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      setUser(data.user);
+      setPlayer(data.player);
+      setToken(data.token);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = () => {
@@ -56,8 +67,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setPlayer(null);
     setToken(null);
   };
-
-
 
   return (
     <AuthContext.Provider value={{ user, player, token, loading, login, verifyOtp, logout }}>
@@ -71,3 +80,4 @@ export const useAuth = () => {
   if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };
+'''

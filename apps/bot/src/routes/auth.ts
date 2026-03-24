@@ -9,29 +9,62 @@ const db = getFirestore();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Helper for OTP storage (Firestore)
 const getOtpStore = () => ({
   async set(email: string, code: string, expires: number) {
-    await db.collection(\'otp\').doc(email).set({ code, expires, createdAt: Date.now() });
+    await db.collection('otp').doc(email).set({ code, expires, createdAt: Date.now() });
   },
   async get(email: string) {
-    const doc = await db.collection(\'otp\').doc(email).get();
+    const doc = await db.collection('otp').doc(email).get();
     if (!doc.exists) return null;
     return doc.data() as { code: string; expires: number };
   },
   async delete(email: string) {
-    await db.collection(\'otp\').doc(email).delete();
+    await db.collection('otp').doc(email).delete();
   }
 });
 
-// ---------- Send OTP ----------
-router.post("/api/auth/send-otp", async (req, res) => {
+router.post('/api/auth/email-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Email and password required' });
+    }
+    const usersRef = db.collection('users');
+    const userSnapshot = await usersRef.where('email', '==', email).get();
+    if (userSnapshot.empty) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+    const userDoc = userSnapshot.docs[0];
+    const user = userDoc.data();
+    if (!user.emailVerified) {
+      return res.status(401).json({ success: false, error: 'Email not verified' });
+    }
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    }
+    const playerDoc = await db.collection('players').doc(user.id).get();
+    const player = playerDoc.exists ? playerDoc.data() : null;
+    const token = jwt.sign({ userId: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({
+      success: true,
+      token,
+      user: { id: user.id, email, firstName: user.firstName, lastName: user.lastName },
+      player,
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+router.post('/api/auth/send-otp', async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) return res.status(400).json({ success: false, error: 'Email required' });
 
-    // Check if email already exists and verified
-    const existingUser = await db.collection('users').where('email', '==', email).get();
+    const usersRef = db.collection('users');
+    const existingUser = await usersRef.where('email', '==', email).get();
     if (!existingUser.empty) {
       const user = existingUser.docs[0].data();
       if (user.emailVerified) {
@@ -45,9 +78,9 @@ router.post("/api/auth/send-otp", async (req, res) => {
     await otpStore.set(email, code, expires);
 
     await resend.emails.send({
-      from: 'World Dominion <noreply@world-dominion.com>', // Change to your verified domain
+      from: 'World Dominion <noreply@world-dominion.com>',
       to: email,
-      subject: 'Verify your email',
+      subject: 'Verify your email for World Dominion',
       html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes.</p>`,
     });
 
@@ -58,8 +91,7 @@ router.post("/api/auth/send-otp", async (req, res) => {
   }
 });
 
-// ---------- Verify OTP and Create Account ----------
-router.post("/api/auth/verify-otp", async (req, res) => {
+router.post('/api/auth/verify-otp', async (req, res) => {
   try {
     const { email, code, password, firstName, lastName } = req.body;
     if (!email || !code || !password) {
@@ -72,7 +104,6 @@ router.post("/api/auth/verify-otp", async (req, res) => {
       return res.status(400).json({ success: false, error: 'Invalid or expired code' });
     }
 
-    // Create user with emailVerified = true
     const hashedPassword = await bcrypt.hash(password, 10);
     const userId = `email_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
 
@@ -85,10 +116,8 @@ router.post("/api/auth/verify-otp", async (req, res) => {
       emailVerified: true,
       createdAt: new Date().toISOString(),
     };
-
     await db.collection('users').doc(userId).set(userData);
 
-    // Create default player data
     const playerData = {
       userId,
       wallet: { warBonds: 1000, commandPoints: 100 },
@@ -109,48 +138,6 @@ router.post("/api/auth/verify-otp", async (req, res) => {
     });
   } catch (err) {
     console.error('Verify OTP error:', err);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-// ---------- Email Login ----------
-router.post("/api/auth/email-login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ success: false, error: 'Email and password required' });
-    }
-
-    const userSnapshot = await db.collection('users').where('email', '==', email).get();
-    if (userSnapshot.empty) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
-    }
-
-    const userDoc = userSnapshot.docs[0];
-    const user = userDoc.data();
-
-    const valid = await bcrypt.compare(password, user.password);
-    if (!valid) {
-      return res.status(401).json({ success: false, error: 'Invalid credentials' });
-    }
-
-    if (!user.emailVerified) {
-      return res.status(401).json({ success: false, error: 'Email not verified' });
-    }
-
-    const playerDoc = await db.collection('players').doc(user.id).get();
-    const player = playerDoc.exists ? playerDoc.data() : null;
-
-    const token = jwt.sign({ userId: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
-
-    res.json({
-      success: true,
-      token,
-      user: { id: user.id, email, firstName: user.firstName, lastName: user.lastName },
-      player,
-    });
-  } catch (err) {
-    console.error('Login error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
