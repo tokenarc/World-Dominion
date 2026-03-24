@@ -90,14 +90,25 @@ router.post('/api/auth/send-otp', async (req, res) => {
     const otpStore = getOtpStore();
     await otpStore.set(email, code, expires);
 
-    await resend.emails.send({
-      from: 'World Dominion <noreply@world-dominion.com>',
-      to: email,
-      subject: 'Verify your email for World Dominion',
-      html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes.</p>`,
-    });
+    let emailSent = false;
+    try {
+      await resend.emails.send({
+        from: 'World Dominion <noreply@world-dominion.com>',
+        to: email,
+        subject: 'Verify your email for World Dominion',
+        html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes.</p>`,
+      });
+      emailSent = true;
+    } catch (emailError) {
+      console.error('Resend error:', emailError);
+    }
 
-    res.json({ success: true });
+    // Return the OTP for debugging (remove in production)
+    res.json({
+      success: true,
+      devCode: code, // <-- temporary: shows the code on the frontend
+      emailSent
+    });
   } catch (err) {
     console.error('Send OTP error:', err);
     res.status(500).json({ success: false, error: 'Failed to send OTP' });
