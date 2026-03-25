@@ -91,6 +91,7 @@ router.post('/api/auth/send-otp', async (req, res) => {
     await otpStore.set(email, code, expires);
 
     let emailSent = false;
+    let emailError = null;
     try {
       await resend.emails.send({
         from: 'World Dominion <noreply@world-dominion.com>',
@@ -99,15 +100,17 @@ router.post('/api/auth/send-otp', async (req, res) => {
         html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes.</p>`,
       });
       emailSent = true;
-    } catch (emailError) {
-      console.error('Resend error:', emailError);
+    } catch (err) {
+      emailError = err;
+      console.error('Resend error:', err);
     }
 
-    // Return the OTP for debugging (remove in production)
+    // Always return the OTP for manual login during development
     res.json({
       success: true,
-      devCode: code, // <-- temporary: shows the code on the frontend
-      emailSent
+      devCode: code, // OTP code for manual entry
+      emailSent,
+      emailError: emailError ? (emailError as any).message : null
     });
   } catch (err) {
     console.error('Send OTP error:', err);

@@ -6,5 +6,8 @@
     "dev:app": "cd apps/miniapp && pnpm dev",
     "build:app": "cd apps/miniapp && pnpm build",
     "deploy": "firebase deploy"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.2"
   }
 }

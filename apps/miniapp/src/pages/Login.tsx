@@ -21,6 +21,12 @@ export default function Login() {
       await login(email, password);
       window.location.href = '/';
     } catch (err: any) {
+    if (data && data.devCode) {
+      setError(`Development Mode: Use code ${data.devCode} to login`);
+    } else {
+      setError(err.message);
+    }
+  }
       setError(err.message);
     } finally {
       setLoading(false);
@@ -42,6 +48,12 @@ export default function Login() {
       if (!data.success) throw new Error(data.error);
       setStep('otp');
     } catch (err: any) {
+    if (data && data.devCode) {
+      setError(`Development Mode: Use code ${data.devCode} to login`);
+    } else {
+      setError(err.message);
+    }
+  }
       setError(err.message);
     } finally {
       setLoading(false);
@@ -57,6 +69,12 @@ export default function Login() {
       await verifyOtp(email, otp, password, firstName, lastName);
       window.location.href = '/';
     } catch (err: any) {
+    if (data && data.devCode) {
+      setError(`Development Mode: Use code ${data.devCode} to login`);
+    } else {
+      setError(err.message);
+    }
+  }
       setError(err.message);
     } finally {
       setLoading(false);
