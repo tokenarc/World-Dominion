@@ -64,10 +64,10 @@ export const getOrCreatePlayer = async (userData: any): Promise<Player> => {
 
   const newPlayer = {
     userId: userData.id,
-    email: userData.email,
+    email: userData.email || '',
     username: userData.username ?? '',
-    firstName: userData.firstName ?? '',
-    lastName: userData.lastName ?? '',
+    firstName: userData.firstName ?? userData.first_name ?? '',
+    lastName: userData.lastName ?? userData.last_name ?? '',
     nationId: '',
     currentNation: '',
     role: '',

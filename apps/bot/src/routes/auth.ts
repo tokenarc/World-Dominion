@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { getFirestore } from 'firebase-admin/firestore';
-import { Resend } from 'resend';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Helper to ensure Firestore is available
 const getDb = () => {
@@ -17,22 +15,127 @@ const getDb = () => {
   }
 };
 
-// Helper for OTP storage
-const getOtpStore = () => ({
-  async set(email: string, code: string, expires: number) {
-    await getDb().collection('otp').doc(email).set({ code, expires, createdAt: Date.now() });
-  },
-  async get(email: string) {
-    const doc = await getDb().collection('otp').doc(email).get();
-    if (!doc.exists) return null;
-    return doc.data() as { code: string; expires: number };
-  },
-  async delete(email: string) {
-    await getDb().collection('otp').doc(email).delete();
+// Telegram ID login/registration
+router.post('/api/auth/telegram-login', async (req, res) => {
+  try {
+    const { telegramId, password, firstName, lastName, username } = req.body;
+    if (!telegramId || !password) {
+      return res.status(400).json({ success: false, error: 'Telegram ID and password required' });
+    }
+
+    const db = getDb();
+    const usersRef = db.collection('users');
+    const tid = String(telegramId);
+    // Validate that telegramId is numeric
+    if (!/^\d+$/.test(tid)) {
+      return res.status(400).json({ success: false, error: 'Invalid telegramId format' });
+    }
+
+    // Check if user exists by using telegramId as document ID
+    const userDoc = await usersRef.doc(tid).get();
+
+    let isNewUser = false;
+
+    if (!userDoc.exists) {
+      // New user - create account
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const userId = tid;
+
+      const userData = {
+        id: userId,
+        telegramId: tid,
+        password: hashedPassword,
+        firstName: firstName || '',
+        lastName: lastName || '',
+        username: username || '',
+        email: '', // Optional email field for compatibility
+        emailVerified: true, // Skip email verification for Telegram users
+        authMethod: 'telegram',
+        createdAt: new Date().toISOString(),
+      };
+      await usersRef.doc(userId).set(userData);
+      // Re-fetch the newly created user doc
+      userDoc = await usersRef.doc(userId).get();
+      isNewUser = true;
+    } else {
+      // Existing user - verify password
+      const user = userDoc.data();
+      const valid = await bcrypt.compare(password, user.password);
+      if (!valid) {
+        return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      }
+    }
+
+    const user = userDoc.data();
+    const playerDoc = await db.collection('players').doc(user.id).get();
+    const player = playerDoc.exists ? playerDoc.data() : null;
+
+    // Create player if doesn't exist (for both new and existing users)
+    if (!player) {
+      const playerData = {
+        userId: user.id,
+        telegramId: user.telegramId,
+        email: user.email || '',
+        username: user.username || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        nationId: '',
+        currentNation: '',
+        role: '',
+        currentRole: '',
+        wallet: { warBonds: 1000, commandPoints: 100 },
+        stats: { totalScore: 0, warBonds: 1000, commandPoints: 100, reputation: 50, militaryKnowledge: 0 },
+        reputation: 50,
+        kycVerified: false,
+        isNPC: false,
+        joinedAt: Date.now(),
+        lastActive: Date.now(),
+        referralCount: 0,
+        referralCpEarned: 0
+      };
+      await db.collection('players').doc(user.id).set(playerData);
+      // If this was a new player, return it directly
+      if (isNewUser) {
+        const token = jwt.sign({ userId: user.id, telegramId: user.telegramId }, JWT_SECRET, { expiresIn: '7d' });
+        return res.json({
+          success: true,
+          token,
+          user: {
+            id: user.id,
+            telegramId: user.telegramId,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            username: user.username
+          },
+          player: playerData,
+        });
+      }
+      // If existing user, refresh player reference
+      player = playerData;
+    }
+
+    const token = jwt.sign({ userId: user.id, telegramId: user.telegramId }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user.id,
+        telegramId: user.telegramId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username
+      },
+      player: player || null,
+    });
+  } catch (err) {
+    console.error('Telegram login error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 });
 
-// Email login
+// Legacy email login (kept for backward compatibility)
 router.post('/api/auth/email-login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -41,14 +144,14 @@ router.post('/api/auth/email-login', async (req, res) => {
     }
     const db = getDb();
     const usersRef = db.collection('users');
-    const userSnapshot = await usersRef.where('email', '==', email).get();
+    const userSnapshot = await usersRef.where('email', '==', email).limit(1).get();
     if (userSnapshot.empty) {
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
     const userDoc = userSnapshot.docs[0];
     const user = userDoc.data();
-    if (!user.emailVerified) {
-      return res.status(401).json({ success: false, error: 'Email not verified' });
+    if (!user.password) {
+      return res.status(401).json({ success: false, error: 'Please use Telegram login' });
     }
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
@@ -56,117 +159,22 @@ router.post('/api/auth/email-login', async (req, res) => {
     }
     const playerDoc = await db.collection('players').doc(user.id).get();
     const player = playerDoc.exists ? playerDoc.data() : null;
-    const token = jwt.sign({ userId: user.id, email }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id, email: user.email, telegramId: user.telegramId || null }, JWT_SECRET, { expiresIn: '7d' });
     res.json({
       success: true,
       token,
-      user: { id: user.id, email, firstName: user.firstName, lastName: user.lastName },
+      user: {
+        id: user.id,
+        telegramId: user.telegramId || null,
+        email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username || ''
+      },
       player,
     });
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-// Send OTP
-router.post('/api/auth/send-otp', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ success: false, error: 'Email required' });
-
-    const db = getDb();
-    const usersRef = db.collection('users');
-    const existingUser = await usersRef.where('email', '==', email).get();
-    if (!existingUser.empty) {
-      const user = existingUser.docs[0].data();
-      if (user.emailVerified) {
-        return res.status(400).json({ success: false, error: 'Email already registered' });
-      }
-    }
-
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    const expires = Date.now() + 10 * 60 * 1000; // 10 minutes
-    const otpStore = getOtpStore();
-    await otpStore.set(email, code, expires);
-
-    let emailSent = false;
-    let emailError = null;
-    try {
-      await resend.emails.send({
-        from: 'World Dominion <noreply@world-dominion.com>',
-        to: email,
-        subject: 'Verify your email for World Dominion',
-        html: `<p>Your verification code is: <strong>${code}</strong></p><p>It expires in 10 minutes.</p>`,
-      });
-      emailSent = true;
-    } catch (err) {
-      emailError = err;
-      console.error('Resend error:', err);
-    }
-
-    // Always return the OTP for manual login during development
-    res.json({
-      success: true,
-      devCode: code, // OTP code for manual entry
-      emailSent,
-      emailError: emailError ? (emailError as any).message : null
-    });
-  } catch (err) {
-    console.error('Send OTP error:', err);
-    res.status(500).json({ success: false, error: 'Failed to send OTP' });
-  }
-});
-
-// Verify OTP and create account
-router.post('/api/auth/verify-otp', async (req, res) => {
-  try {
-    const { email, code, password, firstName, lastName } = req.body;
-    if (!email || !code || !password) {
-      return res.status(400).json({ success: false, error: 'Missing fields' });
-    }
-
-    const db = getDb();
-    const otpStore = getOtpStore();
-    const stored = await otpStore.get(email);
-    if (!stored || stored.code !== code || stored.expires < Date.now()) {
-      return res.status(400).json({ success: false, error: 'Invalid or expired code' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const userId = `email_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
-
-    const userData = {
-      id: userId,
-      email,
-      password: hashedPassword,
-      firstName: firstName || '',
-      lastName: lastName || '',
-      emailVerified: true,
-      createdAt: new Date().toISOString(),
-    };
-    await db.collection('users').doc(userId).set(userData);
-
-    const playerData = {
-      userId,
-      wallet: { warBonds: 1000, commandPoints: 100 },
-      stats: { role: 'CIVILIAN', nation: 'UNASSIGNED', reputation: 50 },
-      joinedAt: new Date().toISOString(),
-    };
-    await db.collection('players').doc(userId).set(playerData);
-
-    await otpStore.delete(email);
-
-    const token = jwt.sign({ userId, email }, JWT_SECRET, { expiresIn: '7d' });
-
-    res.json({
-      success: true,
-      token,
-      user: { id: userId, email, firstName: userData.firstName, lastName: userData.lastName },
-      player: playerData,
-    });
-  } catch (err) {
-    console.error('Verify OTP error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });
