@@ -32,7 +32,7 @@ router.post('/api/auth/telegram-login', async (req, res) => {
     }
 
     // Check if user exists by using telegramId as document ID
-    const userDoc = await usersRef.doc(tid).get();
+    let userDoc = await usersRef.doc(tid).get();
 
     let isNewUser = false;
 
