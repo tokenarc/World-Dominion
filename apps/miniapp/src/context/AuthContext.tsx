@@ -2,9 +2,11 @@ import React, { createContext, useContext, useState } from 'react';
 
 interface User {
   id: string;
+  telegramId?: string;
   email: string;
   firstName: string;
   lastName: string;
+  username?: string;
 }
 
 interface AuthContextType {
@@ -12,8 +14,9 @@ interface AuthContextType {
   player: any | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  verifyOtp: (email: string, code: string, password: string, firstName?: string, lastName?: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>; // Legacy email login
+  telegramLogin: (telegramId: string, password: string, firstName?: string, lastName?: string, username?: string) => Promise<void>;
+  verifyOtp: (email: string, code: string, password: string, firstName?: string, lastName?: string) => Promise<void>; // Legacy
   logout: () => void;
 }
 
@@ -32,6 +35,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      setUser(data.user);
+      setPlayer(data.player);
+      setToken(data.token);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const telegramLogin = async (telegramId: string, password: string, firstName?: string, lastName?: string, username?: string) => {
+    setLoading(true);
+    try {
+      const res = await fetch('https://world-dominion-bot.onrender.com/api/auth/telegram-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ telegramId, password, firstName, lastName, username }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
@@ -68,7 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, player, token, loading, login, verifyOtp, logout }}>
+    <AuthContext.Provider value={{ user, player, token, loading, login, telegramLogin, verifyOtp, logout }}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,79 +2,39 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const { login, verifyOtp } = useAuth();
-  const [step, setStep] = useState<'login' | 'signup' | 'otp'>('login');
-  const [email, setEmail] = useState('');
+  const { login, telegramLogin } = useAuth();
+  const [step, setStep] = useState<'login' | 'signup'>('login');
+  const [telegramId, setTelegramId] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Login form submission
+  // Login form submission (legacy email/password)
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
+      await login(telegramId, password);
       window.location.href = '/';
     } catch (err: any) {
-    if (data && data.devCode) {
-      setError(`Development Mode: Use code ${data.devCode} to login`);
-    } else {
-      setError(err.message);
-    }
-  }
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 1: send OTP
-  const handleSendOtp = async (e: React.FormEvent) => {
+  // Signup form submission - direct telegram login
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('https://world-dominion.fly.dev/api/auth/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-      setStep('otp');
-    } catch (err: any) {
-    if (data && data.devCode) {
-      setError(`Development Mode: Use code ${data.devCode} to login`);
-    } else {
-      setError(err.message);
-    }
-  }
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Step 2: verify OTP and complete signup
-  const handleVerifyOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-    try {
-      await verifyOtp(email, otp, password, firstName, lastName);
+      await telegramLogin(telegramId, password, firstName, lastName);
       window.location.href = '/';
     } catch (err: any) {
-    if (data && data.devCode) {
-      setError(`Development Mode: Use code ${data.devCode} to login`);
-    } else {
-      setError(err.message);
-    }
-  }
       setError(err.message);
     } finally {
       setLoading(false);
@@ -153,10 +113,10 @@ export default function Login() {
           <div style={styles.title}>WORLD DOMINION</div>
           <form onSubmit={handleLogin}>
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Telegram ID"
+              value={telegramId}
+              onChange={(e) => setTelegramId(e.target.value)}
               style={styles.input}
               required
             />
@@ -178,7 +138,7 @@ export default function Login() {
               onClick={() => {
                 setStep('signup');
                 setError('');
-                setEmail('');
+                setTelegramId('');
                 setPassword('');
                 setFirstName('');
                 setLastName('');
@@ -197,7 +157,7 @@ export default function Login() {
       <div style={styles.container}>
         <div style={styles.card}>
           <div style={styles.title}>CREATE ACCOUNT</div>
-          <form onSubmit={handleSendOtp}>
+          <form onSubmit={handleSignup}>
             <input
               type="text"
               placeholder="First Name"
@@ -213,10 +173,10 @@ export default function Login() {
               style={styles.input}
             />
             <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              type="text"
+              placeholder="Telegram ID"
+              value={telegramId}
+              onChange={(e) => setTelegramId(e.target.value)}
               style={styles.input}
               required
             />
@@ -230,7 +190,7 @@ export default function Login() {
             />
             {error && <div style={styles.error}>{error}</div>}
             <button type="submit" style={styles.button} disabled={loading}>
-              {loading ? 'Sending code...' : 'Sign Up'}
+              {loading ? 'Creating...' : 'Sign Up'}
             </button>
             <button
               type="button"
@@ -244,37 +204,4 @@ export default function Login() {
       </div>
     );
   }
-
-  // OTP step
-  return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={styles.title}>VERIFY EMAIL</div>
-        <p style={{ color: '#8892a4', textAlign: 'center', marginBottom: '20px' }}>
-          We've sent a 6‑digit code to <strong>{email}</strong>
-        </p>
-        <form onSubmit={handleVerifyOtp}>
-          <input
-            type="text"
-            placeholder="6‑digit code"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            style={styles.input}
-            required
-          />
-          {error && <div style={styles.error}>{error}</div>}
-          <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? 'Verifying...' : 'Verify & Create Account'}
-          </button>
-          <button
-            type="button"
-            style={styles.toggleButton}
-            onClick={() => setStep('signup')}
-          >
-            Change email
-          </button>
-        </form>
-      </div>
-    </div>
-  );
 }
