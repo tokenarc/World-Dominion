@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface User {
   id: string;
@@ -14,71 +14,70 @@ interface AuthContextType {
   player: any | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>; // Legacy email login
-  telegramLogin: (telegramId: string, password: string, firstName?: string, lastName?: string, username?: string) => Promise<void>;
-  verifyOtp: (email: string, code: string, password: string, firstName?: string, lastName?: string) => Promise<void>; // Legacy
+  authStage: 'init' | 'authenticating' | 'loading-player' | 'loading-config' | 'ready' | 'error';
+  telegramAuth: () => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: {
+        initData: string;
+        ready: () => void;
+        close: () => void;
+        expand: () => void;
+      };
+    };
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [player, setPlayer] = useState<any>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [authStage, setAuthStage] = useState<'init' | 'authenticating' | 'loading-player' | 'loading-config' | 'ready' | 'error'>('init');
+  const [error, setError] = useState<string | null>(null);
 
-  const login = async (email: string, password: string) => {
-    setLoading(true);
+  const telegramAuth = async () => {
+    setAuthStage('authenticating');
+    setError(null);
+
     try {
-      const res = await fetch('https://world-dominion-bot.onrender.com/api/auth/email-login', {
+      // Get Telegram WebApp initData
+      const tg = window.Telegram?.WebApp;
+      if (!tg || !tg.initData) {
+        throw new Error('Not running in Telegram WebApp environment');
+      }
+
+      // Call backend to verify Telegram authentication
+      const res = await fetch('https://world-dominion-bot.onrender.com/api/auth/telegram-verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ initData: tg.initData }),
       });
+
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
+
       setUser(data.user);
       setPlayer(data.player);
       setToken(data.token);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setAuthStage('loading-player');
 
-  const telegramLogin = async (telegramId: string, password: string, firstName?: string, lastName?: string, username?: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch('https://world-dominion-bot.onrender.com/api/auth/telegram-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ telegramId, password, firstName, lastName, username }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-      setUser(data.user);
-      setPlayer(data.player);
-      setToken(data.token);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Simulate loading stages (in real app, these would be actual data fetches)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setAuthStage('loading-config');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setAuthStage('ready');
 
-  const verifyOtp = async (email: string, code: string, password: string, firstName?: string, lastName?: string) => {
-    setLoading(true);
-    try {
-      const res = await fetch('https://world-dominion-bot.onrender.com/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code, password, firstName, lastName }),
-      });
-      const data = await res.json();
-      if (!data.success) throw new Error(data.error);
-      setUser(data.user);
-      setPlayer(data.player);
-      setToken(data.token);
-    } finally {
-      setLoading(false);
+      // Ready
+    } catch (err: any) {
+      console.error('Auth error:', err);
+      setError(err.message);
+      setAuthStage('error');
     }
   };
 
@@ -86,10 +85,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setPlayer(null);
     setToken(null);
+    setAuthStage('init');
+    setError(null);
   };
 
+  // Auto-initiate auth on mount
+  useEffect(() => {
+    telegramAuth();
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, player, token, loading, login, telegramLogin, verifyOtp, logout }}>
+    <AuthContext.Provider value={{ user, player, token, loading: authStage !== 'ready' && authStage !== 'error', authStage, telegramAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );
