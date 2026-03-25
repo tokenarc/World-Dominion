@@ -59,16 +59,22 @@ router.post('/api/auth/telegram-login', async (req, res) => {
       isNewUser = true;
     } else {
       // Existing user - verify password
-      const user = userDoc.data();
-      const valid = await bcrypt.compare(password, user.password);
+      const userData = userDoc.data();
+      if (!userData || !userData.password) {
+        return res.status(401).json({ success: false, error: 'Invalid credentials' });
+      }
+      const valid = await bcrypt.compare(password, userData.password);
       if (!valid) {
         return res.status(401).json({ success: false, error: 'Invalid credentials' });
       }
     }
 
     const user = userDoc.data();
+    if (!user) {
+      return res.status(500).json({ success: false, error: 'User data not found' });
+    }
     const playerDoc = await db.collection('players').doc(user.id).get();
-    const player = playerDoc.exists ? playerDoc.data() : null;
+    let player = playerDoc.exists ? playerDoc.data() : null;
 
     // Create player if doesn't exist (for both new and existing users)
     if (!player) {
@@ -150,7 +156,7 @@ router.post('/api/auth/email-login', async (req, res) => {
     }
     const userDoc = userSnapshot.docs[0];
     const user = userDoc.data();
-    if (!user.password) {
+    if (!user || !user.password) {
       return res.status(401).json({ success: false, error: 'Please use Telegram login' });
     }
     const valid = await bcrypt.compare(password, user.password);
@@ -159,16 +165,20 @@ router.post('/api/auth/email-login', async (req, res) => {
     }
     const playerDoc = await db.collection('players').doc(user.id).get();
     const player = playerDoc.exists ? playerDoc.data() : null;
-    const token = jwt.sign({ userId: user.id, email: user.email, telegramId: user.telegramId || null }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({
+      userId: user.id,
+      email: user.email,
+      telegramId: user.telegramId || null
+    }, JWT_SECRET, { expiresIn: '7d' });
     res.json({
       success: true,
       token,
       user: {
         id: user.id,
         telegramId: user.telegramId || null,
-        email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        email: user.email || '',
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
         username: user.username || ''
       },
       player,
