@@ -104,6 +104,59 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Deploy Action - Primary CTA */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1a0505 0%, #0d1117 100%)',
+        border: '2px solid #cc0000',
+        borderRadius: '12px',
+        padding: '16px',
+        marginBottom: '16px',
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 0 20px rgba(204, 0, 0, 0.3)'
+      }}>
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(circle at 50% 50%, rgba(204,0,0,0.1) 0%, transparent 70%)'
+        }} />
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+          <div>
+            <div style={{ fontSize: '10px', color: '#cc0000', letterSpacing: '3px', marginBottom: '4px' }}>
+              🚀 DEPLOY FORCES
+            </div>
+            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#FFD700' }}>
+              Ready to expand your empire?
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/deploy')}
+            style={{
+              background: 'linear-gradient(135deg, #cc0000, #8B0000)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '12px 20px',
+              color: '#ffffff',
+              fontSize: '11px',
+              letterSpacing: '2px',
+              fontWeight: '900',
+              cursor: 'pointer',
+              boxShadow: '0 0 15px rgba(204,0,0,0.5)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 25px rgba(204,0,0,0.8)';
+              e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 15px rgba(204,0,0,0.5)';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            DEPLOY NOW
+          </button>
+        </div>
+      </div>
+
       {/* Quick Actions */}
       <div style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr',

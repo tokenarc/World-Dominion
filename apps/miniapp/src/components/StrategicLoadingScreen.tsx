@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 
 interface LoadingStage {
   name: string;
@@ -13,42 +14,52 @@ const STAGES: LoadingStage[] = [
   { name: 'Ready for Command', status: 'pending' },
 ];
 
-const getProgress = (stages: LoadingStage[]): number => {
-  const completed = stages.filter(s => s.status === 'complete').length;
-  const loading = stages.find(s => s.status === 'loading') ? 0.5 : 0;
-  return Math.round(((completed + loading) / stages.length) * 100);
-};
-
 export default function StrategicLoadingScreen() {
-  const [stages, setStages] = useState<LoadingStage[]>(STAGES);
-  const [progress, setProgress] = useState(0);
+  const { authStage } = useAuth();
+  const [progressPercent, setProgressPercent] = useState(0);
 
+  // Calculate progress percentage based on authStage
   useEffect(() => {
-    const timer = setInterval(() => {
-      setProgress(getProgress(stages));
-    }, 100);
-    return () => clearInterval(timer);
-  }, [stages]);
+    switch (authStage) {
+      case 'ready':
+      case 'error':
+        setProgressPercent(100);
+        break;
+      case 'authenticating':
+        setProgressPercent(20);
+        break;
+      case 'loading-player':
+        setProgressPercent(50);
+        break;
+      case 'loading-config':
+        setProgressPercent(70);
+        break;
+      default:
+        setProgressPercent(0);
+    }
+  }, [authStage]);
 
-  const updateStage = (index: number, status: LoadingStage['status']) => {
-    setStages(prev => prev.map((s, i) => i === index ? { ...s, status } : s));
+  // Compute stage statuses based on authStage
+  const getStageStatus = (idx: number): 'pending' | 'loading' | 'complete' | 'error' => {
+    const stageIndexMap: Record<string, number> = {
+      'init': 0,
+      'authenticating': 0,
+      'loading-player': 1,
+      'loading-config': 2,
+      'ready': 4,
+      'error': 3,
+    };
+
+    const currentIndex = stageIndexMap[authStage];
+    if (currentIndex === undefined) return 'pending';
+
+    if (idx < currentIndex) return 'complete';
+    if (idx === currentIndex) {
+      if (authStage === 'error' && idx === 3) return 'error';
+      return authStage === 'ready' ? 'complete' : 'loading';
+    }
+    return 'pending';
   };
-
-  // Simulate progress for demo (in real app, this will be driven by actual auth flow)
-  useEffect(() => {
-    let stageIdx = 0;
-    const interval = setInterval(() => {
-      if (stageIdx < STAGES.length - 1) {
-        updateStage(stageIdx, 'complete');
-        stageIdx++;
-        updateStage(stageIdx, 'loading');
-        if (stageIdx === STAGES.length - 1) {
-          clearInterval(interval);
-        }
-      }
-    }, 1500);
-    return () => clearInterval(interval);
-  }, []);
 
   const containerStyle: React.CSSProperties = {
     minHeight: '100vh',
@@ -197,19 +208,19 @@ export default function StrategicLoadingScreen() {
         <div style={subtitleStyle}>Geopolitical Strategy Simulator</div>
 
         <div style={progressBarContainerStyle}>
-          <div style={{ ...progressBarFillStyle, width: `${progress}%` }}></div>
+          <div style={{ ...progressBarFillStyle, width: `${progressPercent}%` }}></div>
         </div>
 
-        {stages.map((stage, idx) => (
+        {STAGES.map((stage, idx) => (
           <div key={idx} style={stageContainerStyle}>
-            <div style={stageNameStyle(stage.status)}>
-              <div style={stageIndicatorStyle(stage.status)}></div>
+            <div style={stageNameStyle(getStageStatus(idx))}>
+              <div style={stageIndicatorStyle(getStageStatus(idx))}></div>
               {stage.name}
             </div>
             <div style={stageBarStyle}>
-              <div style={{ ...stageBarFillStyle(stage.status), width: stage.status === 'complete' ? '100%' : stage.status === 'loading' ? '60%' : '0%' }}></div>
+              <div style={{ ...stageBarFillStyle(getStageStatus(idx)), width: getStageStatus(idx) === 'complete' ? '100%' : getStageStatus(idx) === 'loading' ? '60%' : '0%' }}></div>
             </div>
-          </div>
+          )
         ))}
 
         <div style={footerStyle}>
