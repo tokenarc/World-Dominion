@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import SplashLoading from '../src/components/SplashLoading';
+import { VideoLoadingScreen } from '../src/components/VideoLoadingScreen';
 
 export default function IndexPage() {
   const router = useRouter();

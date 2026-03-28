@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "magic": {
+      "command": "magic",
+      "env": {
+        "API_KEY": "704e31df0f25b7c37e3f8da7e066156ab65e730a832c992e2f286503aaa0f2d8"
+      }
+    }
+  }
+}
