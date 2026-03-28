@@ -54,7 +54,7 @@ export default function IndexPage() {
   }, [authStage, displayProgress, router]);
 
   // Error screen
-  if (authStage === 'error' && !showLoading) {
+  if (authStage === 'error') {
     return (
       <div style={{
         minHeight:      '100vh',
