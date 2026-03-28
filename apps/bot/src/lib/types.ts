@@ -10,6 +10,11 @@ export interface PlayerStats {
   intelligenceOps: number;
   propagandaSkill: number;
   totalScore: number;
+  warBonds: number;
+  commandPoints: number;
+  reputation: number;
+  nation?: string;
+  role?: string;
 }
 
 export interface PlayerWallet {
@@ -22,13 +27,17 @@ export interface PlayerWallet {
 
 export interface Player {
   userId: string;
+  telegramId: string;      // ← added — used across all routes
   email: string;
   username: string | null;
   firstName: string;
+  lastName?: string;
   currentRole: string | null;
   currentNation: string | null;
   currentFaction: string | null;
   ideology: string | null;
+  role?: string;
+  nationId?: string;
   stats: PlayerStats;
   wallet: PlayerWallet;
   reputation: number;
@@ -42,6 +51,8 @@ export interface Player {
   joinedAt?: number;
   createdAt: any;
   lastActive: any;
+  referralCount?: number;
+  referralCpEarned?: number;
 }
 
 export interface Nation {
@@ -69,7 +80,6 @@ export interface Nation {
   resistanceMeter: number;
   treasury: { warBonds: number; commandPoints: number; };
   stockPrice: number;
-
   updatedAt: any;
 }
 
@@ -89,50 +99,61 @@ export interface RoleApplication {
 
 export interface WorldEvent {
   id?: string;
-  type: 'military' | 'economic' | 'diplomatic' | 'election' | 'disaster' | 'religious' | 'revolution' | 'nuclear' | 'pandemic' | 'space' | 'conquest' | 'resistance';
+  type: 'military' | 'economic' | 'diplomatic' | 'election' | 'disaster' | 'religious' | 'revolution' | 'nuclear' | 'pandemic' | 'space' | 'conquest' | 'resistance' | 'war' | 'politics';
   title: string;
   description: string;
   affectedNations: string[];
-  effects: {
+  timestamp?: number;
+  fromNews: boolean;
+  expiresAt: any;
+  effects?: {
     stability_change?: number;
     gdp_modifier?: number;
     military_change?: number;
     resistance_change?: number;
     global_oil_change?: number;
   };
-  fromNews: boolean;
-  createdAt: any;
-  expiresAt: any;
+  createdAt?: any;
 }
 
 export interface War {
   id?: string;
   aggressor: string;
   defender: string;
+  aggressorName?: string;
+  defenderName?: string;
   coalitionAggressor: string[];
   coalitionDefender: string[];
   status: 'active' | 'ceasefire' | 'ended' | 'peace';
   currentRound: number;
   warScore: number;
   startedAt: any;
+  endedAt?: number;
+  winner?: string | null;
   aggressorScore: number;
   defenderScore: number;
   casualties: { aggressor: number; defender: number; };
   warCrimes: boolean;
   nuclearUsed: boolean;
+  peaceProposedBy?: string;
+  peaceProposedAt?: number;
 }
 
 export interface CryptoTransaction {
   playerId: string;
-  type: 'deposit' | 'withdrawal';
-  crypto: 'TON' | 'USDT_TRC20';
-  cryptoAmount: number;
-  wrbAmount: number;
-  usdEquivalent: number;
+  type: 'deposit' | 'withdrawal' | 'DEPOSIT';
+  crypto?: 'TON' | 'USDT_TRC20';
+  currency?: 'TON' | 'USDT_TRC20';
+  cryptoAmount?: number;
+  amount?: number;
+  wrbAmount?: number;
+  wrbCredited?: number;
+  usdEquivalent?: number;
   txHash: string;
   status: 'pending' | 'confirming' | 'confirmed' | 'failed';
-  createdAt: any;
-  confirmedAt: any | null;
+  createdAt?: any;
+  confirmedAt?: any | null;
+  timestamp?: number;
 }
 
 export interface NPCDecision {
