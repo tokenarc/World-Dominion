@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 export interface Player {
+  telegramId: string;
   userId: string;
   email: string;
   username?: string;
