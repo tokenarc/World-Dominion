@@ -101,49 +101,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
         const initData = tg?.initData;
 
-        // ── Fast path: stored token ──────────────────────────
-        const storedToken = localStorage.getItem(TOKEN_KEY);
-        const storedUser  = localStorage.getItem(USER_KEY);
-
-        if (storedToken && storedUser) {
-          // Verify token still valid with backend
-          try {
-            const verifyRes = await fetch(`${API_BASE}/api/auth/verify-token`, {
-              method:  'POST',
-              headers: {
-                'Content-Type':  'application/json',
-                'Authorization': `Bearer ${storedToken}`,
-              },
-            });
-
-            if (verifyRes.ok) {
-              const parsedUser = JSON.parse(storedUser) as TelegramUser;
-              setToken(storedToken);
-              setUser(parsedUser);
-              setAuthStage('loading-player');
-
-              // Fetch fresh player data
-              const playerRes = await fetch(`${API_BASE}/api/player/me`, {
-                headers: { 'Authorization': `Bearer ${storedToken}` },
-              });
-
-              if (playerRes.ok) {
-                const playerJson = await playerRes.json();
-                setPlayer(playerJson.player || null);
-              }
-
-              setIsAuthenticated(true);
-              setAuthStage('ready');
-              return;
-            }
-          } catch {
-            // Token verify failed — clear and re-auth
-            localStorage.removeItem(TOKEN_KEY);
-            localStorage.removeItem(USER_KEY);
-          }
-        }
-
-        // ── Full auth: Telegram initData ─────────────────────
+        // ── Full auth: Telegram initData always ────────────
         if (!initData) {
           // Dev mode fallback — not in Telegram
           setAuthError('Open this app through Telegram');

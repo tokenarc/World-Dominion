@@ -53,9 +53,13 @@ export default function IndexPage() {
     }
   }, [authStage, displayProgress, router]);
 
+  // Hide loading on error
+  useEffect(() => {
+    if (authStage === 'error') setShowLoading(false);
+  }, [authStage]);
+
   // Error screen
-  if (authStage === 'error') {
-    setShowLoading(false);
+  if (authStage === 'error' && !showLoading) {
     return (
       <div style={{
         minHeight:      '100vh',
