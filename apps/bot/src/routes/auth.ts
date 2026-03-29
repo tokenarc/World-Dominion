@@ -302,7 +302,6 @@ export default router;
 // TEMP DEBUG — remove after fixing
 router.post('/api/auth/debug-init', async (req, res) => {
   const { initData } = req.body;
-  const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   res.json({
     received: !!initData,
     length: initData?.length || 0,
