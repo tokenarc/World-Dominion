@@ -299,3 +299,15 @@ router.post('/verify-token', async (req, res) => {
 });
 
 export default router;
+// TEMP DEBUG — remove after fixing
+router.post('/api/auth/debug-init', async (req, res) => {
+  const { initData } = req.body;
+  const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+  res.json({
+    received: !!initData,
+    length: initData?.length || 0,
+    preview: initData?.slice(0, 50) || 'empty',
+    botTokenSet: !!process.env.BOT_TOKEN,
+    botTokenPreview: process.env.BOT_TOKEN?.slice(0, 8) || 'missing'
+  });
+});

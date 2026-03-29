@@ -100,6 +100,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         const initData = tg?.initData;
+        console.log('[AUTH DEBUG] initData length:', initData?.length || 0, 'tg exists:', !!tg);
 
         // ── Full auth: Telegram initData always ────────────
         if (!initData) {
