@@ -18,12 +18,13 @@ export default function IndexPage() {
   const router = useRouter();
   const { authStage, authError, retry, user } = useAuth();
   const [displayProgress, setDisplayProgress] = useState(0);
-  const [phase, setPhase] = useState<'loading' | 'error' | 'done'>('loading');
+  const [displayText, setDisplayText]         = useState(STAGE_TEXT['init']);
+  const [phase, setPhase]                     = useState<'loading' | 'error' | 'done'>('loading');
   const navigated = useRef(false);
-  const commanderName = user?.firstName || 'Commander';
+  const commanderName  = user?.firstName || 'Commander';
   const targetProgress = STAGE_PROGRESS[authStage] || 0;
 
-  // Smooth progress animation
+  // Smooth progress — never jumps backward
   useEffect(() => {
     if (displayProgress >= targetProgress) return;
     const step = setInterval(() => {
@@ -36,7 +37,16 @@ export default function IndexPage() {
     return () => clearInterval(step);
   }, [targetProgress]);
 
-  // Navigate when ready
+  // Only update display text when progress actually reaches the stage threshold
+  // This prevents "Authentication Failed" showing at 76%
+  useEffect(() => {
+    const threshold = STAGE_PROGRESS[authStage] || 0;
+    if (displayProgress >= threshold - 5) {
+      setDisplayText(STAGE_TEXT[authStage] || 'Loading...');
+    }
+  }, [authStage, displayProgress]);
+
+  // Navigate when ready + 100%
   useEffect(() => {
     if (authStage === 'ready' && displayProgress >= 100 && !navigated.current) {
       navigated.current = true;
@@ -44,9 +54,11 @@ export default function IndexPage() {
     }
   }, [authStage, displayProgress, router]);
 
-  // Show error only after progress animation finishes
+  // Show error screen only after progress finishes animating to 100
   useEffect(() => {
-    if (authStage === 'error' && displayProgress >= 100) setPhase('error');
+    if (authStage === 'error' && displayProgress >= 99) {
+      setTimeout(() => setPhase('error'), 300);
+    }
   }, [authStage, displayProgress]);
 
   if (phase === 'error') {
@@ -64,15 +76,12 @@ export default function IndexPage() {
           <p style={{ fontSize: '12px', color: '#8892a4', marginBottom: '24px', maxWidth: '280px', lineHeight: '1.6' }}>
             {authError || 'Unable to authenticate. Open this app through Telegram.'}
           </p>
-          <button
-            onClick={retry}
-            style={{
-              padding: '12px 32px', background: 'linear-gradient(135deg, #cc0000, #8B0000)',
-              color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer',
-              letterSpacing: '2px', fontWeight: 'bold', fontSize: '12px',
-              boxShadow: '0 0 20px rgba(204,0,0,0.4)',
-            }}
-          >
+          <button onClick={retry} style={{
+            padding: '12px 32px', background: 'linear-gradient(135deg, #cc0000, #8B0000)',
+            color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer',
+            letterSpacing: '2px', fontWeight: 'bold', fontSize: '12px',
+            boxShadow: '0 0 20px rgba(204,0,0,0.4)',
+          }}>
             RETRY
           </button>
         </div>
@@ -83,7 +92,7 @@ export default function IndexPage() {
   return (
     <VideoLoadingScreen
       progress={displayProgress}
-      loadingText={STAGE_TEXT[authStage] || 'Loading...'}
+      loadingText={displayText}
       commanderName={commanderName}
       onComplete={() => {
         if (authStage === 'ready' && !navigated.current) {
