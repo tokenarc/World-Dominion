@@ -1,5 +1,5 @@
 import { db } from '../lib/firebase-admin';
-import axios from 'axios';
+
 import { Nation, saveWorldEvent } from './firebaseService';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -20,14 +20,14 @@ export interface EconomicModifier {
 export const syncGDPFromWorldBank = async () => {
   try {
     const url = 'https://api.worldbank.org/v2/country/all/indicator/NY.GDP.MKTP.CD?format=json&mrv=1&per_page=300';
-    const response = await axios.get(url);
+    const response = await fetch(url);
     
-    if (!response.data || !response.data[1]) {
+    if (!await response.json() || !await response.json()[1]) {
       console.error('Invalid response from World Bank API');
       return;
     }
 
-    const gdpData = response.data[1];
+    const gdpData = await response.json()[1];
     const batch = db.batch();
     let updatesCount = 0;
 

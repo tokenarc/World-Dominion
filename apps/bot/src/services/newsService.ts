@@ -1,4 +1,4 @@
-import axios from 'axios';
+
 import * as fs from 'fs';
 import * as path from 'path';
 import { groq } from '../lib/groq';
@@ -53,9 +53,9 @@ export const fetchGDELTNews = async (queryType: 'military' | 'economic' | 'elect
   const queryUrl = `${config.base_url}?query=${encodeURIComponent(queryConfig.query)}&format=${config.format}&maxrecords=${config.maxrecords}&timespan=12h`;
 
   try {
-    const response = await axios.get(queryUrl, { timeout: 8000 });
-    if (response.data && response.data.articles) {
-      return response.data.articles.map((article: any) => ({
+    const response = await fetch(queryUrl);
+    if (await response.json() && await response.json().articles) {
+      return await response.json().articles.map((article: any) => ({
         url: article.url,
         title: article.title,
         domain: article.domain,

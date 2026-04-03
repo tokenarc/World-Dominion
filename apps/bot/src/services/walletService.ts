@@ -1,5 +1,5 @@
 import { db, admin } from '../lib/firebase-admin';
-import axios from 'axios';
+
 import { Player, saveTransaction } from './firebaseService';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -77,8 +77,8 @@ export const verifyTONTransaction = async (
   const tonConfig = liquiditySystem.liquidity_system.blockchain_verification.TON;
   const url = tonConfig.verification_endpoint.replace('{wallet}', TON_WALLET_ADDRESS);
 
-  const response    = await axios.get(url, { timeout: 10000 });
-  const transactions = response.data.result;
+  const response    = await fetch(url);
+  const transactions = await response.json().result;
 
   const tx = transactions.find((t: any) => t.transaction_id.hash === txHash);
   if (!tx) throw new Error('Transaction not found on blockchain');
@@ -134,8 +134,8 @@ export const verifyUSDTTransaction = async (
   const usdtConfig = liquiditySystem.liquidity_system.blockchain_verification.USDT_TRC20;
   const url = usdtConfig.verification_endpoint.replace('{txhash}', txHash);
 
-  const response = await axios.get(url, { timeout: 10000 });
-  const tx       = response.data;
+  const response = await fetch(url);
+  const tx       = await response.json();
 
   if (!tx || tx.contractRet !== 'SUCCESS') {
     throw new Error('Transaction failed or not found on blockchain');
