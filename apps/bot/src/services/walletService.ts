@@ -78,7 +78,8 @@ export const verifyTONTransaction = async (
   const url = tonConfig.verification_endpoint.replace('{wallet}', TON_WALLET_ADDRESS);
 
   const response    = await fetch(url);
-  const transactions = await response.json().result;
+  const data = await response.json();
+  const transactions = data.result;
 
   const tx = transactions.find((t: any) => t.transaction_id.hash === txHash);
   if (!tx) throw new Error('Transaction not found on blockchain');
