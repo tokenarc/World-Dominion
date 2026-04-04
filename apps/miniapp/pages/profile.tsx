@@ -4,7 +4,7 @@ import Layout from '../src/components/Layout';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, player, logout } = useAuth();
+  const { user, player, logout, sessionToken } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const initials  = user?.firstName?.[0]?.toUpperCase() || '?';
@@ -29,11 +29,15 @@ export default function ProfilePage() {
         { id: 'cancel',  type: 'cancel' },
       ],
     }, (id: string) => {
-      if (id === 'confirm') { logout(); router.replace('/'); }
+      if (id === 'confirm') { 
+        logout(); 
+        localStorage.removeItem('wd_session_token');
+        router.replace('/'); 
+      }
     });
   };
 
-  const Row = ({ label, value, color = '#e8e8e8' }: any) => (
+  const Row = ({ label, value, color = '#e8e8e8' }: { label: string; value: string; color?: string }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(139,0,0,0.1)' }}>
       <span style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '2px' }}>{label}</span>
       <span style={{ fontSize: '11px', color, fontWeight: 'bold', letterSpacing: '1px', fontFamily: 'monospace' }}>{value}</span>
@@ -44,7 +48,6 @@ export default function ProfilePage() {
     <Layout>
       <div style={{ padding: '12px', paddingBottom: '80px' }}>
 
-        {/* Avatar + name */}
         <div style={{
           background:   'linear-gradient(135deg, #0d1117, #1a0505)',
           border:       '1px solid rgba(139,0,0,0.5)',
@@ -59,7 +62,6 @@ export default function ProfilePage() {
         }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, #cc0000, transparent)' }} />
 
-          {/* Avatar */}
           <div style={{
             width:          '72px',
             height:         '72px',
@@ -99,7 +101,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Reputation */}
         <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
             <span style={{ fontSize: '9px', color: '#8892a4', letterSpacing: '2px' }}>REPUTATION</span>
@@ -110,7 +111,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Stats */}
         <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
           <div style={{ fontSize: '9px', color: '#8B0000', letterSpacing: '3px', marginBottom: '10px' }}>COMMAND PROFILE</div>
           <Row label="NATION"      value={nation}               color="#FFD700" />
@@ -121,15 +121,13 @@ export default function ProfilePage() {
           <Row label="KYC"         value={kyc ? '✅ VERIFIED' : '⚠️ UNVERIFIED'} color={kyc ? '#00ff88' : '#FFD700'} />
         </div>
 
-        {/* Telegram info */}
         <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
           <div style={{ fontSize: '9px', color: '#8B0000', letterSpacing: '3px', marginBottom: '10px' }}>TELEGRAM IDENTITY</div>
           <Row label="USERNAME"    value={username}             />
           <Row label="TELEGRAM ID" value={String(user?.telegramId || '—')} />
-          <Row label="AUTH METHOD" value="WEBAPP HMAC"          color="#00ff88" />
+          <Row label="AUTH METHOD" value="CONVEX HMAC"          color="#00ff88" />
         </div>
 
-        {/* Logout */}
         <button
           onClick={handleLogout}
           style={{

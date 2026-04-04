@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface Tx {
+  _id?: any;
   type: string;
   currency: string;
   amount: number;
-  wrbCredited?: number;
-  timestamp: number;
-  status: string;
+  description: string;
+  createdAt: number;
 }
 
 function Spinner() {
@@ -21,73 +23,56 @@ function Spinner() {
 }
 
 export default function WalletPage() {
-  const { player, token } = useAuth();
-  const [txns,    setTxns]    = useState<Tx[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { player, sessionToken } = useAuth();
   const [tab,     setTab]     = useState<'balance'|'deposit'|'withdraw'>('balance');
   const [txHash,  setTxHash]  = useState('');
-  const [crypto,  setCrypto]  = useState<'TON'|'USDT_TRC20'>('TON');
   const [amount,  setAmount]  = useState('');
   const [toAddr,  setToAddr]  = useState('');
-  const [wrbAmt,  setWrbAmt]  = useState('');
   const [msg,     setMsg]     = useState('');
   const [busy,    setBusy]    = useState(false);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const API      = 'https://world-dominion.onrender.com';
-  const warBonds = player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
-  const cp       = player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
+  const balance = useQuery(api.wallet.getBalance, sessionToken ? { token: sessionToken } : 'skip');
+  const transactions = useQuery(
+    api.wallet.getTransactions, 
+    sessionToken ? { token: sessionToken, limit: 20 } : 'skip'
+  );
+  const verifyMutation = useMutation(api.wallet.verifyDeposit);
+  const withdrawMutation = useMutation(api.wallet.initiateWithdrawal);
 
-  useEffect(() => {
-    if (!token) return;
-    fetch(`${API}/api/wallet/transactions`, { headers: { Authorization: `Bearer ${token}` } })
-      .then(r => r.json())
-      .then(d => setTxns(d.transactions || []))
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [token]);
+  const warBonds = balance?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
+  const cp = balance?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
 
   const verifyDeposit = async () => {
-    if (!txHash.trim() || !token) return;
+    if (!txHash.trim() || !sessionToken || !amount) return;
     tg?.HapticFeedback?.impactOccurred('medium');
     setBusy(true); setMsg('');
     try {
-      const res  = await fetch(`${API}/api/wallet/deposit/verify`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body:    JSON.stringify({ txHash: txHash.trim(), currency: crypto, expectedAmount: parseFloat(amount) || 0 }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMsg(`✅ Credited ${data.wrbCredited} War Bonds!`);
+      const result = await verifyMutation({ token: sessionToken, txHash: txHash.trim(), amount: parseFloat(amount) || 0 });
+      if (result.success) {
+        setMsg(`✅ Credited ${result.amount} War Bonds!`);
         tg?.HapticFeedback?.notificationOccurred('success');
       } else {
-        setMsg(`❌ ${data.error || 'Verification failed'}`);
+        setMsg(`❌ ${result.message || 'Verification failed'}`);
         tg?.HapticFeedback?.notificationOccurred('error');
       }
-    } catch { setMsg('❌ Network error'); }
+    } catch (err: any) { 
+      setMsg(`❌ ${err.message || 'Network error'}`); 
+    }
     finally { setBusy(false); }
   };
 
   const withdraw = async () => {
-    if (!toAddr.trim() || !wrbAmt || !token) return;
+    if (!toAddr.trim() || !amount || !sessionToken) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setBusy(true); setMsg('');
     try {
-      const res  = await fetch(`${API}/api/wallet/withdraw`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body:    JSON.stringify({ wrbAmount: parseInt(wrbAmt), toAddress: toAddr.trim(), currency: crypto }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setMsg(`✅ Withdrawal submitted! ID: ${data.withdrawalId?.slice(-6)}`);
-        tg?.HapticFeedback?.notificationOccurred('success');
-      } else {
-        setMsg(`❌ ${data.error}`);
-        tg?.HapticFeedback?.notificationOccurred('error');
-      }
-    } catch { setMsg('❌ Network error'); }
+      const result = await withdrawMutation({ token: sessionToken, amount: parseInt(amount), walletAddress: toAddr.trim() });
+      setMsg(`✅ Withdrawal submitted! ID: ${result.withdrawalId?.slice(-6)}`);
+      tg?.HapticFeedback?.notificationOccurred('success');
+    } catch (err: any) { 
+      setMsg(`❌ ${err.message || 'Withdrawal failed'}`); 
+    }
     finally { setBusy(false); }
   };
 
@@ -96,14 +81,11 @@ export default function WalletPage() {
   return (
     <Layout>
       <div style={{ padding: '12px', paddingBottom: '80px' }}>
-
-        {/* Header */}
         <div style={{ marginBottom: '16px' }}>
           <div style={{ fontSize: '9px', color: '#8B0000', letterSpacing: '4px', marginBottom: '4px' }}>💰 TREASURY</div>
           <div style={{ fontSize: '22px', fontWeight: 900, color: '#FFD700', letterSpacing: '2px' }}>VAULT</div>
         </div>
 
-        {/* Balance cards */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
           {[
             { label: 'WAR BONDS', value: warBonds.toLocaleString(), icon: '💎', color: '#FFD700', sub: 'Premium Currency' },
@@ -129,7 +111,6 @@ export default function WalletPage() {
           ))}
         </div>
 
-        {/* Tab switcher */}
         <div style={{ display: 'flex', gap: '4px', marginBottom: '16px', background: 'rgba(0,0,0,0.4)', padding: '4px', borderRadius: '8px', border: '1px solid rgba(139,0,0,0.2)' }}>
           {TABS.map(t => (
             <button key={t} onClick={() => { setTab(t); setMsg(''); tg?.HapticFeedback?.impactOccurred('light'); }}
@@ -151,15 +132,14 @@ export default function WalletPage() {
           ))}
         </div>
 
-        {/* Tab content */}
         {tab === 'balance' && (
-          loading ? <Spinner /> : txns.length === 0 ? (
+          transactions === undefined ? <Spinner /> : transactions.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '11px', letterSpacing: '2px' }}>
               NO TRANSACTIONS YET
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {txns.slice(0, 20).map((tx, i) => (
+              {transactions.map((tx: Tx, i: number) => (
                 <div key={i} style={{
                   display:      'flex',
                   alignItems:   'center',
@@ -169,21 +149,21 @@ export default function WalletPage() {
                   border:       '1px solid rgba(139,0,0,0.2)',
                   borderRadius: '8px',
                 }}>
-                  <div style={{ fontSize: '18px' }}>{tx.type === 'DEPOSIT' ? '📥' : '📤'}</div>
+                  <div style={{ fontSize: '18px' }}>{tx.type.includes('deposit') ? '📥' : tx.type.includes('withdrawal') ? '📤' : '💳'}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: '11px', color: '#c8ccd4', letterSpacing: '1px' }}>
                       {tx.type} · {tx.currency}
                     </div>
                     <div style={{ fontSize: '9px', color: '#8892a4', marginTop: '2px' }}>
-                      {tx.timestamp ? new Date(tx.timestamp).toLocaleDateString() : '—'}
+                      {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : '—'}
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: tx.type === 'DEPOSIT' ? '#00ff88' : '#cc0000', fontFamily: 'monospace' }}>
-                      {tx.type === 'DEPOSIT' ? '+' : '-'}{tx.wrbCredited || tx.amount} WRB
+                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: tx.amount >= 0 ? '#00ff88' : '#cc0000', fontFamily: 'monospace' }}>
+                      {tx.amount >= 0 ? '+' : ''}{tx.amount} WRB
                     </div>
-                    <div style={{ fontSize: '8px', color: tx.status === 'confirmed' ? '#00ff88' : '#FFD700', letterSpacing: '1px' }}>
-                      {tx.status?.toUpperCase()}
+                    <div style={{ fontSize: '8px', color: '#FFD700', letterSpacing: '1px' }}>
+                      {tx.description}
                     </div>
                   </div>
                 </div>
@@ -198,24 +178,8 @@ export default function WalletPage() {
               Send crypto to the game wallet, then submit your TX hash to receive War Bonds.
             </div>
 
-            {/* Crypto selector */}
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {(['TON', 'USDT_TRC20'] as const).map(c => (
-                <button key={c} onClick={() => setCrypto(c)}
-                  style={{
-                    flex: 1, padding: '10px',
-                    background:   crypto === c ? 'rgba(139,0,0,0.3)' : 'rgba(0,0,0,0.3)',
-                    border:       `1px solid ${crypto === c ? '#cc0000' : 'rgba(139,0,0,0.2)'}`,
-                    borderRadius: '8px', color: crypto === c ? '#FFD700' : '#8892a4',
-                    fontSize: '10px', letterSpacing: '1px', fontWeight: 'bold', cursor: 'pointer',
-                  }}>
-                  {c === 'TON' ? '⚫ TON' : '🔷 USDT'}
-                </button>
-              ))}
-            </div>
-
             {[
-              { label: 'AMOUNT SENT', val: amount, set: setAmount, ph: '0.00', type: 'number' },
+              { label: 'AMOUNT (USDT)', val: amount, set: setAmount, ph: '0.00', type: 'number' },
               { label: 'TX HASH', val: txHash, set: setTxHash, ph: 'Paste transaction hash...', type: 'text' },
             ].map(f => (
               <div key={f.label}>
@@ -239,17 +203,8 @@ export default function WalletPage() {
               Min: 500 WRB · Max: 10,000 WRB/day · KYC required above 5,000 WRB
             </div>
 
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {(['TON', 'USDT_TRC20'] as const).map(c => (
-                <button key={c} onClick={() => setCrypto(c)}
-                  style={{ flex: 1, padding: '10px', background: crypto === c ? 'rgba(139,0,0,0.3)' : 'rgba(0,0,0,0.3)', border: `1px solid ${crypto === c ? '#cc0000' : 'rgba(139,0,0,0.2)'}`, borderRadius: '8px', color: crypto === c ? '#FFD700' : '#8892a4', fontSize: '10px', letterSpacing: '1px', fontWeight: 'bold', cursor: 'pointer' }}>
-                  {c === 'TON' ? '⚫ TON' : '🔷 USDT'}
-                </button>
-              ))}
-            </div>
-
             {[
-              { label: 'WAR BONDS AMOUNT', val: wrbAmt, set: setWrbAmt, ph: '500', type: 'number' },
+              { label: 'WAR BONDS AMOUNT', val: amount, set: setAmount, ph: '500', type: 'number' },
               { label: 'WALLET ADDRESS', val: toAddr, set: setToAddr, ph: 'Your wallet address...', type: 'text' },
             ].map(f => (
               <div key={f.label}>

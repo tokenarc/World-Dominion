@@ -1,20 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
-// ── Keep-alive ping ───────────────────────────────────────────
-function useKeepAlive() {
-  useEffect(() => {
-    const ping = () => fetch('https://world-dominion.onrender.com/ping').catch(() => {});
-    ping();
-    const id = setInterval(ping, 10 * 60 * 1000);
-    return () => clearInterval(id);
-  }, []);
-}
-
-// ── Stat Card ─────────────────────────────────────────────────
-function StatCard({ icon, label, value, color = '#FFD700', glow = false }: any) {
+function StatCard({ icon, label, value, color = '#FFD700', glow = false }: { icon: string; label: string; value: string; color?: string; glow?: boolean }) {
   return (
     <div style={{
       background:   'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
@@ -52,8 +43,7 @@ function StatCard({ icon, label, value, color = '#FFD700', glow = false }: any) 
   );
 }
 
-// ── Action Button ─────────────────────────────────────────────
-function ActionBtn({ icon, label, color, onClick }: any) {
+function ActionBtn({ icon, label, color, onClick }: { icon: string; label: string; color: string; onClick: () => void }) {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   return (
     <button
@@ -94,7 +84,6 @@ function ActionBtn({ icon, label, color, onClick }: any) {
   );
 }
 
-// ── Intel Feed Item ───────────────────────────────────────────
 function IntelItem({ text, time, type }: { text: string; time: string; type: 'war' | 'intel' | 'economy' }) {
   const colors = { war: '#cc0000', intel: '#FFD700', economy: '#00ff88' };
   const icons  = { war: '⚔️', intel: '📡', economy: '📈' };
@@ -116,42 +105,23 @@ function IntelItem({ text, time, type }: { text: string; time: string; type: 'wa
   );
 }
 
-// ── Main Dashboard ────────────────────────────────────────────
 export default function Dashboard() {
   const router  = useRouter();
-  const { user, player, token, isAuthenticated } = useAuth();
-  const [events, setEvents] = useState<any[]>([]);
-  const [loadingEvents, setLoadingEvents] = useState(true);
-
-  useKeepAlive();
-
+  const { user, player, sessionToken, isAuthenticated } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  // Redirect if not authenticated
+  const events = useQuery(api.events.getRecent, { limit: 5 });
+  const activeWars = useQuery(api.wars.getActive);
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/');
     }
   }, [isAuthenticated, router]);
 
-  // Show BackButton on inner pages — hide on dashboard
   useEffect(() => {
     tg?.BackButton?.hide();
   }, []);
-
-  // Fetch live events
-  useEffect(() => {
-    if (!token) return;
-    fetch('https://world-dominion.onrender.com/api/events', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then(r => r.json())
-      .then(data => {
-        setEvents((data.events || []).slice(0, 4));
-      })
-      .catch(() => {})
-      .finally(() => setLoadingEvents(false));
-  }, [token]);
 
   const firstName    = user?.firstName?.toUpperCase() || 'COMMANDER';
   const nationName   = player?.currentNation || 'UNASSIGNED';
@@ -166,8 +136,6 @@ export default function Dashboard() {
   return (
     <Layout>
       <div style={{ padding: '12px', paddingBottom: '80px' }}>
-
-        {/* ── Commander Banner ─────────────────────────── */}
         <div style={{
           background:    'linear-gradient(135deg, #0d1117 0%, #1a0505 100%)',
           border:        '1px solid rgba(139,0,0,0.6)',
@@ -200,7 +168,6 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
-          {/* Reputation bar */}
           <div style={{ marginTop: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
               <span style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px' }}>REPUTATION</span>
@@ -218,19 +185,16 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ── Wallet Stats ─────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
           <StatCard icon="💎" label="WAR BONDS" value={warBonds.toLocaleString()} color="#FFD700" glow />
           <StatCard icon="⚡" label="CMD POINTS" value={commandPoints.toLocaleString()} color="#00ff88" glow />
         </div>
 
-        {/* ── Nation + Role Stats ───────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
           <StatCard icon="🌍" label="NATION" value={nationName} color="#8892a4" />
           <StatCard icon="🎖️" label="ROLE" value={roleName} color="#cc0000" />
         </div>
 
-        {/* ── Primary CTA ─────────────────────────────── */}
         {!hasNation ? (
           <div
             onClick={() => {
@@ -282,13 +246,12 @@ export default function Dashboard() {
             <div>
               <div style={{ fontSize: '9px', color: '#cc0000', letterSpacing: '3px', marginBottom: '4px' }}>⚔️ WAR ROOM</div>
               <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#FFD700' }}>Deploy your forces</div>
-              <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '2px' }}>Active conflicts worldwide</div>
+              <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '2px' }}>Active conflicts: {activeWars?.length || 0}</div>
             </div>
             <div style={{ fontSize: '28px' }}>⚔️</div>
           </div>
         )}
 
-        {/* ── Quick Actions ─────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
           <ActionBtn icon="🌍" label="NATIONS"   color="#8B0000"  onClick={() => router.push('/nations')} />
           <ActionBtn icon="🎯" label="MISSIONS"  color="#FFD700"  onClick={() => router.push('/missions')} />
@@ -296,7 +259,6 @@ export default function Dashboard() {
           <ActionBtn icon="💰" label="VAULT"     color="#8892a4"  onClick={() => router.push('/wallet')} />
         </div>
 
-        {/* ── Intel Feed ────────────────────────────────── */}
         <div style={{
           background:    '#0d1117',
           border:        '1px solid rgba(139,0,0,0.4)',
@@ -323,7 +285,7 @@ export default function Dashboard() {
             }} />
           </div>
 
-          {loadingEvents ? (
+          {events === undefined ? (
             <div style={{ padding: '20px', textAlign: 'center', color: '#444', fontSize: '11px', letterSpacing: '2px' }}>
               SCANNING...
             </div>
@@ -332,8 +294,8 @@ export default function Dashboard() {
               <IntelItem
                 key={i}
                 text={e.title || e.description || 'Classified event'}
-                time={e.timestamp ? new Date(e.timestamp).toLocaleTimeString() : 'UNKNOWN'}
-                type={e.type === 'war' ? 'war' : e.type === 'economic' ? 'economy' : 'intel'}
+                time={e.createdAt ? new Date(e.createdAt).toLocaleTimeString() : 'UNKNOWN'}
+                type={e.type === 'war_declared' ? 'war' : e.type === 'stability_change' ? 'economy' : 'intel'}
               />
             ))
           ) : (
@@ -348,7 +310,6 @@ export default function Dashboard() {
             </div>
           )}
         </div>
-
       </div>
     </Layout>
   );
