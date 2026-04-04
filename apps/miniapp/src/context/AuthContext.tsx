@@ -1,145 +1,196 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/client';
 
 export type AuthStage = 'init' | 'authenticating' | 'loading-player' | 'ready' | 'error';
 
 interface TelegramUser {
-  id: string; telegramId: number | string;
-  firstName: string; lastName: string; username: string; email: string;
+  id: string;
+  telegramId: number | string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
 }
+
 interface Player {
-  userId: string; telegramId: number | string; username: string;
-  firstName: string; lastName: string; nationId: string; currentNation: string;
-  role: string; currentRole: string;
+  userId: string;
+  telegramId: number | string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  nationId: string;
+  currentNation: string;
+  role: string;
+  currentRole: string;
   wallet: { warBonds: number; commandPoints: number };
   stats: { totalScore: number; warBonds: number; commandPoints: number; reputation: number; militaryKnowledge: number };
-  reputation: number; kycVerified: boolean; joinedAt: number; lastActive: number;
+  reputation: number;
+  kycVerified: boolean;
+  joinedAt: number;
+  lastActive: number;
 }
+
 interface AuthContextType {
-  isAuthenticated: boolean; authStage: AuthStage; authError: string | null;
-  user: TelegramUser | null; player: Player | null; token: string | null;
-  logout: () => void; retry: () => void;
-}
-
-const API_BASE  = 'https://world-dominion.onrender.com';
-const TOKEN_KEY = 'wd_auth_token';
-const USER_KEY  = 'wd_user_data';
-const FETCH_TIMEOUT_MS = 55_000;
-
-function fetchWithTimeout(url: string, opts: RequestInit, ms: number): Promise<Response> {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), ms);
-  return fetch(url, { ...opts, signal: controller.signal }).finally(() => clearTimeout(id));
+  isAuthenticated: boolean;
+  authStage: AuthStage;
+  authError: string | null;
+  user: TelegramUser | null;
+  player: Player | null;
+  sessionToken: string | null;
+  logout: () => void;
+  retry: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false, authStage: 'init', authError: null,
-  user: null, player: null, token: null, logout: () => {}, retry: () => {},
+  isAuthenticated: false,
+  authStage: 'init',
+  authError: null,
+  user: null,
+  player: null,
+  sessionToken: null,
+  logout: () => {},
+  retry: () => {},
 });
+
+const TOKEN_KEY = 'wd_session_token';
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [authStage,       setAuthStage]       = useState<AuthStage>('init');
-  const [authError,       setAuthError]       = useState<string | null>(null);
-  const [user,            setUser]            = useState<TelegramUser | null>(null);
-  const [player,          setPlayer]          = useState<Player | null>(null);
-  const [token,           setToken]           = useState<string | null>(null);
+  const [authStage, setAuthStage] = useState<AuthStage>('init');
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [user, setUser] = useState<TelegramUser | null>(null);
+  const [player, setPlayer] = useState<Player | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [retryTrigger,    setRetryTrigger]    = useState(0);
+  const [retryTrigger, setRetryTrigger] = useState(0);
+
+  const verifyMutation = useMutation(api.auth.telegramVerify);
+  const logoutMutation = useMutation(api.auth.logout);
+  const sessionQuery = useQuery(
+    api.auth.getSessionUser,
+    sessionToken ? { token: sessionToken } : 'skip'
+  );
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem(TOKEN_KEY);
+    if (storedToken) {
+      setSessionToken(storedToken);
+      setAuthStage('loading-player');
+    } else {
+      setAuthStage('init');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (sessionQuery === undefined) return;
+    
+    if (sessionQuery === null) {
+      if (sessionToken) {
+        localStorage.removeItem(TOKEN_KEY);
+        setSessionToken(null);
+        setIsAuthenticated(false);
+        setAuthStage('init');
+      }
+      return;
+    }
+
+    if (sessionQuery.user && sessionQuery.player) {
+      setUser(sessionQuery.user as unknown as TelegramUser);
+      setPlayer(sessionQuery.player as unknown as Player);
+      setIsAuthenticated(true);
+      setAuthStage('ready');
+      setAuthError(null);
+    }
+  }, [sessionQuery, sessionToken]);
 
   useEffect(() => {
     const authenticate = async () => {
+      if (sessionToken) return;
+
       setAuthStage('authenticating');
       setAuthError(null);
+
       try {
-        // Wake Render backend from cold start in background
-        fetchWithTimeout(`${API_BASE}/ping`, { method: 'GET' }, 60_000).catch(() => {});
-
-        const tg = (typeof window !== 'undefined') ? window.Telegram?.WebApp : null;
-        if (tg) { tg.ready(); tg.expand(); }
-
-        const initData    = tg?.initData || '';
-        const cachedToken = localStorage.getItem(TOKEN_KEY);
-        const cachedUser  = localStorage.getItem(USER_KEY);
-
-        console.log('[AUTH] initData:', initData.length, 'cachedToken:', !!cachedToken);
-
-        // Fast path: valid cached token
-        if (cachedToken && cachedUser) {
-          try {
-            const verifyRes = await fetchWithTimeout(
-              `${API_BASE}/api/auth/verify-token`,
-              { method: 'POST', headers: { Authorization: `Bearer ${cachedToken}`, 'Content-Type': 'application/json' } },
-              15_000
-            );
-            if (verifyRes.ok) {
-              const parsed = JSON.parse(cachedUser) as TelegramUser;
-              setToken(cachedToken); setUser(parsed); setIsAuthenticated(true);
-              setAuthStage('loading-player');
-              try {
-                const pr = await fetchWithTimeout(`${API_BASE}/api/player/me`, { headers: { Authorization: `Bearer ${cachedToken}` } }, 20_000);
-                if (pr.ok) { const pd = await pr.json(); setPlayer(pd.player); }
-              } catch { /* non-fatal */ }
-              setAuthStage('ready');
-              return;
-            }
-          } catch { console.log('[AUTH] cached token expired, doing full auth'); }
+        const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+        if (tg) {
+          tg.ready();
+          tg.expand();
         }
 
+        const initData = tg?.initData || '';
         if (!initData) {
           setAuthError('Open this app through Telegram');
           setAuthStage('error');
           return;
         }
 
-        const authRes  = await fetchWithTimeout(
-          `${API_BASE}/api/auth/telegram-verify`,
-          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData }) },
-          FETCH_TIMEOUT_MS
-        );
-        const authData = await authRes.json();
+        const result = await verifyMutation({ initData });
 
-        if (!authRes.ok || !authData.success) throw new Error(authData.error || 'Authentication failed');
-
-        localStorage.setItem(TOKEN_KEY, authData.token);
-        localStorage.setItem(USER_KEY, JSON.stringify(authData.user));
-        setToken(authData.token); setUser(authData.user);
-        setAuthStage('loading-player');
-
-        if (authData.player) {
-          setPlayer(authData.player);
-        } else {
-          try {
-            const pr = await fetchWithTimeout(`${API_BASE}/api/player/me`, { headers: { Authorization: `Bearer ${authData.token}` } }, 20_000);
-            if (pr.ok) { const pd = await pr.json(); setPlayer(pd.player); }
-          } catch { /* non-fatal */ }
-        }
-
+        localStorage.setItem(TOKEN_KEY, result.token);
+        setSessionToken(result.token);
+        setUser({
+          id: String(result.user.id),
+          telegramId: result.user.id,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName || '',
+          username: result.user.username || '',
+          email: '',
+        });
+        setPlayer(result.player as unknown as Player);
         setIsAuthenticated(true);
         setAuthStage('ready');
-
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('[AuthContext]', err);
-        const msg = err.name === 'AbortError'
-          ? 'Server is waking up — tap Retry in a moment'
-          : (err.message || 'Authentication failed');
-        setAuthError(msg);
+        const message = err instanceof Error ? err.message : 'Authentication failed';
+        setAuthError(message);
         setAuthStage('error');
         setIsAuthenticated(false);
       }
     };
-    authenticate();
-  }, [retryTrigger]);
 
-  const logout = () => {
-    localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY);
-    setToken(null); setUser(null); setPlayer(null);
-    setIsAuthenticated(false); setAuthStage('init');
+    if (authStage === 'init' || retryTrigger > 0) {
+      authenticate();
+    }
+  }, [retryTrigger, sessionToken, verifyMutation]);
+
+  const logout = async () => {
+    if (sessionToken) {
+      try {
+        await logoutMutation({ token: sessionToken });
+      } catch {
+        // ignore errors
+      }
+    }
+    localStorage.removeItem(TOKEN_KEY);
+    setSessionToken(null);
+    setUser(null);
+    setPlayer(null);
+    setIsAuthenticated(false);
+    setAuthStage('init');
+    setAuthError(null);
   };
-  const retry = () => { setAuthStage('init'); setAuthError(null); setRetryTrigger(n => n + 1); };
+
+  const retry = () => {
+    setAuthStage('init');
+    setAuthError(null);
+    setRetryTrigger(n => n + 1);
+  };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, authStage, authError, user, player, token, logout, retry }}>
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        authStage,
+        authError,
+        user,
+        player,
+        sessionToken,
+        logout,
+        retry,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
