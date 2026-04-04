@@ -5,11 +5,10 @@ node_modules/
 dist/
 build/
 *.log
-.firebase/
-serviceAccountKey.json
 *.pem
 
 apps/miniapp/out/
 apps/miniapp/.next/
-functions/lib/
+apps/miniapp/.env.local
+convex/_generated/
 *.tsbuildinfo

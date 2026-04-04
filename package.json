@@ -4,10 +4,14 @@
   "scripts": {
     "dev:bot": "cd apps/bot && pnpm dev",
     "dev:app": "cd apps/miniapp && pnpm dev",
+    "dev:miniapp": "cd apps/miniapp && pnpm dev",
     "build:app": "cd apps/miniapp && pnpm build",
-    "deploy": "firebase deploy"
+    "convex:dev": "cd convex && npx convex dev",
+    "convex:deploy": "cd convex && npx convex deploy",
+    "set-webhook": "node scripts/set-webhook.js"
   },
   "devDependencies": {
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "convex": "^1.12.0"
   }
 }

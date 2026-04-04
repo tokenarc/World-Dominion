@@ -169,16 +169,3 @@ export default function App() {
     </div>
   );
 }
-
-// Ping backend every 10min to prevent Render free tier sleep
-function KeepAlive() {
-  useEffect(() => {
-    const ping = () => {
-      fetch('https://world-dominion.onrender.com/ping').catch(() => {});
-    };
-    ping();
-    const interval = setInterval(ping, 10 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-  return null;
-}
