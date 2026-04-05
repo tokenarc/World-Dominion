@@ -36,7 +36,8 @@ export default function NationsPage() {
 
   const filtered = useMemo(() => {
     if (!nations || !Array.isArray(nations)) return [];
-    return nations.filter((n: Nation) =>
+    const arr = nations as Nation[];
+    return arr.filter((n: Nation) =>
       n.name?.toLowerCase().includes(search.toLowerCase()) ||
       n.iso?.toLowerCase().includes(search.toLowerCase())
     );
@@ -111,7 +112,7 @@ export default function NationsPage() {
             <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px', marginBottom: '4px' }}>
               {filtered.length} NATIONS · TAP FOR INTEL
             </div>
-            {(filtered as any).map((n: Nation) => {
+            {filtered.map((n: Nation) => {
               const atWar = (n.atWarWith?.length || 0) > 0;
               return (
                 <div key={n.iso}

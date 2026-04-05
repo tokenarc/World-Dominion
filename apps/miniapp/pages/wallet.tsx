@@ -40,6 +40,7 @@ export default function WalletPage() {
     apiRef.wallet.getTransactions, 
     sessionToken ? { token: sessionToken, limit: 20 } : 'skip'
   ) : null;
+  const transactionsArr = transactions || [];
   const verifyMutation = authStage === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
   const withdrawMutation = authStage === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
 
@@ -142,7 +143,7 @@ export default function WalletPage() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {(transactions as any).map((tx: Tx, i: number) => (
+              {transactionsArr.map((tx: Tx, i: number) => (
                 <div key={i} style={{
                   display:      'flex',
                   alignItems:   'center',

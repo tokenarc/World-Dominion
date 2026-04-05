@@ -72,7 +72,7 @@ export default function WarPage() {
     }
   };
 
-  const wars = (activeWars as any) || [];
+  const warsArr = wars || [];
 
   return (
     <Layout>
@@ -158,7 +158,7 @@ export default function WarPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {(wars as any).map((war: War) => (
+            {warsArr.map((war: War) => (
               <div key={war._id} style={{
                 background:   'linear-gradient(135deg, #0d1117, #161b22)',
                 border:       '1px solid rgba(139,0,0,0.4)',

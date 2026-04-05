@@ -20,7 +20,9 @@ export default function MarketPage() {
 
   const apiRef = api as any;
   const stocks = authStage === 'ready' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : null;
+  const stocksArr = Array.isArray(stocks) ? stocks : [];
   const listings = authStage === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : null;
+  const listingsArr = Array.isArray(listings) ? listings : [];
   const buyMutation = authStage === 'ready' && apiRef?.market?.buyListing ? useMutation(apiRef.market.buyListing) : null;
 
   const buyP2P = async (listingId: any, quantity: number) => {
@@ -56,11 +58,11 @@ export default function MarketPage() {
         {msg && <div style={{ textAlign: 'center', fontSize: '11px', color: msg.startsWith('✅') ? '#00ff88' : '#cc0000', marginBottom: '12px', letterSpacing: '1px' }}>{msg}</div>}
 
         {tab === 'stocks' ? (
-          stocks === null || stocks === undefined ? <Spinner /> : (stocks as any).length === 0 ? (
+          stocks === null || stocks === undefined ? <Spinner /> :           stocksArr.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '10px', letterSpacing: '2px' }}>MARKET CLOSED</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              {(stocks as any).map((s: Stock) => {
+              {stocksArr.map((s: Stock) => {
                 const change = s.change24h || 0;
                 const up = change >= 0;
                 return (
@@ -85,11 +87,11 @@ export default function MarketPage() {
             </div>
           )
         ) : (
-          listings === null || listings === undefined ? <Spinner /> : (listings as any).length === 0 ? (
+          listingsArr.length === 0 ? (
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '10px', letterSpacing: '2px' }}>NO ACTIVE LISTINGS</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {(listings as any).map((l: any) => (
+              {listingsArr.map((l: any) => (
                 <div key={l._id} style={{
                   display:      'flex',
                   alignItems:   'center',
