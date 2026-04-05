@@ -54,7 +54,7 @@ export default function WalletPage() {
     tg?.HapticFeedback?.impactOccurred('medium');
     setBusy(true); setMsg('');
     try {
-      const result = await verifyMutation({ token: sessionToken, txHash: txHash.trim(), amount: parseFloat(amount) || 0 });
+      const result = await verifyMutation({ token: sessionToken, txHash: txHash.trim(), amount: parseFloat(amount) || 0 }) as any;
       if (result.success) {
         setMsg(`✅ Credited ${result.amount} War Bonds!`);
         tg?.HapticFeedback?.notificationOccurred('success');
@@ -73,7 +73,7 @@ export default function WalletPage() {
     tg?.HapticFeedback?.impactOccurred('heavy');
     setBusy(true); setMsg('');
     try {
-      const result = await withdrawMutation({ token: sessionToken, amount: parseInt(amount), walletAddress: toAddr.trim() });
+      const result = await withdrawMutation({ token: sessionToken, amount: parseInt(amount), walletAddress: toAddr.trim() }) as any;
       setMsg(`✅ Withdrawal submitted! ID: ${result.withdrawalId?.slice(-6)}`);
       tg?.HapticFeedback?.notificationOccurred('success');
     } catch (err: any) { 
