@@ -2,7 +2,6 @@ import { action } from "./_generated/server";
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
-
 const CONVEX_SITE = process.env.CONVEX_SITE || "https://peaceful-scorpion-529.convex.site";
 
 export const setWebhook = action(async () => {

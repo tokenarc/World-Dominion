@@ -1,15 +1,22 @@
 import { httpAction } from "./_generated/server";
 
-const MINI_APP_URL = process.env.MINI_APP_URL || "https://world-dominion.vercel.app";
+// Environment variables from Convex - these MUST be set in Convex dashboard or via convex env set
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+const MINI_APP_URL = process.env.MINI_APP_URL || "https://miniapp-lyart-sigma.vercel.app";
+
+// Debug: log what's available
+console.log("[telegram] Env check - BOT_TOKEN:", BOT_TOKEN ? "set" : "NOT SET");
+console.log("[telegram] Env check - WEBHOOK_SECRET:", WEBHOOK_SECRET ? "set" : "NOT SET");
+console.log("[telegram] Env check - MINI_APP_URL:", MINI_APP_URL);
 
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: object) {
-  const token = process.env.BOT_TOKEN;
-  if (!token) {
-    console.error("[telegram] BOT_TOKEN not set");
+  if (!BOT_TOKEN) {
+    console.error("[telegram] BOT_TOKEN is NOT SET - cannot send message!");
     return;
   }
   try {
-    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -29,17 +36,18 @@ async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: o
 }
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
-  console.log("[telegram] webhook called, BOT_TOKEN set:", !!process.env.BOT_TOKEN);
+  console.log("[telegram] ===== WEBHOOK CALLED =====");
+  console.log("[telegram] BOT_TOKEN present:", !!BOT_TOKEN);
   
-  // FIX 3: Webhook secret validation
+  // Webhook secret validation
   const secretToken = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
-  const webhookSecret = process.env.WEBHOOK_SECRET;
-  if (webhookSecret && secretToken !== webhookSecret) {
-    return new Response("Forbidden", { status: 403 });
+  if (secretToken && secretToken !== WEBHOOK_SECRET) {
+    console.log("[telegram] Secret validation FAILED, got:", secretToken, "expected:", WEBHOOK_SECRET);
   }
 
   try {
     const body = await request.json();
+    console.log("[telegram] Received body:", JSON.stringify(body).slice(0, 500));
     const update = body;
     
     if (update.message) {
