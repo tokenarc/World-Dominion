@@ -1,0 +1,22 @@
+name: Set Telegram Webhook
+on:
+  workflow_dispatch:
+
+jobs:
+  set-webhook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Webhook
+        run: |
+          curl -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/setWebhook" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "url": "https://wary-stork-787.convex.site/telegram",
+              "secret_token": "${{ secrets.WEBHOOK_SECRET }}",
+              "allowed_updates": ["message", "callback_query"],
+              "drop_pending_updates": true
+            }'
+
+      - name: Verify Webhook
+        run: |
+          curl "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/getWebhookInfo"
