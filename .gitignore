@@ -12,3 +12,5 @@ apps/miniapp/.next/
 apps/miniapp/.env.local
 convex/_generated/
 *.tsbuildinfo
+.vercel
+.env*.local

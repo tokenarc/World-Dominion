@@ -1,3 +1,5 @@
 out/
 .next/
 *.log
+.vercel
+.env*.local
