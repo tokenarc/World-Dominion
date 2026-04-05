@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/client';
+import { api } from '../../convex/_generated/api';
 
 type AuthStage = 'init' | 'authenticating' | 'loading-player' | 'ready' | 'error';
 
@@ -74,11 +74,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null);
 
   const sessionUser = hasApi() 
-    ? useQuery(api.auth.getSessionUser, sessionToken ? { token: sessionToken } : 'skip') as any
+    ? useQuery(api.auth.getSessionUser as any, sessionToken ? { token: sessionToken } : 'skip')
     : null;
 
-  const verifyMutation = hasApi() ? useMutation(api.auth.telegramVerify) as any : null;
-  const logoutMutation = hasApi() ? useMutation(api.auth.logout) as any : null;
+  const verifyMutation = hasApi() ? useMutation(api.auth.telegramVerify as any) : null;
+  const logoutMutation = hasApi() ? useMutation(api.auth.logout as any) : null;
 
   const logout = useCallback(() => {
     if (sessionToken && logoutMutation) {
@@ -158,17 +158,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-function KeepAlive() {
-  useEffect(() => {
-    if (!isBrowser()) return;
-    const ping = () => {
-      fetch('/api/ping', { method: 'HEAD' }).catch(() => {});
-    };
-    const interval = setInterval(ping, 60000);
-    return () => clearInterval(interval);
-  }, []);
-  return null;
-}
-
-export { KeepAlive };

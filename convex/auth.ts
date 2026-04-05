@@ -2,7 +2,8 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 
-const BOT_TOKEN = "7648621492:AAFnDqH_EfY1U4sO3a1eT5iR2vL9pX8yZ3c";
+const BOT_TOKEN = process.env.BOT_TOKEN;
+if (!BOT_TOKEN) throw new Error("BOT_TOKEN env var is required");
 
 function hexToBytes(hex: string): Uint8Array {
   const bytes = new Uint8Array(hex.length / 2);
@@ -285,7 +286,10 @@ export const getSessionUser = query({
       return null;
     }
     
-    const user = await ctx.db.get(session.userId as Id<"users">);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
+      .first();
     if (!user) return null;
     
     const player = await ctx.db

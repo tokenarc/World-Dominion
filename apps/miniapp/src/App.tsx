@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { VideoLoadingScreen } from './components/VideoLoadingScreen';
-import { useAuth, KeepAlive } from './context/AuthContext';
+import { useAuth } from './context/AuthContext';
 
 // Auth stage → real progress percentage
 const STAGE_PROGRESS: Record<string, number> = {
@@ -145,9 +145,6 @@ export default function App() {
       </header>
 
       <main style={{ padding: '16px', paddingBottom: '80px' }}>
-        {/* Keep-alive ping to prevent Render cold starts */}
-        <KeepAlive />
-
         <div style={{
           border:        '1px solid rgba(139,0,0,0.3)',
           background:    'rgba(0,0,0,0.6)',

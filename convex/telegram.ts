@@ -1,5 +1,16 @@
 import { httpAction } from "./_generated/server";
-import { internal } from "./_generated/action";
+import { internal } from "./_generated/api";
+
+const BOT_TOKEN = process.env.BOT_TOKEN || "";
+
+async function sendTelegramMessage(chatId: number, text: string) {
+  if (!BOT_TOKEN) return;
+  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text }),
+  });
+}
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
   try {
@@ -46,35 +57,12 @@ export const telegramWebhook = httpAction(async (ctx, request) => {
           response = "Unknown command. Use /help";
       }
       
-      return new Response(JSON.stringify({
-        method: "sendMessage",
-        chat_id: chatId,
-        text: response,
-      }), {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      });
+      await sendTelegramMessage(chatId, response);
+      return new Response("OK", { status: 200 });
     }
     
-    if (update.callback_query) {
-      return new Response(JSON.stringify({
-        method: "answerCallbackQuery",
-        callback_query_id: update.callback_query.id,
-        text: "Processed",
-      }), {
-        headers: { "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-    
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { "Content-Type": "application/json" },
-      status: 200,
-    });
+    return new Response("OK", { status: 200 });
   } catch (error) {
-    return new Response(JSON.stringify({ error: "Internal error" }), {
-      headers: { "Content-Type": "application/json" },
-      status: 500,
-    });
+    return new Response("Error", { status: 500 });
   }
 });
