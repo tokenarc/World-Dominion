@@ -22,54 +22,59 @@ async function verifyInitData(initData: string, botToken: string): Promise<{
   const encoder = new TextEncoder();
   
   // Step 1 — Create secret key: HMAC-SHA256("WebAppData", botToken)
-  const webAppDataKey = await crypto.subtle.importKey(
-    "raw", encoder.encode("WebAppData"),
-    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  // IMPORTANT: exportable must be TRUE for Web Crypto API in Convex
+  const secretKey = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode("WebAppData"),
+    { name: "HMAC", hash: "SHA-256" },
+    true,
+    ["sign"]
   );
-  const secretKeyBytes = await crypto.subtle.sign(
-    "HMAC", webAppDataKey, encoder.encode(botToken)
-  );
-  const signingKey = await crypto.subtle.importKey(
-    "raw", secretKeyBytes,
-    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  const secret = await crypto.subtle.sign("HMAC", secretKey, encoder.encode(botToken));
+  
+  // Step 2 — Import the secret as signing key (also exportable)
+  const signatureKey = await crypto.subtle.importKey(
+    "raw",
+    secret,
+    { name: "HMAC", hash: "SHA-256" },
+    true,
+    ["sign"]
   );
   
-  // Step 2 — Build data_check_string from URLSearchParams
+  // Step 3 — Build data_check_string - MUST use raw initData, NOT decoded
   const params = new URLSearchParams(initData);
   const hash = params.get("hash");
   if (!hash) {
     console.log("[auth] No hash in initData");
     return null;
   }
-  params.delete("hash");
-
-  const dataCheckString = Array.from(params.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => `${k}=${v}`)
-    .join("\n");
-
+  
+  // Get all keys EXCEPT hash and sort them
+  const keys = Array.from(params.keys()).filter(k => k !== "hash").sort();
+  const dataCheckString = keys.map(key => `${key}=${params.get(key)}`).join("\n");
+  
   console.log("[auth] data_check_string:", dataCheckString.slice(0, 200));
-
-  // Step 3 — Calculate and compare hash
-  const signature = await crypto.subtle.sign(
-    "HMAC", signingKey, encoder.encode(dataCheckString)
-  );
-  const calculatedHash = Array.from(new Uint8Array(signature))
-    .map(b => b.toString(16).padStart(2, "0")).join("");
-
+  
+  // Step 4 — Calculate and compare hash
+  const signature = await crypto.subtle.sign("HMAC", signatureKey, encoder.encode(dataCheckString));
+  const calculatedHash = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, "0")).join("");
+  
   console.log("[auth] expected hash:", hash);
   console.log("[auth] calculated hash:", calculatedHash);
   console.log("[auth] match:", calculatedHash === hash);
-
-  if (calculatedHash !== hash) return null;
-
-  // Step 4 — Parse user from params
+  
+  if (calculatedHash !== hash) {
+    console.log("[auth] Hash mismatch!");
+    return null;
+  }
+  
+  // Step 5 — Parse user from params
   const userStr = params.get("user");
   if (!userStr) {
     console.log("[auth] No user in initData");
     return null;
   }
-
+  
   try {
     const user = JSON.parse(userStr);
     const auth_date = parseInt(params.get("auth_date") || "0", 10);
