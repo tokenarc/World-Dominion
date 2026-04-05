@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-{"buildCommand":"npm run build",
-     "outputDirectory":"out","framework":"nextjs"}
-     
-=======
 {
   "framework": "nextjs",
   "buildCommand": "npm run build",
   "installCommand": "npm install",
   "outputDirectory": ".next"
 }
->>>>>>> 1274689 (fix: add vercel.json to miniapp, remove root vercel.json)
