@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/client';
+import { api } from '../../../../convex/_generated/client';
 
 type AuthStage = 'init' | 'authenticating' | 'loading-player' | 'ready' | 'error';
 
@@ -60,25 +60,34 @@ export function useAuth() {
   return context;
 }
 
+function isBrowser(): boolean {
+  return typeof window !== 'undefined';
+}
+
+function hasApi(): boolean {
+  return isBrowser() && typeof api?.auth?.getSessionUser === 'function';
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [authStage, setAuthStage] = useState<AuthStage>('init');
   const [authError, setAuthError] = useState<string | null>(null);
 
-  const sessionUser = useQuery(
-    api.auth.getSessionUser,
-    sessionToken ? { token: sessionToken } : 'skip'
-  ) as any;
+  const sessionUser = hasApi() 
+    ? useQuery(api.auth.getSessionUser, sessionToken ? { token: sessionToken } : 'skip') as any
+    : null;
 
-  const verifyMutation = useMutation(api.auth.telegramVerify) as any;
-  const logoutMutation = useMutation(api.auth.logout) as any;
+  const verifyMutation = hasApi() ? useMutation(api.auth.telegramVerify) as any : null;
+  const logoutMutation = hasApi() ? useMutation(api.auth.logout) as any : null;
 
   const logout = useCallback(() => {
-    if (sessionToken) {
+    if (sessionToken && logoutMutation) {
       logoutMutation({ token: sessionToken });
     }
     setSessionToken(null);
-    localStorage.removeItem('wd_session_token');
+    if (isBrowser()) {
+      localStorage.removeItem('wd_session_token');
+    }
     setAuthStage('init');
     setAuthError(null);
   }, [sessionToken, logoutMutation]);
@@ -90,6 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const checkAuth = useCallback(async () => {
+    if (!isBrowser()) return;
+    
     try {
       setAuthStage('authenticating');
       
@@ -97,9 +108,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (!token) {
         const tg = (window as any).Telegram?.WebApp;
-        if (tg?.initData) {
+        if (tg?.initData && verifyMutation) {
           const result = await verifyMutation({ initData: tg.initData });
-          if (result.success) {
+          if (result?.success) {
             token = result.token;
             localStorage.setItem('wd_session_token', token);
           }
@@ -116,7 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setAuthStage('loading-player');
     } catch (err: any) {
       setAuthStage('error');
-      setAuthError(err.message || 'Authentication failed');
+      setAuthError(err?.message || 'Authentication failed');
     }
   }, [verifyMutation]);
 
@@ -150,6 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 function KeepAlive() {
   useEffect(() => {
+    if (!isBrowser()) return;
     const ping = () => {
       fetch('/api/ping', { method: 'HEAD' }).catch(() => {});
     };

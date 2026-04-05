@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../convex/_generated/client';
+import { api } from '../../../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface Stock { _id?: any; symbol: string; name: string; price: number; change24h: number; sector: string; }
@@ -11,17 +11,18 @@ function Spinner() {
 }
 
 export default function MarketPage() {
-  const { sessionToken } = useAuth();
+  const { sessionToken, authStage } = useAuth();
   const [tab,      setTab]      = useState<'stocks'|'p2p'>('stocks');
   const [msg,      setMsg]      = useState('');
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const stocks = useQuery(api.market.getStocks) as any;
-  const listings = useQuery(api.market.getListings, tab === 'p2p' ? {} : 'skip') as any;
-  const buyMutation = useMutation(api.market.buyListing);
+  const apiRef = api as any;
+  const stocks = authStage === 'ready' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : null;
+  const listings = authStage === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : null;
+  const buyMutation = authStage === 'ready' && apiRef?.market?.buyListing ? useMutation(apiRef.market.buyListing) : null;
 
   const buyP2P = async (listingId: any, quantity: number) => {
-    if (!sessionToken) return;
+    if (!sessionToken || !buyMutation) return;
     tg?.HapticFeedback?.impactOccurred('medium');
     try {
       const result = await buyMutation({ token: sessionToken, listingId, quantity });
@@ -53,7 +54,7 @@ export default function MarketPage() {
         {msg && <div style={{ textAlign: 'center', fontSize: '11px', color: msg.startsWith('✅') ? '#00ff88' : '#cc0000', marginBottom: '12px', letterSpacing: '1px' }}>{msg}</div>}
 
         {tab === 'stocks' ? (
-          stocks === undefined ? <Spinner /> : stocks.length === 0 ? (
+          stocks === null || stocks === undefined ? <Spinner /> : (stocks as any).length === 0 ? (
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '10px', letterSpacing: '2px' }}>MARKET CLOSED</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -82,7 +83,7 @@ export default function MarketPage() {
             </div>
           )
         ) : (
-          listings === undefined ? <Spinner /> : listings.length === 0 ? (
+          listings === null || listings === undefined ? <Spinner /> : (listings as any).length === 0 ? (
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '10px', letterSpacing: '2px' }}>NO ACTIVE LISTINGS</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

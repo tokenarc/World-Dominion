@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../convex/_generated/client';
+import { api } from '../../../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface Tx {
@@ -23,7 +23,8 @@ function Spinner() {
 }
 
 export default function WalletPage() {
-  const { player, sessionToken } = useAuth();
+  const { player, sessionToken, authStage } = useAuth();
+  const apiRef = api as any;
   const [tab,     setTab]     = useState<'balance'|'deposit'|'withdraw'>('balance');
   const [txHash,  setTxHash]  = useState('');
   const [amount,  setAmount]  = useState('');
@@ -32,13 +33,13 @@ export default function WalletPage() {
   const [busy,    setBusy]    = useState(false);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const balance = useQuery(api.wallet.getBalance, sessionToken ? { token: sessionToken } : 'skip') as any;
-  const transactions = useQuery(
-    api.wallet.getTransactions, 
+  const balance = authStage === 'ready' && apiRef?.wallet?.getBalance ? useQuery(apiRef.wallet.getBalance, sessionToken ? { token: sessionToken } : 'skip') : null;
+  const transactions = authStage === 'ready' && apiRef?.wallet?.getTransactions ? useQuery(
+    apiRef.wallet.getTransactions, 
     sessionToken ? { token: sessionToken, limit: 20 } : 'skip'
-  ) as any;
-  const verifyMutation = useMutation(api.wallet.verifyDeposit) as any;
-  const withdrawMutation = useMutation(api.wallet.initiateWithdrawal) as any;
+  ) : null;
+  const verifyMutation = authStage === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
+  const withdrawMutation = authStage === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
 
   const warBonds = balance?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
   const cp = balance?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
@@ -133,7 +134,7 @@ export default function WalletPage() {
         </div>
 
         {tab === 'balance' && (
-          transactions === undefined ? <Spinner /> : transactions.length === 0 ? (
+          transactions === null || transactions === undefined ? <Spinner /> : (transactions as any).length === 0 ? (
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '11px', letterSpacing: '2px' }}>
               NO TRANSACTIONS YET
             </div>

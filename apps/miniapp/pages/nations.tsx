@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery } from 'convex/react';
-import { api } from '../convex/_generated/client';
+import { api } from '../../../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface Nation {
@@ -21,13 +21,19 @@ function Spinner() {
 }
 
 export default function NationsPage() {
-  const nations = useQuery(api.nations.getAll);
+  const { authStage } = useAuth();
+  const apiRef = api as any;
+  
+  const nations = useQuery(
+    authStage === 'ready' && apiRef.nations?.getAll ? apiRef.nations.getAll : () => null,
+    authStage === 'ready' && apiRef.nations?.getAll ? undefined : 'skip'
+  );
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Nation | null>(null);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const filtered = useMemo(() => {
-    if (!nations) return [];
+    if (!nations || !Array.isArray(nations)) return [];
     return nations.filter((n: Nation) =>
       n.name?.toLowerCase().includes(search.toLowerCase()) ||
       n.iso?.toLowerCase().includes(search.toLowerCase())
@@ -96,7 +102,7 @@ export default function NationsPage() {
           }}
         />
 
-        {nations === undefined ? <Spinner /> : filtered.length === 0 ? (
+        {nations === null || nations === undefined || !filtered ? <Spinner /> : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '10px', letterSpacing: '2px' }}>NO NATIONS FOUND</div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>

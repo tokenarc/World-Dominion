@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../convex/_generated/client';
+import { api } from '../../../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface War {
@@ -32,18 +32,18 @@ function Spinner() {
 }
 
 export default function WarPage() {
-  const { player, sessionToken } = useAuth();
+  const { player, sessionToken, isAuthenticated, authStage } = useAuth();
   const [target, setTarget] = useState('');
   const [declaring, setDeclaring] = useState(false);
   const [msg, setMsg] = useState('');
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const activeWars = useQuery(api.wars.getActive);
-  const myWars = useQuery(
+  const activeWars = (authStage === 'ready' && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive) : null;
+  const myWars = (authStage === 'ready' && typeof api?.wars?.getForNation === 'function') ? useQuery(
     api.wars.getForNation,
     player?.currentNation ? { nationIso: player.currentNation } : 'skip'
-  );
-  const declareWarMutation = useMutation(api.wars.declareWar);
+  ) : null;
+  const declareWarMutation = (authStage === 'ready' && typeof api?.wars?.declareWar === 'function') ? useMutation(api.wars.declareWar) : null;
 
   const hasNation = !!player?.currentNation;
   const canDeclare = hasNation && (player?.role === 'PRESIDENT' || player?.role === 'MILITARY');
