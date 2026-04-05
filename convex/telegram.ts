@@ -29,6 +29,8 @@ async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: o
 }
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
+  console.log("[telegram] webhook called, BOT_TOKEN set:", !!process.env.BOT_TOKEN);
+  
   // FIX 3: Webhook secret validation
   const secretToken = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
   const webhookSecret = process.env.WEBHOOK_SECRET;
