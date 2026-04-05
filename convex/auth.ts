@@ -188,6 +188,12 @@ async function getOrCreatePlayer(
 export const telegramVerify = mutation({
   args: { initData: v.string() },
   handler: async (ctx, args) => {
+    console.log("telegramVerify called, initData length:", args.initData.length);
+    
+    if (!args.initData || args.initData.length === 0) {
+      throw new Error("Empty initData. Please open the app through Telegram.");
+    }
+    
     const verified = await verifyInitData(args.initData);
     if (!verified) {
       throw new Error("Invalid initData");
