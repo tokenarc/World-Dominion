@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic';
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../convex/_generated/client';
+import { api } from '../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface Stock { _id?: any; symbol: string; name: string; price: number; change24h: number; sector: string; }

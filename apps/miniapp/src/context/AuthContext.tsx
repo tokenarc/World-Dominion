@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../../../convex/_generated/client';
+import { api } from '../../../convex/_generated/client';
 
 type AuthStage = 'init' | 'authenticating' | 'loading-player' | 'ready' | 'error';
 
