@@ -112,7 +112,7 @@ export default function Dashboard() {
   const { user, player, sessionToken, isAuthenticated, authStage } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const events = (authStage === 'ready' && isAuthenticated && typeof api?.events?.getRecent === 'function') ? useQuery(api.events.getRecent, { limit: 5 }) as any : null;
+  const eventsArr = events ? (events as any[]) : [];
   const activeWars = (authStage === 'ready' && isAuthenticated && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive) as any : null;
 
   useEffect(() => {
@@ -291,15 +291,17 @@ export default function Dashboard() {
             <div style={{ padding: '20px', textAlign: 'center', color: '#444', fontSize: '11px', letterSpacing: '2px' }}>
               SCANNING...
             </div>
-          ) : (events as any).length > 0 ? (
-            {(events as any).map((e: any, i: number) => (
-              <IntelItem
-                key={i}
-                text={e.title || e.description || 'Classified event'}
-                time={e.createdAt ? new Date(e.createdAt).toLocaleTimeString() : 'UNKNOWN'}
-                type={e.type === 'war_declared' ? 'war' : e.type === 'stability_change' ? 'economy' : 'intel'}
-              />
-            ))
+          ) : eventsArr.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {eventsArr.map((e: any, i: number) => (
+                <IntelItem
+                  key={i}
+                  text={e.title || e.description || 'Classified event'}
+                  time={e.createdAt ? new Date(e.createdAt).toLocaleTimeString() : 'UNKNOWN'}
+                  type={e.type === 'war_declared' ? 'war' : e.type === 'stability_change' ? 'economy' : 'intel'}
+                />
+              ))}
+            </div>
           ) : (
             <div style={{ padding: '16px 14px' }}>
               <div style={{ fontSize: '9px', color: '#8B0000', letterSpacing: '2px', marginBottom: '6px' }}>
