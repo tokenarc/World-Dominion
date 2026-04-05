@@ -160,7 +160,7 @@ export default function WarPage() {
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {warsArr.map((war: War) => (
+            {wars.map((war: War) => (
               <div key={war._id} style={{
                 background:   'linear-gradient(135deg, #0d1117, #161b22)',
                 border:       '1px solid rgba(139,0,0,0.4)',
