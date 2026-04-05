@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/client';
+import { api } from '../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 function StatCard({ icon, label, value, color = '#FFD700', glow = false }: { icon: string; label: string; value: string; color?: string; glow?: boolean }) {
@@ -110,8 +110,8 @@ export default function Dashboard() {
   const { user, player, sessionToken, isAuthenticated } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const events = useQuery(api.events.getRecent, { limit: 5 });
-  const activeWars = useQuery(api.wars.getActive);
+  const events = useQuery(api.events.getRecent, { limit: 5 }) as any;
+  const activeWars = useQuery(api.wars.getActive) as any;
 
   useEffect(() => {
     if (!isAuthenticated) {

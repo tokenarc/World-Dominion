@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { VideoLoadingScreen } from './components/VideoLoadingScreen';
-import { useAuth } from './context/AuthContext';
+import { useAuth, KeepAlive } from './context/AuthContext';
 
 // Auth stage → real progress percentage
 const STAGE_PROGRESS: Record<string, number> = {

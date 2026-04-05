@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/client';
+import { api } from '../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface Stock { _id?: any; symbol: string; name: string; price: number; change24h: number; sector: string; }
@@ -16,8 +16,8 @@ export default function MarketPage() {
   const [msg,      setMsg]      = useState('');
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const stocks = useQuery(api.market.getStocks);
-  const listings = useQuery(api.market.getListings, tab === 'p2p' ? {} : 'skip');
+  const stocks = useQuery(api.market.getStocks) as any;
+  const listings = useQuery(api.market.getListings, tab === 'p2p' ? {} : 'skip') as any;
   const buyMutation = useMutation(api.market.buyListing);
 
   const buyP2P = async (listingId: any, quantity: number) => {

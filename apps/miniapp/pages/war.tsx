@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/client';
+import { api } from '../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface War {

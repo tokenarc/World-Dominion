@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/client';
+import { api } from '../convex/_generated/client';
 import Layout from '../src/components/Layout';
 
 interface Tx {
@@ -32,13 +32,13 @@ export default function WalletPage() {
   const [busy,    setBusy]    = useState(false);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const balance = useQuery(api.wallet.getBalance, sessionToken ? { token: sessionToken } : 'skip');
+  const balance = useQuery(api.wallet.getBalance, sessionToken ? { token: sessionToken } : 'skip') as any;
   const transactions = useQuery(
     api.wallet.getTransactions, 
     sessionToken ? { token: sessionToken, limit: 20 } : 'skip'
-  );
-  const verifyMutation = useMutation(api.wallet.verifyDeposit);
-  const withdrawMutation = useMutation(api.wallet.initiateWithdrawal);
+  ) as any;
+  const verifyMutation = useMutation(api.wallet.verifyDeposit) as any;
+  const withdrawMutation = useMutation(api.wallet.initiateWithdrawal) as any;
 
   const warBonds = balance?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
   const cp = balance?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
