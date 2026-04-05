@@ -63,6 +63,16 @@ export const declareWar = mutation({
       throw new Error("Invalid or expired session");
     }
     
+    const player = await ctx.db
+      .query("players")
+      .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
+      .first();
+    
+    const allowedRoles = ["PRESIDENT", "PRIME_MINISTER", "DEFENSE_MINISTER", "MILITARY"];
+    if (!player?.role || !allowedRoles.includes(player.role.toUpperCase())) {
+      throw new Error("Only Presidents and Defense Ministers can declare war");
+    }
+    
     const attackerNation = await ctx.db
       .query("nations")
       .withIndex("iso", q => q.eq("iso", args.attackerIso))

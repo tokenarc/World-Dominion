@@ -5,80 +5,58 @@ import { Doc, Id } from "./_generated/dataModel";
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) throw new Error("BOT_TOKEN env var is required");
 
-function hexToBytes(hex: string): Uint8Array {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
-  }
-  return bytes;
-}
-
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-async function hmacSha256(key: Uint8Array, data: string): Promise<Uint8Array> {
-  const cryptoKey = await crypto.subtle.importKey(
-    "raw",
-    key,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign("HMAC", cryptoKey, new TextEncoder().encode(data));
-  return new Uint8Array(signature);
-}
-
-function parseInitData(initData: string): Map<string, string> {
-  const params = new Map<string, string>();
-  const pairs = initData.split("&");
-  for (const pair of pairs) {
-    const [key, value] = pair.split("=");
-    if (key && value) {
-      params.set(decodeURIComponent(key), decodeURIComponent(value));
-    }
-  }
-  return params;
-}
-
-function sortAndJoin(params: Map<string, string>): string {
-  const sorted = Array.from(params.entries())
-    .filter(([key]) => key !== "hash")
-    .sort(([a], [b]) => a.localeCompare(b));
-  return sorted.map(([key, value]) => `${key}=${value}`).join("\n");
-}
-
-async function verifyInitData(initData: string): Promise<{
-  user: { id: number; first_name: string; last_name?: string; username?: string };
-  auth_date: number;
-} | null> {
-  const params = parseInitData(initData);
-  const hash = params.get("hash");
-  const authDate = params.get("auth_date");
-  
-  if (!hash || !authDate) return null;
-  
-  const dataCheckString = sortAndJoin(params);
-  const botTokenBytes = hexToBytes(BOT_TOKEN);
-  const expectedHash = bytesToHex(await hmacSha256(botTokenBytes, dataCheckString));
-  
-  if (expectedHash !== hash) return null;
-  
-  const userJson = params.get("user");
-  if (!userJson) return null;
-  
-  try {
-    const user = JSON.parse(userJson);
-    return { user, auth_date: parseInt(authDate, 10) };
-  } catch {
-    return null;
-  }
 }
 
 function generateToken(): string {
   const array = new Uint8Array(32);
   crypto.getRandomValues(array);
   return bytesToHex(array);
+}
+
+async function verifyInitData(initData: string, botToken: string): Promise<{
+  user: { id: number; first_name: string; last_name?: string; username?: string };
+  auth_date: number;
+} | null> {
+  const encoder = new TextEncoder();
+  
+  const webAppDataKey = await crypto.subtle.importKey(
+    "raw", encoder.encode("WebAppData"),
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  const secretKeyBytes = await crypto.subtle.sign(
+    "HMAC", webAppDataKey, encoder.encode(botToken)
+  );
+  const signingKey = await crypto.subtle.importKey(
+    "raw", secretKeyBytes,
+    { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
+  );
+  
+  const params = new URLSearchParams(initData);
+  const hash = params.get("hash");
+  if (!hash) return null;
+  
+  params.delete("hash");
+  const dataCheckString = Array.from(params.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, v]) => k + "=" + v)
+    .join("\n");
+  
+  const signature = await crypto.subtle.sign(
+    "HMAC", signingKey, encoder.encode(dataCheckString)
+  );
+  const calculatedHash = Array.from(new Uint8Array(signature))
+    .map(b => b.toString(16).padStart(2, "0")).join("");
+  
+  if (calculatedHash !== hash) return null;
+  
+  const userStr = params.get("user");
+  if (!userStr) return null;
+  
+  try {
+    return { user: JSON.parse(userStr), auth_date: parseInt(params.get("auth_date") || "0") };
+  } catch { return null; }
 }
 
 const SESSION_EXPIRY_DAYS = 7;
@@ -194,7 +172,16 @@ export const telegramVerify = mutation({
       throw new Error("Empty initData. Please open the app through Telegram.");
     }
     
-    const verified = await verifyInitData(args.initData);
+    // FIX 12: Rate limiting - check for recent session
+    const recentSession = await ctx.db
+      .query("sessions")
+      .filter(q => q.gte(q.field("createdAt"), Date.now() - 60000))
+      .first();
+    if (recentSession) {
+      throw new Error("Too many auth attempts. Please wait.");
+    }
+    
+    const verified = await verifyInitData(args.initData, BOT_TOKEN!);
     if (!verified) {
       throw new Error("Invalid initData");
     }
@@ -204,6 +191,15 @@ export const telegramVerify = mutation({
     
     if (Date.now() / 1000 - auth_date > 86400 * SESSION_EXPIRY_DAYS) {
       throw new Error("Session expired");
+    }
+    
+    // FIX 1: Delete all existing sessions for this telegramId
+    const oldSessions = await ctx.db
+      .query("sessions")
+      .withIndex("telegramId", q => q.eq("telegramId", telegramId))
+      .collect();
+    for (const s of oldSessions) {
+      await ctx.db.delete(s._id);
     }
     
     const userId = await getOrCreateUser(
@@ -226,15 +222,6 @@ export const telegramVerify = mutation({
     const token = generateToken();
     const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
     const now = Date.now();
-    
-    const existingSession = await ctx.db
-      .query("sessions")
-      .withIndex("token", q => q.eq("token", token))
-      .first();
-    
-    if (existingSession) {
-      await ctx.db.delete(existingSession._id);
-    }
     
     await ctx.db.insert("sessions", {
       token,

@@ -149,7 +149,10 @@ export const buyListing = mutation({
       throw new Error("Insufficient funds");
     }
     
-    const seller = await ctx.db.get(listing.sellerId as any);
+    const seller = await ctx.db
+      .query("players")
+      .filter(q => q.eq(q.field("_id"), listing.sellerId))
+      .first();
     
     await ctx.db.patch(buyer._id, {
       wallet: {

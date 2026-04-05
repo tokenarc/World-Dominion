@@ -3,6 +3,8 @@ import { action } from "./_generated/server";
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
 
+const CONVEX_SITE = process.env.CONVEX_SITE || "https://peaceful-scorpion-529.convex.site";
+
 export const setWebhook = action(async () => {
   if (!BOT_TOKEN) {
     throw new Error("BOT_TOKEN environment variable is not set");
@@ -11,11 +13,12 @@ export const setWebhook = action(async () => {
     throw new Error("WEBHOOK_SECRET environment variable is not set");
   }
 
+  const webhookUrl = `${CONVEX_SITE}/telegram`;
   const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      url: "https://wary-stork-787.convex.site/telegram",
+      url: webhookUrl,
       secret_token: WEBHOOK_SECRET,
       allowed_updates: ["message", "callback_query"],
       drop_pending_updates: true,

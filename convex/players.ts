@@ -32,10 +32,16 @@ export const getLeaderboard = query({
   handler: async (ctx, args) => {
     const limit = args.limit || 20;
     
-    return await ctx.db
+    const players = await ctx.db
       .query("players")
-      .orderBy("stats", "desc")
-      .take(limit);
+      .collect();
+    
+    const sorted = players
+      .filter(p => p.stats?.totalScore !== undefined)
+      .sort((a, b) => (b.stats?.totalScore || 0) - (a.stats?.totalScore || 0))
+      .slice(0, limit);
+    
+    return sorted;
   },
 });
 

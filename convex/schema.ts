@@ -151,7 +151,8 @@ export default defineSchema({
     .index("playerId", ["playerId"])
     .index("type", ["type"])
     .index("createdAt", ["createdAt"])
-    .index("playerId_createdAt", ["playerId", "createdAt"]),
+    .index("playerId_createdAt", ["playerId", "createdAt"])
+    .index("relatedId", ["relatedId"]),
 
   market_listings: defineTable({
     sellerId: v.string(),

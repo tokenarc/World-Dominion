@@ -1,7 +1,7 @@
 import { httpAction } from "./_generated/server";
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
-const MINI_APP_URL = process.env.MINI_APP_URL || "https://miniapp-47v393n3x-token-arcs-projects.vercel.app";
+const MINI_APP_URL = process.env.MINI_APP_URL || "https://world-dominion.vercel.app";
 
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: object) {
   if (!BOT_TOKEN) return;
@@ -11,12 +11,20 @@ async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: o
     body: JSON.stringify({
       chat_id: chatId,
       text,
+      parse_mode: "Markdown",
       reply_markup: replyMarkup,
     }),
   });
 }
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
+  // FIX 3: Webhook secret validation
+  const secretToken = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
+  const webhookSecret = process.env.WEBHOOK_SECRET;
+  if (webhookSecret && secretToken !== webhookSecret) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const update = body;

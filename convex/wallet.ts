@@ -114,26 +114,31 @@ export const initiateDeposit = mutation({
   },
 });
 
-export const verifyDeposit = action({
+export const verifyDeposit = mutation({
   args: { token: v.string(), txHash: v.string(), amount: v.number() },
   handler: async (ctx, args) => {
-    const existing = await ctx.runQuery(ctx.db.query("transactions").filter(q => q.eq(q.field("relatedId"), args.txHash)).first);
+    const existing = await ctx.db
+      .query("transactions")
+      .filter(q => q.eq(q.field("relatedId"), args.txHash))
+      .first();
     
     if (existing) {
       return { success: false, message: "Transaction already processed" };
     }
     
-    const session = await ctx.runQuery(
-      ctx.db.query("sessions").withIndex("token", q => q.eq("token", args.token)).first()
-    );
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("token", q => q.eq("token", args.token))
+      .first();
     
     if (!session || session.expiresAt < Date.now()) {
       return { success: false, message: "Invalid session" };
     }
     
-    const player = await ctx.runQuery(
-      ctx.db.query("players").withIndex("telegramId", q => q.eq("telegramId", session.telegramId)).first()
-    );
+    const player = await ctx.db
+      .query("players")
+      .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
+      .first();
     
     if (!player) {
       return { success: false, message: "Player not found" };
@@ -141,27 +146,23 @@ export const verifyDeposit = action({
     
     const wrbAmount = args.amount * 100;
     
-    await ctx.runMutation(
-      ctx.db.patch(player._id, {
-        wallet: {
-          warBonds: player.wallet.warBonds + wrbAmount,
-          commandPoints: player.wallet.commandPoints,
-        },
-        lastActive: Date.now(),
-      })
-    );
+    await ctx.db.patch(player._id, {
+      wallet: {
+        warBonds: player.wallet.warBonds + wrbAmount,
+        commandPoints: player.wallet.commandPoints,
+      },
+      lastActive: Date.now(),
+    });
     
-    await ctx.runMutation(
-      ctx.db.insert("transactions", {
-        playerId: player._id.toString(),
-        type: "deposit",
-        amount: wrbAmount,
-        currency: "warBonds",
-        description: `Deposit verified: ${args.amount} USDT`,
-        relatedId: args.txHash,
-        createdAt: Date.now(),
-      })
-    );
+    await ctx.db.insert("transactions", {
+      playerId: player._id.toString(),
+      type: "deposit",
+      amount: wrbAmount,
+      currency: "warBonds",
+      description: `Deposit verified: ${args.amount} USDT`,
+      relatedId: args.txHash,
+      createdAt: Date.now(),
+    });
     
     return { success: true, amount: wrbAmount };
   },
