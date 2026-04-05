@@ -104,15 +104,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setAuthStage('authenticating');
       
-      let token = localStorage.getItem('wd_session_token');
+      const tg = (window as any).Telegram?.WebApp;
+      console.log('[Auth] Telegram.WebApp available:', !!tg);
+      console.log('[Auth] initData available:', !!tg?.initData);
+      console.log('[Auth] initData length:', tg?.initData?.length || 0);
       
-      if (!token) {
-        const tg = (window as any).Telegram?.WebApp;
-        if (tg?.initData && verifyMutation) {
-          const result = await verifyMutation({ initData: tg.initData });
-          if (result?.success) {
-            token = result.token;
-            localStorage.setItem('wd_session_token', token);
+      let token = localStorage.getItem('wd_session_token');
+      console.log('[Auth] Stored token:', !!token);
+      
+      if (!token && tg?.initData) {
+        console.log('[Auth] Calling verifyMutation with initData length:', tg.initData.length);
+        if (!verifyMutation) {
+          console.log('[Auth] ERROR: verifyMutation is null!');
+        } else {
+          try {
+            const result = await verifyMutation({ initData: tg.initData });
+            console.log('[Auth] verifyMutation result:', result);
+            if (result?.success) {
+              token = result.token;
+              localStorage.setItem('wd_session_token', token);
+              console.log('[Auth] Token saved to localStorage');
+            }
+          } catch (mutErr: any) {
+            console.log('[Auth] verifyMutation error:', mutErr.message);
           }
         }
       }
@@ -126,6 +140,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSessionToken(token);
       setAuthStage('loading-player');
     } catch (err: any) {
+      console.log('[Auth] checkAuth error:', err.message);
       setAuthStage('error');
       setAuthError(err?.message || 'Authentication failed');
     }
