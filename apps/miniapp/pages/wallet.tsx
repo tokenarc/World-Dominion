@@ -42,7 +42,7 @@ export default function WalletPage() {
     apiRef.wallet.getTransactions, 
     sessionToken ? { token: sessionToken, limit: 20 } : 'skip'
   ) : null;
-  const transactionsArr = transactions || [];
+  const transactionsArr: Tx[] = (transactions as any) || [];
   const verifyMutation = authStage === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
   const withdrawMutation = authStage === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
 
