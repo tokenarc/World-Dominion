@@ -1,11 +1,14 @@
-export const dynamic = 'force-dynamic';
-
-import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
+
+const DashboardContent = dynamic(() => Promise.resolve(Dashboard), { ssr: false });
+
+export default DashboardContent;
 
 function StatCard({ icon, label, value, color = '#FFD700', glow = false }: { icon: string; label: string; value: string; color?: string; glow?: boolean }) {
   return (
@@ -107,14 +110,14 @@ function IntelItem({ text, time, type }: { text: string; time: string; type: 'wa
   );
 }
 
-export default function Dashboard() {
+function Dashboard() {
   const router  = useRouter();
   const { user, player, sessionToken, isAuthenticated, authStage } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const events = useQuery(api.events.getRecent as any, { limit: 5 });
+  const events = typeof api?.events?.getRecent === 'function' ? useQuery(api.events.getRecent as any, { limit: 5 }) : undefined;
   const eventsArr = Array.isArray(events) ? events : [];
-  const activeWars = useQuery(api.wars.getActive as any);
+  const activeWars = typeof api?.wars?.getActive === 'function' ? useQuery(api.wars.getActive as any) : undefined;
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -249,7 +252,7 @@ export default function Dashboard() {
             <div>
               <div style={{ fontSize: '9px', color: '#cc0000', letterSpacing: '3px', marginBottom: '4px' }}>⚔️ WAR ROOM</div>
               <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#FFD700' }}>Deploy your forces</div>
-              <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '2px' }}>Active conflicts: {activeWars.length || 0}</div>
+              <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '2px' }}>Active conflicts: {activeWars?.length || 0}</div>
             </div>
             <div style={{ fontSize: '28px' }}>⚔️</div>
           </div>

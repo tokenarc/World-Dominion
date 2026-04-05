@@ -1,10 +1,13 @@
-export const dynamic = 'force-dynamic';
-
+import dynamic from 'next/dynamic';
 import { useState, useMemo } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
+
+const NationsPageContent = dynamic(() => Promise.resolve(NationsPage), { ssr: false });
+
+export default NationsPageContent;
 
 interface Nation {
   _id?: any;
@@ -23,14 +26,13 @@ function Spinner() {
   return <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px', gap: '10px' }}><div style={{ width: '22px', height: '22px', border: '2px solid rgba(139,0,0,0.3)', borderTop: '2px solid #cc0000', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style><div style={{ fontSize: '9px', color: '#8892a4', letterSpacing: '3px' }}>SCANNING GLOBE...</div></div>;
 }
 
-export default function NationsPage() {
+function NationsPage() {
   const { authStage } = useAuth();
   const apiRef = api as any;
   
-  const nations = useQuery(
-    authStage === 'ready' && apiRef.nations?.getAll ? apiRef.nations.getAll : () => null,
-    authStage === 'ready' && apiRef.nations?.getAll ? undefined : 'skip'
-  );
+  const nations = (authStage === 'ready' && typeof apiRef.nations?.getAll === 'function')
+    ? useQuery(apiRef.nations.getAll)
+    : undefined;
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Nation | null>(null);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
