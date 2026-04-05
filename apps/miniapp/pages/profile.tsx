@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
 import Layout from '../src/components/Layout';

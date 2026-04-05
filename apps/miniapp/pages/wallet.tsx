@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { useState } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';

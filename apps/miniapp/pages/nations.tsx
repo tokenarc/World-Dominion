@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { useState, useMemo } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/client';
