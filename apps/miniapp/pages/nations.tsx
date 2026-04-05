@@ -1,6 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useMemo } from 'react';
+import { useAuth } from '../src/context/AuthContext';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/client';
 import Layout from '../src/components/Layout';
