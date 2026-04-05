@@ -142,7 +142,7 @@ export default function WalletPage() {
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              {transactions.map((tx: Tx, i: number) => (
+              {(transactions as any).map((tx: Tx, i: number) => (
                 <div key={i} style={{
                   display:      'flex',
                   alignItems:   'center',

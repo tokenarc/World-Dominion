@@ -60,7 +60,7 @@ export default function MarketPage() {
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '10px', letterSpacing: '2px' }}>MARKET CLOSED</div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-              {stocks.map((s: Stock) => {
+              {(stocks as any).map((s: Stock) => {
                 const change = s.change24h || 0;
                 const up = change >= 0;
                 return (
@@ -89,7 +89,7 @@ export default function MarketPage() {
             <div style={{ textAlign: 'center', color: '#444', padding: '30px', fontSize: '10px', letterSpacing: '2px' }}>NO ACTIVE LISTINGS</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {listings.map((l: any) => (
+              {(listings as any).map((l: any) => (
                 <div key={l._id} style={{
                   display:      'flex',
                   alignItems:   'center',

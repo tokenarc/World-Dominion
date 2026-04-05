@@ -111,7 +111,7 @@ export default function NationsPage() {
             <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px', marginBottom: '4px' }}>
               {filtered.length} NATIONS · TAP FOR INTEL
             </div>
-            {filtered.map((n: Nation) => {
+            {(filtered as any).map((n: Nation) => {
               const atWar = (n.atWarWith?.length || 0) > 0;
               return (
                 <div key={n.iso}

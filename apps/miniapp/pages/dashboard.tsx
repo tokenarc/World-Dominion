@@ -291,8 +291,8 @@ export default function Dashboard() {
             <div style={{ padding: '20px', textAlign: 'center', color: '#444', fontSize: '11px', letterSpacing: '2px' }}>
               SCANNING...
             </div>
-          ) : events.length > 0 ? (
-            events.map((e: any, i: number) => (
+          ) : (events as any).length > 0 ? (
+            {(events as any).map((e: any, i: number) => (
               <IntelItem
                 key={i}
                 text={e.title || e.description || 'Classified event'}
