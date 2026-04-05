@@ -1,20 +1,31 @@
 import { httpAction } from "./_generated/server";
 
-const BOT_TOKEN = process.env.BOT_TOKEN || "";
 const MINI_APP_URL = process.env.MINI_APP_URL || "https://world-dominion.vercel.app";
 
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: object) {
-  if (!BOT_TOKEN) return;
-  await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: "Markdown",
-      reply_markup: replyMarkup,
-    }),
-  });
+  const token = process.env.BOT_TOKEN;
+  if (!token) {
+    console.error("[telegram] BOT_TOKEN not set");
+    return;
+  }
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text,
+        parse_mode: "Markdown",
+        ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
+      }),
+    });
+    const data = await res.json();
+    if (!data.ok) {
+      console.error("[telegram] sendMessage failed:", JSON.stringify(data));
+    }
+  } catch (err) {
+    console.error("[telegram] sendMessage error:", err);
+  }
 }
 
 export const telegramWebhook = httpAction(async (ctx, request) => {

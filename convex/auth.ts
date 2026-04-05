@@ -19,8 +19,10 @@ async function verifyInitData(initData: string, botToken: string): Promise<{
   user: { id: number; first_name: string; last_name?: string; username?: string };
   auth_date: number;
 } | null> {
+  console.log("[auth] verifyInitData called, initData length:", initData.length);
   const encoder = new TextEncoder();
   
+  // Step 1 — Create secret key: HMAC-SHA256("WebAppData", botToken)
   const webAppDataKey = await crypto.subtle.importKey(
     "raw", encoder.encode("WebAppData"),
     { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
@@ -33,30 +35,51 @@ async function verifyInitData(initData: string, botToken: string): Promise<{
     { name: "HMAC", hash: "SHA-256" }, false, ["sign"]
   );
   
+  // Step 2 — Build data_check_string from URLSearchParams
   const params = new URLSearchParams(initData);
   const hash = params.get("hash");
-  if (!hash) return null;
-  
+  if (!hash) {
+    console.log("[auth] No hash in initData");
+    return null;
+  }
   params.delete("hash");
+
   const dataCheckString = Array.from(params.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([k, v]) => k + "=" + v)
+    .map(([k, v]) => `${k}=${v}`)
     .join("\n");
-  
+
+  console.log("[auth] data_check_string:", dataCheckString.slice(0, 200));
+
+  // Step 3 — Calculate and compare hash
   const signature = await crypto.subtle.sign(
     "HMAC", signingKey, encoder.encode(dataCheckString)
   );
   const calculatedHash = Array.from(new Uint8Array(signature))
     .map(b => b.toString(16).padStart(2, "0")).join("");
-  
+
+  console.log("[auth] expected hash:", hash);
+  console.log("[auth] calculated hash:", calculatedHash);
+  console.log("[auth] match:", calculatedHash === hash);
+
   if (calculatedHash !== hash) return null;
-  
+
+  // Step 4 — Parse user from params
   const userStr = params.get("user");
-  if (!userStr) return null;
-  
+  if (!userStr) {
+    console.log("[auth] No user in initData");
+    return null;
+  }
+
   try {
-    return { user: JSON.parse(userStr), auth_date: parseInt(params.get("auth_date") || "0") };
-  } catch { return null; }
+    const user = JSON.parse(userStr);
+    const auth_date = parseInt(params.get("auth_date") || "0", 10);
+    console.log("[auth] user parsed:", user.id, user.first_name);
+    return { user, auth_date };
+  } catch (err) {
+    console.log("[auth] JSON parse error:", err);
+    return null;
+  }
 }
 
 const SESSION_EXPIRY_DAYS = 7;
