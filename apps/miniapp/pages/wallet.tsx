@@ -36,6 +36,8 @@ export default function WalletPage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const balance = authStage === 'ready' && apiRef?.wallet?.getBalance ? useQuery(apiRef.wallet.getBalance, sessionToken ? { token: sessionToken } : 'skip') : null;
+  const balanceData = balance as any;
+  
   const transactions = authStage === 'ready' && apiRef?.wallet?.getTransactions ? useQuery(
     apiRef.wallet.getTransactions, 
     sessionToken ? { token: sessionToken, limit: 20 } : 'skip'
@@ -44,8 +46,8 @@ export default function WalletPage() {
   const verifyMutation = authStage === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
   const withdrawMutation = authStage === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
 
-  const warBonds = balance?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
-  const cp = balance?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
+  const warBonds = balanceData?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
+  const cp = balanceData?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
 
   const verifyDeposit = async () => {
     if (!txHash.trim() || !sessionToken || !amount) return;
