@@ -1,5 +1,4 @@
 {
-  "node": "16",
   "generators": {
     "enabled": true
   }
