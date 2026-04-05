@@ -1,29 +1,14 @@
 {
-       "name": "miniapp",
-       "version": "0.1.0",
-       "private": true,
-       "scripts": {
-         "dev": "next dev",
-         "build": "next build",
-         "start": "next start",
-         "lint": "next lint"
-       },
-       "dependencies": {
-         "clsx": "^2.1.0",
-         "convex": "^1.12.0",
-         "lucide-react": "^0.330.0",
-         "next": "14.1.0",
-         "react": "^18.2.0",
-         "react-dom": "^18.2.0",
-         "react-router-dom": "^7.13.2",
-         "tailwind-merge": "^2.2.1"
-       },
-       "devDependencies": {
-         "@types/node": "^20.11.19",
-         "@types/react": "^18.2.55",
-         "@types/react-dom": "^18.2.19",
-         "postcss": "^8.4.35",
-         "tailwindcss": "^3.4.1",
-         "typescript": "^5.3.3"
-       }
-     }
+  "name": "world-dominion",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
