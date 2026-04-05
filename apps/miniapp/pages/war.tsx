@@ -41,10 +41,12 @@ export default function WarPage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const activeWars = (authStage === 'ready' && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive) : null;
+  const activeWarsArr = activeWars || [];
   const myWars = (authStage === 'ready' && typeof api?.wars?.getForNation === 'function') ? useQuery(
     api.wars.getForNation,
     player?.currentNation ? { nationIso: player.currentNation } : 'skip'
   ) : null;
+  const myWarsArr = myWars || [];
   const declareWarMutation = (authStage === 'ready' && typeof api?.wars?.declareWar === 'function') ? useMutation(api.wars.declareWar) : null;
 
   const hasNation = !!player?.currentNation;
@@ -72,7 +74,7 @@ export default function WarPage() {
     }
   };
 
-  const warsArr = wars || [];
+  const wars = activeWarsArr;
 
   return (
     <Layout>
@@ -144,7 +146,7 @@ export default function WarPage() {
           ACTIVE CONFLICTS · {wars.length}
         </div>
 
-        {activeWars === undefined ? <Spinner /> : wars.length === 0 ? (
+        {activeWars === null ? <Spinner /> : wars.length === 0 ? (
           <div style={{
             textAlign:   'center',
             padding:     '40px 20px',

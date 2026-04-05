@@ -112,8 +112,9 @@ export default function Dashboard() {
   const { user, player, sessionToken, isAuthenticated, authStage } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const eventsArr = events ? (events as any[]) : [];
-  const activeWars = (authStage === 'ready' && isAuthenticated && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive) as any : null;
+  const events = (authStage === 'ready' && isAuthenticated && typeof api?.events?.getRecent === 'function') ? useQuery(api.events.getRecent, { limit: 5 }) as any[] : [];
+  const eventsArr = events || [];
+  const activeWars = (authStage === 'ready' && isAuthenticated && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive) as any[] : [];
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -248,7 +249,7 @@ export default function Dashboard() {
             <div>
               <div style={{ fontSize: '9px', color: '#cc0000', letterSpacing: '3px', marginBottom: '4px' }}>⚔️ WAR ROOM</div>
               <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#FFD700' }}>Deploy your forces</div>
-              <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '2px' }}>Active conflicts: {activeWars?.length || 0}</div>
+              <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '2px' }}>Active conflicts: {activeWars.length || 0}</div>
             </div>
             <div style={{ fontSize: '28px' }}>⚔️</div>
           </div>
@@ -287,7 +288,7 @@ export default function Dashboard() {
             }} />
           </div>
 
-          {events === undefined ? (
+          {eventsArr.length === 0 ? (
             <div style={{ padding: '20px', textAlign: 'center', color: '#444', fontSize: '11px', letterSpacing: '2px' }}>
               SCANNING...
             </div>
