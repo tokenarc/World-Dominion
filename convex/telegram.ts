@@ -9,7 +9,9 @@ function getBotToken(): string {
 function getWebhookSecret(): string {
   return process.env.WEBHOOK_SECRET || "";
 }
-const getMiniAppUrl = () => process.env.getMiniAppUrl() || "https://miniapp-lyart-sigma.vercel.app";
+function getMiniAppUrl(): string {
+  return process.env.MINI_APP_URL || "https://miniapp-lyart-sigma.vercel.app";
+}
 
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: object) {
   const token = getBotToken();

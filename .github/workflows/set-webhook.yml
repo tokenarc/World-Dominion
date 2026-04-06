@@ -8,10 +8,12 @@ jobs:
     steps:
       - name: Set Webhook
         run: |
+          # CONVEX_SITE_URL secret must be set in GitHub repo settings
+          # Format: https://peaceful-scorpion-529.convex.site
           curl -X POST "https://api.telegram.org/bot${{ secrets.BOT_TOKEN }}/setWebhook" \
             -H "Content-Type: application/json" \
             -d '{
-              "url": "https://wary-stork-787.convex.site/telegram",
+              "url": "${{ secrets.CONVEX_SITE_URL }}/telegram",
               "secret_token": "${{ secrets.WEBHOOK_SECRET }}",
               "allowed_updates": ["message", "callback_query"],
               "drop_pending_updates": true
