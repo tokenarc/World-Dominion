@@ -151,9 +151,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (sessionUser) {
-      setAuthStage('ready');
+    if (sessionUser === undefined) return;
+    if (sessionUser === null) {
+      localStorage.removeItem('wd_session_token');
+      setSessionToken(null);
+      setAuthStage('error');
+      setAuthError('Session expired. Please reopen the app.');
+      return;
     }
+    setAuthStage('ready');
   }, [sessionUser]);
 
   const value: AuthContextType = {

@@ -2,8 +2,14 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Doc, Id } from "./_generated/dataModel";
 
-// Use environment variable for BOT_TOKEN - fallback for testing
-const BOT_TOKEN = process.env.BOT_TOKEN || "8722824669:AAHoqMwsEqm2SpjMwIxYX_oxIs22bCEspXQ";
+// BOT_TOKEN is required for production - load lazily to avoid build-time error
+function getBotToken(): string {
+  const token = process.env.BOT_TOKEN;
+  if (!token) {
+    throw new Error("BOT_TOKEN environment variable is not set");
+  }
+  return token;
+}
 
 function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
@@ -200,16 +206,7 @@ export const telegramVerify = mutation({
       throw new Error("Empty initData. Please open the app through Telegram.");
     }
     
-    // FIX 12: Rate limiting - check for recent session
-    const recentSession = await ctx.db
-      .query("sessions")
-      .filter(q => q.gte(q.field("createdAt"), Date.now() - 60000))
-      .first();
-    if (recentSession) {
-      throw new Error("Too many auth attempts. Please wait.");
-    }
-    
-    const verified = await verifyInitData(args.initData, BOT_TOKEN!);
+    const verified = await verifyInitData(args.initData, getBotToken());
     if (!verified) {
       throw new Error("Invalid initData");
     }
@@ -217,8 +214,8 @@ export const telegramVerify = mutation({
     const { user, auth_date } = verified;
     const telegramId = user.id;
     
-    if (Date.now() / 1000 - auth_date > 86400 * SESSION_EXPIRY_DAYS) {
-      throw new Error("Session expired");
+    if (Date.now() / 1000 - auth_date > 86400) {
+      throw new Error("Telegram session expired. Please reopen the app.");
     }
     
     // FIX 1: Delete all existing sessions for this telegramId
