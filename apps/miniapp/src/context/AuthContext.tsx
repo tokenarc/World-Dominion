@@ -40,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Only run after client-side mount
   useEffect(() => {
+    console.log('[Auth] Component mounted, initializing...');
     setMounted(true);
     setEnvCheck({ allValid: true });
   }, []);
@@ -91,9 +92,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return; // Skip during SSR
+    console.log('[Auth] Auth effect triggered, stage:', authStage);
     if (authStage !== 'init') return;
     if (!envCheck) return;
 
+    console.log('[Auth] Stage: checking-env');
     setAuthStage('checking-env');
 
     if (!envCheck.allValid) {
@@ -106,20 +109,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuthStage('checking-telegram');
 
     const tg = (window as any).Telegram?.WebApp;
+    console.log('[Auth] Checking Telegram WebApp:', tg ? 'FOUND' : 'NOT FOUND');
     if (!tg) {
+      console.log('[Auth] ERROR: Telegram WebApp not available');
       setAuthStage('error');
-      setAuthError('Telegram not available');
+      setAuthError('Telegram WebApp not available. Open through Telegram bot.');
+      setDebugInfo({ telegramAvailable: false });
       return;
     }
 
     const initData = tg.initData;
+    console.log('[Auth] initData:', initData ? `present (${initData.length} chars)` : 'EMPTY');
     if (!initData || initData.length === 0) {
+      console.log('[Auth] ERROR: No initData from Telegram');
       setAuthStage('error');
       setAuthError('No initData from Telegram. Open via Telegram bot.');
       setDebugInfo({ hasInitData: false });
       return;
     }
 
+    console.log('[Auth] Stage: checking-telegram - SUCCESS');
     setDebugInfo({ hasInitData: true, initDataLength: initData.length });
 
     const storedToken = localStorage.getItem('wd_session_token');
@@ -129,30 +138,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    console.log('[Auth] Stage: authenticating - calling verifyMutation');
     setAuthStage('authenticating');
+    
+    if (!verifyMutation) {
+      console.log('[Auth] ERROR: verifyMutation not available');
+      setAuthStage('error');
+      setAuthError('Authentication system not ready');
+      return;
+    }
     
     verifyMutation({ initData, debug: true })
       .then((result: any) => {
+        console.log('[Auth] verifyMutation result:', result);
         if (result.debug) {
           setDebugInfo({ hmacDebug: result.debug });
         }
 
         if (!result.success) {
+          console.log('[Auth] ERROR: Verification failed');
           setAuthStage('error');
           setAuthError(`Auth failed: ${result.debug?.error || 'Unknown error'}`);
           return;
         }
 
         if (result.token) {
+          console.log('[Auth] SUCCESS: Token received, saving to localStorage');
           localStorage.setItem('wd_session_token', result.token);
           setSessionToken(result.token);
           setAuthStage('loading-player');
         } else {
+          console.log('[Auth] ERROR: No token in result');
           setAuthStage('error');
           setAuthError('No token received');
         }
       })
       .catch((err: any) => {
+        console.log('[Auth] ERROR: Mutation exception:', err.message);
         setAuthStage('error');
         setAuthError(`Mutation error: ${err.message}`);
       });
@@ -160,10 +182,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!mounted) return;
+    console.log('[Auth] Session check, stage:', authStage, 'sessionUser:', sessionUser);
     if (authStage !== 'loading-player') return;
     if (sessionUser === undefined) return;
 
     if (sessionUser === null) {
+      console.log('[Auth] ERROR: Session invalid');
       localStorage.removeItem('wd_session_token');
       setSessionToken(null);
       setAuthStage('error');
@@ -176,6 +200,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    console.log('[Auth] SUCCESS: Session valid, ready!');
     setAuthStage('ready');
   }, [sessionUser, authStage]);
 
