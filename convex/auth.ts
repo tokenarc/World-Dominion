@@ -117,6 +117,25 @@ export const telegramVerify = mutation({
     const userData = result.debug.userData;
     const telegramId = userData.id;
 
+    // Rate limiting - max 10 attempts per hour
+    const recentAttempts = await ctx.db
+      .query("authAttempts")
+      .withIndex("telegramId_time", q => 
+        q.eq("telegramId", telegramId)
+         .gte("timestamp", Date.now() - 3600000)
+      )
+      .collect();
+
+    if (recentAttempts.length > 10) {
+      throw new Error("Too many attempts. Try again in 1 hour.");
+    }
+
+    await ctx.db.insert("authAttempts", {
+      telegramId,
+      timestamp: Date.now(),
+      success: false,
+    });
+
     const oldSessions = await ctx.db
       .query("sessions")
       .withIndex("telegramId", q => q.eq("telegramId", telegramId))

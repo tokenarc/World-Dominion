@@ -189,4 +189,11 @@ export default defineSchema({
     .index("status", ["status"])
     .index("endsAt", ["endsAt"])
     .index("requesterId_status", ["requesterId", "status"]),
+
+  authAttempts: defineTable({
+    telegramId: v.number(),
+    timestamp: v.number(),
+    success: v.boolean(),
+  })
+    .index("telegramId_time", ["telegramId", "timestamp"]),
 });
