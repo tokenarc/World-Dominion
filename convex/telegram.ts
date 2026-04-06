@@ -14,8 +14,9 @@ function getMiniAppUrl(): string {
 }
 
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: object) {
-  const token = getBotToken();
   try {
+    const token = getBotToken();
+    console.log("[telegram] Sending message with token:", !!token);
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -36,13 +37,15 @@ async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: o
 }
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
-  // Webhook secret validation - enforce it
+  // Validate webhook secret
   const secretToken = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
-  if (secretToken !== getWebhookSecret()) {
-    console.log("[telegram] Unauthorized webhook attempt rejected");
+  const expectedSecret = getWebhookSecret();
+  
+  if (expectedSecret && secretToken !== expectedSecret) {
+    console.log("[telegram] Unauthorized - secret mismatch");
     return new Response("Unauthorized", { status: 401 });
   }
-
+  
   try {
     const body = await request.json();
     const update = body;

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, use } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
 import { VideoLoadingScreen } from '../src/components/VideoLoadingScreen';
@@ -59,6 +59,11 @@ export default function IndexPage() {
     if (authStage === 'error' && displayProgress >= 99) {
       setTimeout(() => setPhase('error'), 300);
     }
+  }, [authStage, displayProgress]);
+
+  // Log auth stage changes for debugging
+  useEffect(() => {
+    console.log('[Index] authStage:', authStage, 'progress:', displayProgress);
   }, [authStage, displayProgress]);
 
   if (phase === 'error') {
