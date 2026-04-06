@@ -2,12 +2,15 @@ import { useEffect, useRef, useState, use } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
 import { VideoLoadingScreen } from '../src/components/VideoLoadingScreen';
+import { AuthDebug } from '../src/components/AuthDebug';
 
 const STAGE_PROGRESS: Record<string, number> = {
-  init: 5, authenticating: 35, 'loading-player': 70, ready: 100, error: 100,
+  init: 5, 'checking-env': 15, 'checking-telegram': 25, authenticating: 35, 'loading-player': 70, ready: 100, error: 100,
 };
 const STAGE_TEXT: Record<string, string> = {
   init:             'Initializing Command Systems...',
+  'checking-env':    'Validating Environment...',
+  'checking-telegram': 'Connecting to Telegram...',
   authenticating:   'Authenticating Commander Identity...',
   'loading-player': 'Loading Strategic Assets...',
   ready:            'Command Center Online',
@@ -16,7 +19,7 @@ const STAGE_TEXT: Record<string, string> = {
 
 export default function IndexPage() {
   const router = useRouter();
-  const { authStage, authError, retry, user } = useAuth();
+  const { authStage, authError, retry, user, debugInfo } = useAuth();
   const [displayProgress, setDisplayProgress] = useState(0);
   const [displayText, setDisplayText]         = useState(STAGE_TEXT['init']);
   const [phase, setPhase]                     = useState<'loading' | 'error' | 'done'>('loading');
@@ -95,17 +98,20 @@ export default function IndexPage() {
   }
 
   return (
-    <VideoLoadingScreen
-      progress={displayProgress}
-      loadingText={displayText}
-      commanderName={commanderName}
-      onComplete={() => {
-        if (authStage === 'ready' && !navigated.current) {
-          navigated.current = true;
-          setPhase('done');
-          router.replace('/dashboard');
-        }
-      }}
-    />
+    <>
+      <VideoLoadingScreen
+        progress={displayProgress}
+        loadingText={displayText}
+        commanderName={commanderName}
+        onComplete={() => {
+          if (authStage === 'ready' && !navigated.current) {
+            navigated.current = true;
+            setPhase('done');
+            router.replace('/dashboard');
+          }
+        }}
+      />
+      <AuthDebug />
+    </>
   );
 }

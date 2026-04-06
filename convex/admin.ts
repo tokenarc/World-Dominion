@@ -1,4 +1,4 @@
-import { action } from "./_generated/server";
+import { action, mutation } from "./_generated/server";
 
 const BOT_TOKEN = process.env.BOT_TOKEN || "";
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET || "";
@@ -40,4 +40,81 @@ export const getWebhookInfo = action(async () => {
 
   const result = await response.json();
   return result;
+});
+
+export const checkWebhook = action(async () => {
+  if (!BOT_TOKEN) {
+    return { error: "BOT_TOKEN not set" };
+  }
+
+  const response = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo`
+  );
+  return await response.json();
+});
+
+export const registerWebhook = action(async () => {
+  if (!BOT_TOKEN || !WEBHOOK_SECRET) {
+    throw new Error("BOT_TOKEN or WEBHOOK_SECRET not set");
+  }
+
+  const webhookUrl = "https://peaceful-scorpion-529.convex.site/telegram";
+
+  const response = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: webhookUrl,
+        secret_token: WEBHOOK_SECRET,
+        allowed_updates: ["message", "callback_query"],
+        drop_pending_updates: true,
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  const verifyResponse = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN}/getWebhookInfo`
+  );
+  const verifyResult = await verifyResponse.json();
+
+  return {
+    success: result.ok,
+    webhook_registered: webhookUrl,
+    verification: verifyResult,
+  };
+});
+
+export const testBot = action(async () => {
+  if (!BOT_TOKEN) {
+    return { error: "BOT_TOKEN not set" };
+  }
+
+  const response = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN}/getMe`
+  );
+  return await response.json();
+});
+
+export const sendTestMessage = action(async () => {
+  if (!BOT_TOKEN) {
+    return { error: "BOT_TOKEN not set" };
+  }
+
+  const response = await fetch(
+    `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: "798929251",
+        text: "🔧 Test message from Convex diagnostic",
+        parse_mode: "Markdown",
+      }),
+    }
+  );
+  return await response.json();
 });

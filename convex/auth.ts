@@ -1,320 +1,256 @@
-import { mutation, query } from "./_generated/server";
+import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { Doc, Id } from "./_generated/dataModel";
+import { Id } from "./_generated/dataModel";
 
-// BOT_TOKEN is required for production - load lazily to avoid build-time error
 function getBotToken(): string {
   const token = process.env.BOT_TOKEN;
   if (!token) {
-    throw new Error("BOT_TOKEN environment variable is not set");
+    throw new Error(
+      "BOT_TOKEN is not set. Run: npx convex env set BOT_TOKEN 'your-token'"
+    );
   }
   return token;
 }
 
-function bytesToHex(bytes: Uint8Array): string {
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, "0")).join("");
-}
-
-function generateToken(): string {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return bytesToHex(array);
-}
-
-async function verifyInitData(initData: string, botToken: string): Promise<{
-  user: { id: number; first_name: string; last_name?: string; username?: string };
-  auth_date: number;
-} | null> {
-  console.log("[auth] verifyInitData called, initData length:", initData.length);
+async function debugHMAC(initData: string, botToken: string) {
   const encoder = new TextEncoder();
-  
-  // Step 1 — Create secret key: HMAC-SHA256("WebAppData", botToken)
-  // IMPORTANT: exportable must be TRUE for Web Crypto API in Convex
-  const secretKey = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode("WebAppData"),
-    { name: "HMAC", hash: "SHA-256" },
-    true,
-    ["sign"]
-  );
-  const secret = await crypto.subtle.sign("HMAC", secretKey, encoder.encode(botToken));
-  
-  // Step 2 — Import the secret as signing key (also exportable)
-  const signatureKey = await crypto.subtle.importKey(
-    "raw",
-    secret,
-    { name: "HMAC", hash: "SHA-256" },
-    true,
-    ["sign"]
-  );
-  
-  // Step 3 — Build data_check_string - MUST use raw initData, NOT decoded
-  const params = new URLSearchParams(initData);
-  const hash = params.get("hash");
-  if (!hash) {
-    console.log("[auth] No hash in initData");
-    return null;
-  }
-  
-  // Get all keys EXCEPT hash and sort them
-  const keys = Array.from(params.keys()).filter(k => k !== "hash").sort();
-  const dataCheckString = keys.map(key => `${key}=${params.get(key)}`).join("\n");
-  
-  console.log("[auth] data_check_string:", dataCheckString.slice(0, 200));
-  
-  // Step 4 — Calculate and compare hash
-  const signature = await crypto.subtle.sign("HMAC", signatureKey, encoder.encode(dataCheckString));
-  const calculatedHash = Array.from(new Uint8Array(signature)).map(b => b.toString(16).padStart(2, "0")).join("");
-  
-  console.log("[auth] expected hash:", hash);
-  console.log("[auth] calculated hash:", calculatedHash);
-  console.log("[auth] match:", calculatedHash === hash);
-  
-  if (calculatedHash !== hash) {
-    console.log("[auth] Hash mismatch!");
-    return null;
-  }
-  
-  // Step 5 — Parse user from params
-  const userStr = params.get("user");
-  if (!userStr) {
-    console.log("[auth] No user in initData");
-    return null;
-  }
-  
+  const debug: any = {};
+
   try {
-    const user = JSON.parse(userStr);
-    const auth_date = parseInt(params.get("auth_date") || "0", 10);
-    console.log("[auth] user parsed:", user.id, user.first_name);
-    return { user, auth_date };
-  } catch (err) {
-    console.log("[auth] JSON parse error:", err);
-    return null;
-  }
-}
+    const params = new URLSearchParams(initData);
+    debug.hashFromTelegram = params.get("hash");
+    debug.authDate = params.get("auth_date");
+    debug.user = params.get("user");
 
-const SESSION_EXPIRY_DAYS = 7;
+    const secretKey = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode("WebAppData"),
+      { name: "HMAC", hash: "SHA-256" },
+      true,
+      ["sign"]
+    );
 
-async function getOrCreateUser(
-  ctx: any,
-  telegramId: number,
-  firstName: string,
-  lastName?: string,
-  username?: string
-): Promise<Id<"users">> {
-  const existing = await ctx.db
-    .query("users")
-    .withIndex("telegramId", q => q.eq("telegramId", telegramId))
-    .first();
-  
-  if (existing) {
-    await ctx.db.patch(existing._id, {
-      firstName,
-      lastName,
-      username,
-      updatedAt: Date.now(),
-    });
-    return existing._id;
-  }
-  
-  const now = Date.now();
-  return await ctx.db.insert("users", {
-    telegramId,
-    firstName,
-    lastName,
-    username,
-    createdAt: now,
-    updatedAt: now,
-  });
-}
+    const secret = await crypto.subtle.sign(
+      "HMAC",
+      secretKey,
+      encoder.encode(botToken)
+    );
+    debug.secretKeyHex = Array.from(new Uint8Array(secret))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
 
-async function getOrCreatePlayer(
-  ctx: any,
-  userId: Id<"users">,
-  telegramId: number,
-  firstName: string,
-  lastName?: string,
-  username?: string
-): Promise<Doc<"players">> {
-  const existing = await ctx.db
-    .query("players")
-    .withIndex("telegramId", q => q.eq("telegramId", telegramId))
-    .first();
-  
-  if (existing) {
-    await ctx.db.patch(existing._id, {
-      lastActive: Date.now(),
-    });
-    return existing;
+    const signatureKey = await crypto.subtle.importKey(
+      "raw",
+      secret,
+      { name: "HMAC", hash: "SHA-256" },
+      true,
+      ["sign"]
+    );
+
+    const keys = Array.from(params.keys())
+      .filter((k) => k !== "hash")
+      .sort();
+    const dataCheckString = keys
+      .map((key) => `${key}=${params.get(key)}`)
+      .join("\n");
+    debug.dataCheckString = dataCheckString;
+
+    const signature = await crypto.subtle.sign(
+      "HMAC",
+      signatureKey,
+      encoder.encode(dataCheckString)
+    );
+    const calculatedHash = Array.from(new Uint8Array(signature))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    debug.calculatedHash = calculatedHash;
+    debug.hashMatch = calculatedHash === debug.hashFromTelegram;
+
+    if (debug.user) {
+      debug.userData = JSON.parse(debug.user);
+    }
+
+    return {
+      valid: debug.hashMatch,
+      debug,
+    };
+  } catch (error: any) {
+    return {
+      valid: false,
+      debug: {
+        ...debug,
+        error: error.message,
+      },
+    };
   }
-  
-  const now = Date.now();
-  const playerId = await ctx.db.insert("players", {
-    userId: userId.toString(),
-    telegramId,
-    username: username || firstName,
-    firstName,
-    lastName,
-    nationId: undefined,
-    currentNation: undefined,
-    role: undefined,
-    currentRole: undefined,
-    wallet: {
-      warBonds: 1000,
-      commandPoints: 100,
-    },
-    stats: {
-      totalScore: 0,
-      warBonds: 1000,
-      commandPoints: 100,
-      reputation: 0,
-      militaryKnowledge: 0,
-    },
-    reputation: 0,
-    kycVerified: false,
-    joinedAt: now,
-    lastActive: now,
-  });
-  
-  await ctx.db.insert("transactions", {
-    playerId: playerId.toString(),
-    type: "welcome_bonus",
-    amount: 1000,
-    currency: "warBonds",
-    description: "Welcome bonus",
-    createdAt: now,
-  });
-  
-  await ctx.db.insert("transactions", {
-    playerId: playerId.toString(),
-    type: "welcome_bonus",
-    amount: 100,
-    currency: "commandPoints",
-    description: "Welcome bonus",
-    createdAt: now,
-  });
-  
-  return await ctx.db.get(playerId);
 }
 
 export const telegramVerify = mutation({
-  args: { initData: v.string() },
+  args: { initData: v.string(), debug: v.optional(v.boolean()) },
   handler: async (ctx, args) => {
-    console.log("telegramVerify called, initData length:", args.initData.length);
-    
-    if (!args.initData || args.initData.length === 0) {
-      throw new Error("Empty initData. Please open the app through Telegram.");
+    const botToken = getBotToken();
+    const startTime = Date.now();
+
+    const result = await debugHMAC(args.initData, botToken);
+
+    if (args.debug) {
+      return {
+        success: result.valid,
+        debug: result.debug,
+        timeMs: Date.now() - startTime,
+      };
     }
-    
-    const verified = await verifyInitData(args.initData, getBotToken());
-    if (!verified) {
-      throw new Error("Invalid initData");
+
+    if (!result.valid) {
+      console.error("[AUTH] HMAC verification failed:", result.debug);
+      throw new Error(
+        `Invalid Telegram initData. Hash match: ${result.debug.hashMatch}`
+      );
     }
-    
-    const { user, auth_date } = verified;
-    const telegramId = user.id;
-    
-    if (Date.now() / 1000 - auth_date > 86400) {
-      throw new Error("Telegram session expired. Please reopen the app.");
+
+    const authDate = parseInt(result.debug.authDate || "0", 10);
+    const now = Date.now() / 1000;
+    if (now - authDate > 86400) {
+      throw new Error("Telegram session expired (>24h old)");
     }
-    
-    // FIX 1: Delete all existing sessions for this telegramId
+
+    const userData = result.debug.userData;
+    const telegramId = userData.id;
+
     const oldSessions = await ctx.db
       .query("sessions")
       .withIndex("telegramId", q => q.eq("telegramId", telegramId))
       .collect();
+
     for (const s of oldSessions) {
       await ctx.db.delete(s._id);
     }
-    
-    const userId = await getOrCreateUser(
-      ctx,
-      telegramId,
-      user.first_name,
-      user.last_name,
-      user.username
-    );
-    
-    const player = await getOrCreatePlayer(
-      ctx,
-      userId,
-      telegramId,
-      user.first_name,
-      user.last_name,
-      user.username
-    );
-    
-    const token = generateToken();
-    const expiresAt = Date.now() + SESSION_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
-    const now = Date.now();
-    
+
+    let user = await ctx.db
+      .query("users")
+      .withIndex("telegramId", q => q.eq("telegramId", telegramId))
+      .first();
+
+    if (!user) {
+      const userId = await ctx.db.insert("users", {
+        telegramId,
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        username: userData.username,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      user = await ctx.db.get(userId);
+    } else {
+      await ctx.db.patch(user._id, {
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        username: userData.username,
+        updatedAt: Date.now(),
+      });
+    }
+
+    let player = await ctx.db
+      .query("players")
+      .withIndex("telegramId", q => q.eq("telegramId", telegramId))
+      .first();
+
+    if (!player) {
+      const playerId = await ctx.db.insert("players", {
+        userId: user._id,
+        telegramId,
+        username: userData.username || userData.first_name,
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        nationId: undefined,
+        currentNation: undefined,
+        role: undefined,
+        currentRole: undefined,
+        wallet: { warBonds: 1000, commandPoints: 100 },
+        stats: {
+          totalScore: 0,
+          warBonds: 1000,
+          commandPoints: 100,
+          reputation: 50,
+          militaryKnowledge: 0,
+        },
+        reputation: 50,
+        kycVerified: false,
+        joinedAt: Date.now(),
+        lastActive: Date.now(),
+      });
+      player = await ctx.db.get(playerId);
+
+      await ctx.db.insert("transactions", {
+        playerId: playerId,
+        type: "welcome_bonus",
+        amount: 1000,
+        currency: "warBonds",
+        description: "Welcome to World Dominion",
+        createdAt: Date.now(),
+      });
+    } else {
+      await ctx.db.patch(player._id, {
+        lastActive: Date.now(),
+      });
+    }
+
+    const tokenArray = new Uint8Array(32);
+    crypto.getRandomValues(tokenArray);
+    const token = Array.from(tokenArray)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+
     await ctx.db.insert("sessions", {
       token,
-      userId: userId.toString(),
+      userId: user._id,
       telegramId,
       expiresAt,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
     });
-    
+
     return {
       success: true,
       token,
       user: {
         id: telegramId,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        username: user.username,
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        username: userData.username,
       },
       player,
+      timeMs: Date.now() - startTime,
     };
   },
 });
 
-export const validateSession = query({
+export const getSessionUser = mutation({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     const session = await ctx.db
       .query("sessions")
       .withIndex("token", q => q.eq("token", args.token))
       .first();
-    
-    if (!session) {
-      return { valid: false };
-    }
-    
-    if (session.expiresAt < Date.now()) {
-      await ctx.db.delete(session._id);
-      return { valid: false };
-    }
-    
-    return { valid: true, session };
-  },
-});
 
-export const getSessionUser = query({
-  args: { token: v.string() },
-  handler: async (ctx, args) => {
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("token", q => q.eq("token", args.token))
-      .first();
-    
     if (!session || session.expiresAt < Date.now()) {
       return null;
     }
-    
+
     const user = await ctx.db
       .query("users")
       .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
       .first();
+
     if (!user) return null;
-    
+
     const player = await ctx.db
       .query("players")
-      .withIndex("userId", q => q.eq("userId", user._id.toString()))
+      .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
       .first();
-    
+
     return { user, player };
   },
 });
@@ -326,11 +262,9 @@ export const logout = mutation({
       .query("sessions")
       .withIndex("token", q => q.eq("token", args.token))
       .first();
-    
     if (session) {
       await ctx.db.delete(session._id);
     }
-    
     return { success: true };
   },
 });

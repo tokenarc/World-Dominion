@@ -1,14 +1,15 @@
 import { httpAction } from "./_generated/server";
 
-// Lazy load environment variables to avoid build-time errors
 function getBotToken(): string {
   const token = process.env.BOT_TOKEN;
   if (!token) throw new Error("BOT_TOKEN not set");
   return token;
 }
+
 function getWebhookSecret(): string {
   return process.env.WEBHOOK_SECRET || "";
 }
+
 function getMiniAppUrl(): string {
   return process.env.MINI_APP_URL || "https://miniapp-lyart-sigma.vercel.app";
 }
@@ -16,7 +17,6 @@ function getMiniAppUrl(): string {
 async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: object) {
   try {
     const token = getBotToken();
-    console.log("[telegram] Sending message with token:", !!token);
     const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -29,20 +29,24 @@ async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: o
     });
     const data = await res.json();
     if (!data.ok) {
-      console.error("[telegram] sendMessage failed:", JSON.stringify(data));
+      console.error("[BOT] sendMessage failed:", JSON.stringify(data));
     }
+    return data;
   } catch (err) {
-    console.error("[telegram] sendMessage error:", err);
+    console.error("[BOT] sendMessage error:", err);
+    return null;
   }
 }
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
+  console.log("[BOT] Received webhook request");
+  
   // Validate webhook secret
   const secretToken = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
   const expectedSecret = getWebhookSecret();
   
   if (expectedSecret && secretToken !== expectedSecret) {
-    console.log("[telegram] Unauthorized - secret mismatch");
+    console.log("[BOT] Unauthorized - secret mismatch");
     return new Response("Unauthorized", { status: 401 });
   }
   
@@ -55,6 +59,8 @@ export const telegramWebhook = httpAction(async (ctx, request) => {
       const text = update.message.text || "";
       const parts = text.split(" ");
       const command = parts[0];
+      
+      console.log("[BOT] Command received:", command);
       
       switch (command) {
         case "/start": {
@@ -73,36 +79,25 @@ export const telegramWebhook = httpAction(async (ctx, request) => {
           const replyMarkup = {
             inline_keyboard: [
               [{ text: "🌍 ENTER WORLD DOMINION", web_app: { url: getMiniAppUrl() } }],
-              [{ text: "📝 Apply for Role", callback_data: "apply_role" }],
-              [{ text: "❓ Help", callback_data: "help" }],
             ],
           };
-          const response = "📋 *Commands:*\n\n/start - Start the game\n/help - Show this menu\n/economy - View market\n/wallet - Your assets\n/war - Active wars\n/nations - Browse nations\n/status - Your status\n/leaderboard - Top players";
+          const response = "📋 *Commands:*\n\n/start - Start the game\n/help - Show this menu\n/economy - View market\n/wallet - Your assets\n/war - Active wars\n/nations - Browse nations\n/status - Your status";
           await sendTelegramMessage(chatId, response, replyMarkup);
           break;
         }
         case "/economy": {
-          const response = "📈 *Market Status*\n\n📊 MILCOR: 100\n⚡ ENERTECH: 85\n🔧 TECHGLOBAL: 150\n\n_V Prices update every 6 hours_";
+          const response = "📈 *Market Status*\n\n📊 MILCOR: 100\n⚡ ENERTECH: 85\n🔧 TECHGLOBAL: 150\n\n_Prices update every 6 hours_";
           await sendTelegramMessage(chatId, response);
           break;
         }
         case "/wallet": {
-          const replyMarkup = {
-            inline_keyboard: [
-              [{ text: "💰 Open Wallet", web_app: { url: getMiniAppUrl() } }],
-            ],
-          };
+          const replyMarkup = { inline_keyboard: [[{ text: "💰 Open Wallet", web_app: { url: getMiniAppUrl() } }]] };
           const response = "💰 *Your Wallet*\n\n💎 War Bonds: 1,000\n⚡ Command Points: 100\n\n_Open the app to manage your assets_";
           await sendTelegramMessage(chatId, response, replyMarkup);
           break;
         }
         case "/war": {
           const response = "⚔️ *War Room*\n\n🛡️ No active conflicts\n\n_Open the app to declare war on rival nations_";
-          await sendTelegramMessage(chatId, response);
-          break;
-        }
-        case "/leaderboard": {
-          const response = "🏆 *Top Commanders*\n\n_Coming soon!_";
           await sendTelegramMessage(chatId, response);
           break;
         }
@@ -113,6 +108,11 @@ export const telegramWebhook = httpAction(async (ctx, request) => {
         }
         case "/nations": {
           const response = "🌍 *195 Nations Available*\n\n🛡️ United States\n🇷🇺 Russia\n🇨🇳 China\n🇬🇧 United Kingdom\n🇫🇷 France\n...and 190 more!\n\n_Apply for a role to claim your nation_";
+          await sendTelegramMessage(chatId, response);
+          break;
+        }
+        case "/leaderboard": {
+          const response = "🏆 *Top Commanders*\n\n_Coming soon!_";
           await sendTelegramMessage(chatId, response);
           break;
         }
@@ -143,7 +143,7 @@ export const telegramWebhook = httpAction(async (ctx, request) => {
             await sendTelegramMessage(chatId, "📊 *World Status*\n\n🌍 195 Nations\n⚔️ 0 Active Wars\n👥 0 Players\n💰 Economy: Active");
             break;
           case "help":
-            await sendTelegramMessage(chatId, "❓ *Help & Commands*\n\n/start - Start the game\n/help - Show this menu\n/economy - View market\n/wallet - Your assets\n/war - Active wars\n/nations - Browse nations\n/status - Your status", { inline_keyboard: [[{ text: "🌍 OPEN APP", web_app: { url: getMiniAppUrl() } }]] });
+            await sendTelegramMessage(chatId, "❓ *Help & Commands*\n\n/start - Start the game\n/help - Show this menu\n/economy - View market\n/wallet - Your assets", { inline_keyboard: [[{ text: "🌍 OPEN APP", web_app: { url: getMiniAppUrl() } }]] });
             break;
         }
       }
@@ -153,7 +153,7 @@ export const telegramWebhook = httpAction(async (ctx, request) => {
     
     return new Response("OK", { status: 200 });
   } catch (error) {
-    console.error("Telegram webhook error:", error);
+    console.error("[BOT] Webhook error:", error);
     return new Response("Error", { status: 500 });
   }
 });
