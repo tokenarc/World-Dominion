@@ -17,6 +17,8 @@ const STAGE_TEXT: Record<string, string> = {
   error:            'Authentication Failed',
 };
 
+const LOADING_TIMEOUT_MS = 12000;
+
 export default function IndexPage() {
   const router = useRouter();
   const { authStage, authError, retry, user, debugInfo } = useAuth();
@@ -24,10 +26,18 @@ export default function IndexPage() {
   const [displayText, setDisplayText]         = useState(STAGE_TEXT['init']);
   const [phase, setPhase]                     = useState<'loading' | 'error' | 'done'>('loading');
   const navigated = useRef(false);
+  const startTime = useRef<number>(Date.now());
   const commanderName  = user?.firstName || 'Commander';
   const targetProgress = STAGE_PROGRESS[authStage] || 0;
 
-  // Smooth progress — never jumps backward
+  useEffect(() => {
+    const elapsed = Date.now() - startTime.current;
+    if (phase === 'loading' && elapsed > LOADING_TIMEOUT_MS && authStage !== 'ready' && authStage !== 'error') {
+      console.log('[Index] Loading timeout - forcing error screen');
+      setPhase('error');
+    }
+  }, [authStage, phase]);
+
   useEffect(() => {
     if (displayProgress >= targetProgress) return;
     const step = setInterval(() => {
@@ -40,8 +50,6 @@ export default function IndexPage() {
     return () => clearInterval(step);
   }, [targetProgress]);
 
-  // Only update display text when progress actually reaches the stage threshold
-  // This prevents "Authentication Failed" showing at 76%
   useEffect(() => {
     const threshold = STAGE_PROGRESS[authStage] || 0;
     if (displayProgress >= threshold - 5) {
@@ -49,7 +57,6 @@ export default function IndexPage() {
     }
   }, [authStage, displayProgress]);
 
-  // Navigate when ready + 100%
   useEffect(() => {
     if (authStage === 'ready' && displayProgress >= 100 && !navigated.current) {
       navigated.current = true;
@@ -57,14 +64,12 @@ export default function IndexPage() {
     }
   }, [authStage, displayProgress, router]);
 
-  // Show error screen only after progress finishes animating to 100
   useEffect(() => {
     if (authStage === 'error' && displayProgress >= 99) {
       setTimeout(() => setPhase('error'), 300);
     }
   }, [authStage, displayProgress]);
 
-  // Log auth stage changes for debugging
   useEffect(() => {
     console.log('[Index] authStage:', authStage, 'progress:', displayProgress);
   }, [authStage, displayProgress]);
@@ -93,6 +98,7 @@ export default function IndexPage() {
             RETRY
           </button>
         </div>
+        <AuthDebug />
       </div>
     );
   }

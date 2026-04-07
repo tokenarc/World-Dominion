@@ -14,6 +14,7 @@ interface AuthContextType {
   logout: () => void;
   retry: () => void;
   debugInfo: any;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -37,21 +38,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>({});
   const [envCheck, setEnvCheck] = useState<any>(null);
+  const [authTimeout, setAuthTimeout] = useState(false);
 
-  // Only run after client-side mount
+  const sessionUserQuery = useQuery(api.auth.getSessionUser as any, sessionToken ? { token: sessionToken } : 'skip');
+  const verifyMutation = useMutation(api.auth.telegramVerify as any);
+  const logoutMutation = useMutation(api.auth.logout as any);
+
   useEffect(() => {
     console.log('[Auth] Component mounted, initializing...');
     setMounted(true);
     setEnvCheck({ allValid: true });
+    
+    const timeoutId = setTimeout(() => {
+      if (authStage !== 'ready' && authStage !== 'error') {
+        setAuthTimeout(true);
+        setAuthStage('error');
+        setAuthError('Authentication timeout. Please reopen from Telegram.');
+      }
+    }, 15000);
+    
+    return () => clearTimeout(timeoutId);
   }, []);
 
-  // Only create hooks after mount
-  const sessionUser = mounted && sessionToken 
-    ? useQuery(api.auth.getSessionUser as any, { token: sessionToken })
-    : null;
-
-  const verifyMutation = mounted ? useMutation(api.auth.telegramVerify as any) : null;
-  const logoutMutation = mounted ? useMutation(api.auth.logout as any) : null;
+  const sessionUser = sessionToken ? sessionUserQuery : null;
 
   const logout = useCallback(() => {
     if (sessionToken && logoutMutation) {
@@ -91,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!mounted) return; // Skip during SSR
+    if (!mounted) return;
     console.log('[Auth] Auth effect triggered, stage:', authStage);
     if (authStage !== 'init') return;
     if (!envCheck) return;
@@ -178,7 +187,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setAuthStage('error');
         setAuthError(`Mutation error: ${err.message}`);
       });
-  }, [authStage, envCheck, verifyMutation]);
+  }, [authStage, envCheck, mounted]);
 
   useEffect(() => {
     if (!mounted) return;
@@ -202,7 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     console.log('[Auth] SUCCESS: Session valid, ready!');
     setAuthStage('ready');
-  }, [sessionUser, authStage]);
+  }, [sessionUser, authStage, mounted]);
 
   const value: AuthContextType = {
     isAuthenticated: authStage === 'ready',
@@ -214,6 +223,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     logout,
     retry,
     debugInfo,
+    isLoading: authStage !== 'ready' && authStage !== 'error',
   };
 
   return (
