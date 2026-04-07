@@ -1,25 +1,40 @@
 import type { AppProps } from 'next/app';
+import { useState, useEffect } from 'react';
 import { ConvexProvider } from 'convex/react';
-import { ConvexReactClient } from 'convex/react';
 import { AuthProvider } from '../src/context/AuthContext';
-import { CONVEX_URL } from '../src/lib/convex';
-import '../src/styles/global.css';
-import '../src/index.css';
 
-function createConvexClient() {
-  if (!CONVEX_URL) {
-    if (typeof window !== 'undefined') {
-      throw new Error("NEXT_PUBLIC_CONVEX_URL is not set. Please configure your Convex deployment URL.");
-    }
-    return null;
-  }
-  return new ConvexReactClient(CONVEX_URL);
-}
+const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || 'https://peaceful-scorpion-529.convex.cloud';
 
 export default function App({ Component, pageProps }: AppProps) {
-  const convex = createConvexClient();
+  const [convexClient, setConvexClient] = useState<any>(null);
+  const [mounted, setMounted] = useState(false);
 
-  if (!convex) {
+  useEffect(() => {
+    setMounted(true);
+    const { ConvexReactClient } = require('convex/react');
+    setConvexClient(new ConvexReactClient(CONVEX_URL));
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: '#0a0f14',
+        color: '#FFD700',
+        fontFamily: 'monospace',
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '20px', letterSpacing: '4px' }}>WORLD DOMINION</div>
+          <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '10px' }}>Initializing...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!convexClient) {
     return (
       <div style={{ 
         minHeight: '100vh', 
@@ -29,20 +44,14 @@ export default function App({ Component, pageProps }: AppProps) {
         background: '#0a0f14',
         color: '#cc0000',
         fontFamily: 'monospace',
-        padding: '20px',
-        textAlign: 'center'
       }}>
-        <div>
-          <h2>Configuration Error</h2>
-          <p>NEXT_PUBLIC_CONVEX_URL environment variable is not set.</p>
-          <p style={{ fontSize: '12px', color: '#8892a4' }}>This app requires a Convex backend.</p>
-        </div>
+        <div>Loading secure connection...</div>
       </div>
     );
   }
 
   return (
-    <ConvexProvider client={convex}>
+    <ConvexProvider client={convexClient}>
       <AuthProvider>
         <Component {...pageProps} />
       </AuthProvider>

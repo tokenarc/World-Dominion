@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, use } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
 import { VideoLoadingScreen } from '../src/components/VideoLoadingScreen';
@@ -19,7 +20,7 @@ const STAGE_TEXT: Record<string, string> = {
 
 const LOADING_TIMEOUT_MS = 12000;
 
-export default function IndexPage() {
+function IndexPage() {
   const router = useRouter();
   const { authStage, authError, retry, user, debugInfo } = useAuth();
   const [displayProgress, setDisplayProgress] = useState(0);
@@ -70,10 +71,6 @@ export default function IndexPage() {
     }
   }, [authStage, displayProgress]);
 
-  useEffect(() => {
-    console.log('[Index] authStage:', authStage, 'progress:', displayProgress);
-  }, [authStage, displayProgress]);
-
   if (phase === 'error') {
     return (
       <div style={{
@@ -121,3 +118,5 @@ export default function IndexPage() {
     </>
   );
 }
+
+export default dynamic(() => Promise.resolve(IndexPage), { ssr: false });
