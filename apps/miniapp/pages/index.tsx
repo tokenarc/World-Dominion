@@ -3,7 +3,6 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
 import { VideoLoadingScreen } from '../src/components/VideoLoadingScreen';
-import { AuthDebug } from '../src/components/AuthDebug';
 
 const STAGE_PROGRESS: Record<string, number> = {
   init: 5, 'checking-env': 15, 'checking-telegram': 25, authenticating: 35, 'loading-player': 70, ready: 100, error: 100,
@@ -95,7 +94,6 @@ function IndexPage() {
             RETRY
           </button>
         </div>
-        <AuthDebug />
       </div>
     );
   }
@@ -114,7 +112,6 @@ function IndexPage() {
           }
         }}
       />
-      <AuthDebug />
     </>
   );
 }
