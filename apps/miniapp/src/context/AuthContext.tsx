@@ -13,27 +13,28 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const AuthContext = createContext<AuthContextType>({
+  state: 'loading',
+  error: null,
+  user: null,
+  player: null,
+  token: null,
+  logout: () => {},
+});
 
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
-  return ctx;
+  return useContext(AuthContext);
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [hasStarted, setHasStarted] = useState(false);
 
   const verifyMutation = useMutation(api.auth.telegramVerify as any);
   const sessionUser = useQuery(api.auth.getSessionUser as any, token ? { token } : 'skip');
 
   useEffect(() => {
-    if (hasStarted) return;
-    setHasStarted(true);
-
     if (typeof window === 'undefined') return;
 
     const stored = localStorage.getItem('wd_token');
@@ -70,16 +71,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setState('error');
         setError(err?.message || 'Auth failed.');
       });
-  }, [hasStarted]);
+  }, []);
 
   useEffect(() => {
     if (!token) return;
     if (sessionUser === undefined) return;
     
     if (sessionUser === null) {
-      try {
-        localStorage.removeItem('wd_token');
-      } catch (e) {}
+      try { localStorage.removeItem('wd_token'); } catch (e) {}
       setToken(null);
       setState('error');
       setError('Session expired. Reopen the app.');
@@ -90,9 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token, sessionUser]);
 
   const logout = () => {
-    try {
-      localStorage.removeItem('wd_token');
-    } catch (e) {}
+    try { localStorage.removeItem('wd_token'); } catch (e) {}
     setToken(null);
     setState('loading');
   };

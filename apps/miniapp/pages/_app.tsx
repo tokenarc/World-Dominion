@@ -88,10 +88,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
 
 function AppContent({ Component, pageProps }: AppProps) {
   const [client, setClient] = useState<ConvexReactClient | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const [clientOnly, setClientOnly] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setClientOnly(true);
     try {
       const convexClient = new ConvexReactClient(CONVEX_URL);
       setClient(convexClient);
@@ -100,7 +100,7 @@ function AppContent({ Component, pageProps }: AppProps) {
     }
   }, []);
 
-  if (!mounted || !client) {
+  if (!clientOnly) {
     return (
       <div style={{ 
         minHeight: '100vh', 
@@ -114,6 +114,25 @@ function AppContent({ Component, pageProps }: AppProps) {
         <div>
           <div style={{ fontSize: '20px', letterSpacing: '4px' }}>WORLD DOMINION</div>
           <div style={{ fontSize: '10px', color: '#667788', marginTop: '10px' }}>Initializing...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!client) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: '#050810',
+        color: '#FFD700',
+        fontFamily: 'monospace',
+      }}>
+        <div>
+          <div style={{ fontSize: '20px', letterSpacing: '4px' }}>WORLD DOMINION</div>
+          <div style={{ fontSize: '10px', color: '#cc0000', marginTop: '10px' }}>Connection error...</div>
         </div>
       </div>
     );
