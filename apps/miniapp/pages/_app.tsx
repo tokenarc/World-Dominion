@@ -2,7 +2,8 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode, Component } from 'react';
 import type { AppProps } from 'next/app';
-import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { ConvexProvider, ConvexReactClient, useMutation, useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import '../src/styles/global.css';
 import '../src/index.css';
 
@@ -70,18 +71,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           <h2 style={{ letterSpacing: '3px', marginBottom: '12px', fontSize: '14px', color: '#FFD700' }}>
             APPLICATION ERROR
           </h2>
-          <pre style={{ 
-            fontSize: '10px', 
-            color: '#cc0000', 
-            marginBottom: '20px', 
-            maxWidth: '300px',
-            whiteSpace: 'pre-wrap',
-            wordBreak: 'break-word',
-            textAlign: 'left',
-            background: 'rgba(204,0,0,0.1)',
-            padding: '12px',
-            borderRadius: '4px',
-          }}>
+          <pre style={{ fontSize: '10px', color: '#cc0000', marginBottom: '20px', maxWidth: '300px' }}>
             {this.state.error?.message || 'Unknown error'}
           </pre>
         </div>
@@ -127,21 +117,107 @@ function ErrorScreen({ message }: { message: string }) {
       <h2 style={{ letterSpacing: '3px', marginBottom: '12px', fontSize: '14px', color: '#FFD700' }}>
         APPLICATION ERROR
       </h2>
-      <pre style={{ 
-        fontSize: '10px', 
-        color: '#cc0000', 
-        marginBottom: '20px', 
-        maxWidth: '300px',
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'break-word',
-        textAlign: 'left',
-        background: 'rgba(204,0,0,0.1)',
-        padding: '12px',
-        borderRadius: '4px',
-      }}>
+      <p style={{ fontSize: '12px', color: '#667788', maxWidth: '280px', textAlign: 'center' }}>
         {message}
-      </pre>
+      </p>
     </div>
+  );
+}
+
+function AuthApp({ children }: { children: ReactNode }) {
+  const [state, setState] = useState<AuthState>('loading');
+  const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [clientReady, setClientReady] = useState(false);
+
+  useEffect(() => {
+    setClientReady(true);
+  }, []);
+
+  const verifyMutation = useMutation(api.auth.telegramVerify as any);
+  const sessionUser = useQuery(api.auth.getSessionUser as any, token ? { token } : 'skip');
+
+  useEffect(() => {
+    if (!clientReady) return;
+
+    const stored = localStorage.getItem('wd_token');
+    if (stored) {
+      setToken(stored);
+      return;
+    }
+
+    if (typeof window === 'undefined') return;
+    
+    const tg = (window as any).Telegram?.WebApp;
+    if (!tg?.initData) {
+      setState('error');
+      setError('Open through Telegram bot.');
+      return;
+    }
+
+    try {
+      tg.ready();
+      tg.expand();
+    } catch (e) {
+      console.warn('[Auth] Telegram warning:', e);
+    }
+
+    verifyMutation({ initData: tg.initData })
+      .then((result: any) => {
+        if (result?.success && result?.token) {
+          localStorage.setItem('wd_token', result.token);
+          setToken(result.token);
+        } else {
+          setState('error');
+          setError(result?.message || 'Auth failed. Try again.');
+        }
+      })
+      .catch((err: any) => {
+        setState('error');
+        setError(err?.message || 'Auth failed.');
+      });
+  }, [clientReady]);
+
+  useEffect(() => {
+    if (!token) return;
+    if (sessionUser === undefined) return;
+    
+    if (sessionUser === null) {
+      try { localStorage.removeItem('wd_token'); } catch (e) {}
+      setToken(null);
+      setState('error');
+      setError('Session expired. Reopen the app.');
+      return;
+    }
+    
+    setState('ready');
+  }, [token, sessionUser]);
+
+  const logout = () => {
+    try { localStorage.removeItem('wd_token'); } catch (e) {}
+    setToken(null);
+    setState('loading');
+  };
+
+  if (!clientReady) {
+    return <LoadingScreen />;
+  }
+
+  if (state === 'error') {
+    return <ErrorScreen message={error || 'Auth failed'} />;
+  }
+
+  return (
+    <AuthContext.Provider value={{
+      state,
+      error,
+      user: sessionUser?.user || null,
+      player: sessionUser?.player || null,
+      token,
+      logout,
+    }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
@@ -151,12 +227,8 @@ function AppContent({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     setMounted(true);
-    try {
-      const convexClient = new ConvexReactClient(CONVEX_URL);
-      setClient(convexClient);
-    } catch (err) {
-      console.error('[App] Convex client init failed:', err);
-    }
+    const convexClient = new ConvexReactClient(CONVEX_URL);
+    setClient(convexClient);
   }, []);
 
   if (!mounted) {
@@ -170,7 +242,9 @@ function AppContent({ Component, pageProps }: AppProps) {
   return (
     <ErrorBoundary>
       <ConvexProvider client={client}>
-        <Component {...pageProps} />
+        <AuthApp>
+          <Component {...pageProps} />
+        </AuthApp>
       </ConvexProvider>
     </ErrorBoundary>
   );
