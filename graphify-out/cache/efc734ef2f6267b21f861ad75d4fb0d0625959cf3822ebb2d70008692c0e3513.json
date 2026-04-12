@@ -1,0 +1,1 @@
+{"nodes": [{"id": "envcheck", "label": "envCheck.ts", "file_type": "code", "source_file": "convex/envCheck.ts", "source_location": "L1"}], "edges": [{"source": "envcheck", "target": "server", "relation": "imports_from", "confidence": "EXTRACTED", "source_file": "convex/envCheck.ts", "source_location": "L1", "weight": 1.0}]}

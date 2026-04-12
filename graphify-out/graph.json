@@ -1,0 +1,1302 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "schema.ts",
+      "file_type": "code",
+      "source_file": "convex/schema.ts",
+      "source_location": "L1",
+      "id": "schema",
+      "community": 0
+    },
+    {
+      "label": "auth.ts",
+      "file_type": "code",
+      "source_file": "convex/auth.ts",
+      "source_location": "L1",
+      "id": "auth",
+      "community": 6
+    },
+    {
+      "label": "getBotToken()",
+      "file_type": "code",
+      "source_file": "convex/auth.ts",
+      "source_location": "L5",
+      "id": "auth_getbottoken",
+      "community": 6
+    },
+    {
+      "label": "debugHMAC()",
+      "file_type": "code",
+      "source_file": "convex/auth.ts",
+      "source_location": "L15",
+      "id": "auth_debughmac",
+      "community": 6
+    },
+    {
+      "label": "players.ts",
+      "file_type": "code",
+      "source_file": "convex/players.ts",
+      "source_location": "L1",
+      "id": "players",
+      "community": 0
+    },
+    {
+      "label": "nations.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/nations.tsx",
+      "source_location": "L1",
+      "id": "nations",
+      "community": 7
+    },
+    {
+      "label": "getResourcesForNation()",
+      "file_type": "code",
+      "source_file": "convex/nations.ts",
+      "source_location": "L78",
+      "id": "nations_getresourcesfornation",
+      "community": 7
+    },
+    {
+      "label": "events.ts",
+      "file_type": "code",
+      "source_file": "convex/events.ts",
+      "source_location": "L1",
+      "id": "events",
+      "community": 0
+    },
+    {
+      "label": "wars.ts",
+      "file_type": "code",
+      "source_file": "convex/wars.ts",
+      "source_location": "L1",
+      "id": "wars",
+      "community": 0
+    },
+    {
+      "label": "getCooldownEnd()",
+      "file_type": "code",
+      "source_file": "convex/wars.ts",
+      "source_location": "L6",
+      "id": "wars_getcooldownend",
+      "community": 0
+    },
+    {
+      "label": "admin.ts",
+      "file_type": "code",
+      "source_file": "convex/admin.ts",
+      "source_location": "L1",
+      "id": "admin",
+      "community": 0
+    },
+    {
+      "label": "wallet.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L1",
+      "id": "wallet",
+      "community": 8
+    },
+    {
+      "label": "market.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/market.tsx",
+      "source_location": "L1",
+      "id": "market",
+      "community": 3
+    },
+    {
+      "label": "http.ts",
+      "file_type": "code",
+      "source_file": "convex/http.ts",
+      "source_location": "L1",
+      "id": "http",
+      "community": 1
+    },
+    {
+      "label": "telegram.ts",
+      "file_type": "code",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L1",
+      "id": "telegram",
+      "community": 1
+    },
+    {
+      "label": "getBotToken()",
+      "file_type": "code",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L3",
+      "id": "telegram_getbottoken",
+      "community": 1
+    },
+    {
+      "label": "getWebhookSecret()",
+      "file_type": "code",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L9",
+      "id": "telegram_getwebhooksecret",
+      "community": 1
+    },
+    {
+      "label": "getMiniAppUrl()",
+      "file_type": "code",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L13",
+      "id": "telegram_getminiappurl",
+      "community": 1
+    },
+    {
+      "label": "sendTelegramMessage()",
+      "file_type": "code",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L17",
+      "id": "telegram_sendtelegrammessage",
+      "community": 1
+    },
+    {
+      "label": "crons.ts",
+      "file_type": "code",
+      "source_file": "convex/crons.ts",
+      "source_location": "L1",
+      "id": "crons",
+      "community": 11
+    },
+    {
+      "label": "envCheck.ts",
+      "file_type": "code",
+      "source_file": "convex/envCheck.ts",
+      "source_location": "L1",
+      "id": "envcheck",
+      "community": 0
+    },
+    {
+      "label": "webhookTest.ts",
+      "file_type": "code",
+      "source_file": "convex/webhookTest.ts",
+      "source_location": "L1",
+      "id": "webhooktest",
+      "community": 0
+    },
+    {
+      "label": "dataModel.d.ts",
+      "file_type": "code",
+      "source_file": "convex/_generated/dataModel.d.ts",
+      "source_location": "L1",
+      "id": "datamodel_d",
+      "community": 0
+    },
+    {
+      "label": "server.js",
+      "file_type": "code",
+      "source_file": "convex/_generated/server.js",
+      "source_location": "L1",
+      "id": "server",
+      "community": 0
+    },
+    {
+      "label": "server.d.ts",
+      "file_type": "code",
+      "source_file": "convex/_generated/server.d.ts",
+      "source_location": "L1",
+      "id": "server_d",
+      "community": 0
+    },
+    {
+      "label": "api.js",
+      "file_type": "code",
+      "source_file": "apps/miniapp/convex/_generated/api.js",
+      "source_location": "L1",
+      "id": "api",
+      "community": 2
+    },
+    {
+      "label": "api.d.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/convex/_generated/api.d.ts",
+      "source_location": "L1",
+      "id": "api_d",
+      "community": 0
+    },
+    {
+      "label": "set-webhook.js",
+      "file_type": "code",
+      "source_file": "scripts/set-webhook.js",
+      "source_location": "L1",
+      "id": "set_webhook",
+      "community": 12
+    },
+    {
+      "label": "next-env.d.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/next-env.d.ts",
+      "source_location": "L1",
+      "id": "next_env_d",
+      "community": 13
+    },
+    {
+      "label": "tailwind.config.js",
+      "file_type": "code",
+      "source_file": "apps/miniapp/tailwind.config.js",
+      "source_location": "L1",
+      "id": "tailwind_config",
+      "community": 14
+    },
+    {
+      "label": "postcss.config.js",
+      "file_type": "code",
+      "source_file": "apps/miniapp/postcss.config.js",
+      "source_location": "L1",
+      "id": "postcss_config",
+      "community": 15
+    },
+    {
+      "label": "vitest.config.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/vitest.config.ts",
+      "source_location": "L1",
+      "id": "vitest_config",
+      "community": 16
+    },
+    {
+      "label": "createApi()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/convex/_generated/api.js",
+      "source_location": "L1",
+      "id": "api_createapi",
+      "community": 2
+    },
+    {
+      "label": "App.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/App.tsx",
+      "source_location": "L1",
+      "id": "app",
+      "community": 5
+    },
+    {
+      "label": "dashboard.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/dashboard.tsx",
+      "source_location": "L1",
+      "id": "dashboard",
+      "community": 2
+    },
+    {
+      "label": "index.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/index.tsx",
+      "source_location": "L1",
+      "id": "index",
+      "community": 5
+    },
+    {
+      "label": "buyP2P()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/market.tsx",
+      "source_location": "L28",
+      "id": "market_buyp2p",
+      "community": 3
+    },
+    {
+      "label": "fmt()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/nations.tsx",
+      "source_location": "L49",
+      "id": "nations_fmt",
+      "community": 7
+    },
+    {
+      "label": "profile.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/profile.tsx",
+      "source_location": "L1",
+      "id": "profile",
+      "community": 3
+    },
+    {
+      "label": "handleLogout()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/profile.tsx",
+      "source_location": "L24",
+      "id": "profile_handlelogout",
+      "community": 3
+    },
+    {
+      "label": "verifyDeposit()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L52",
+      "id": "wallet_verifydeposit",
+      "community": 8
+    },
+    {
+      "label": "withdraw()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L71",
+      "id": "wallet_withdraw",
+      "community": 8
+    },
+    {
+      "label": "war.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/war.tsx",
+      "source_location": "L1",
+      "id": "war",
+      "community": 2
+    },
+    {
+      "label": "handleDeclareWar()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/pages/war.tsx",
+      "source_location": "L55",
+      "id": "war_handledeclarewar",
+      "community": 2
+    },
+    {
+      "label": "AuthContext.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L1",
+      "id": "authcontext",
+      "community": 4
+    },
+    {
+      "label": "useAuth()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L22",
+      "id": "authcontext_useauth",
+      "community": 4
+    },
+    {
+      "label": "hasWindow()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L30",
+      "id": "authcontext_haswindow",
+      "community": 4
+    },
+    {
+      "label": "AuthProvider()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L34",
+      "id": "authcontext_authprovider",
+      "community": 4
+    },
+    {
+      "label": "Layout.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/components/Layout.tsx",
+      "source_location": "L1",
+      "id": "layout",
+      "community": 3
+    },
+    {
+      "label": "VideoLoadingScreen.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/components/VideoLoadingScreen.tsx",
+      "source_location": "L1",
+      "id": "videoloadingscreen",
+      "community": 5
+    },
+    {
+      "label": "animate()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/components/VideoLoadingScreen.tsx",
+      "source_location": "L40",
+      "id": "videoloadingscreen_animate",
+      "community": 5
+    },
+    {
+      "label": "AuthDebug.tsx",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/components/AuthDebug.tsx",
+      "source_location": "L1",
+      "id": "authdebug",
+      "community": 4
+    },
+    {
+      "label": "convex.test.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/lib/convex.test.ts",
+      "source_location": "L1",
+      "id": "convex_test",
+      "community": 17
+    },
+    {
+      "label": "haptics.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/lib/haptics.ts",
+      "source_location": "L1",
+      "id": "haptics",
+      "community": 10
+    },
+    {
+      "label": "convex.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/lib/convex.ts",
+      "source_location": "L1",
+      "id": "convex",
+      "community": 18
+    },
+    {
+      "label": "haptics.test.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/lib/haptics.test.ts",
+      "source_location": "L1",
+      "id": "haptics_test",
+      "community": 10
+    },
+    {
+      "label": "global.d.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/src/types/global.d.ts",
+      "source_location": "L1",
+      "id": "global_d",
+      "community": 19
+    },
+    {
+      "label": "telegram-webhook.test.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/__tests__/integration/telegram-webhook.test.ts",
+      "source_location": "L1",
+      "id": "telegram_webhook_test",
+      "community": 9
+    },
+    {
+      "label": "validUpdateWithCommand()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/__tests__/integration/telegram-webhook.test.ts",
+      "source_location": "L4",
+      "id": "telegram_webhook_test_validupdatewithcommand",
+      "community": 9
+    },
+    {
+      "label": "validCallbackQuery()",
+      "file_type": "code",
+      "source_file": "apps/miniapp/__tests__/integration/telegram-webhook.test.ts",
+      "source_location": "L11",
+      "id": "telegram_webhook_test_validcallbackquery",
+      "community": 9
+    },
+    {
+      "label": "wallet.test.ts",
+      "file_type": "code",
+      "source_file": "apps/miniapp/__tests__/integration/wallet.test.ts",
+      "source_location": "L1",
+      "id": "wallet_test",
+      "community": 20
+    }
+  ],
+  "links": [
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/schema.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "schema",
+      "_tgt": "server",
+      "source": "schema",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/auth.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "auth",
+      "_tgt": "server",
+      "source": "auth",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/auth.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "auth",
+      "_tgt": "auth_getbottoken",
+      "source": "auth",
+      "target": "auth_getbottoken",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/auth.ts",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_src": "auth",
+      "_tgt": "auth_debughmac",
+      "source": "auth",
+      "target": "auth_debughmac",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/players.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "players",
+      "_tgt": "server",
+      "source": "players",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/nations.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "nations",
+      "_tgt": "server",
+      "source": "nations",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/nations.ts",
+      "source_location": "L78",
+      "weight": 1.0,
+      "_src": "nations",
+      "_tgt": "nations_getresourcesfornation",
+      "source": "nations",
+      "target": "nations_getresourcesfornation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/nations.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "nations",
+      "_tgt": "authcontext",
+      "source": "nations",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/nations.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "nations",
+      "_tgt": "api",
+      "source": "nations",
+      "target": "api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/nations.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "nations",
+      "_tgt": "layout",
+      "source": "nations",
+      "target": "layout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/nations.tsx",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_src": "nations",
+      "_tgt": "nations_fmt",
+      "source": "nations",
+      "target": "nations_fmt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/events.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "events",
+      "_tgt": "server",
+      "source": "events",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/wars.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "wars",
+      "_tgt": "server",
+      "source": "wars",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/wars.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "wars",
+      "_tgt": "wars_getcooldownend",
+      "source": "wars",
+      "target": "wars_getcooldownend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/admin.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "admin",
+      "_tgt": "server",
+      "source": "admin",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/wallet.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "wallet",
+      "_tgt": "server",
+      "source": "wallet",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "wallet",
+      "_tgt": "authcontext",
+      "source": "wallet",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "wallet",
+      "_tgt": "api",
+      "source": "wallet",
+      "target": "api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "wallet",
+      "_tgt": "layout",
+      "source": "wallet",
+      "target": "layout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_src": "wallet",
+      "_tgt": "wallet_verifydeposit",
+      "source": "wallet",
+      "target": "wallet_verifydeposit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/wallet.tsx",
+      "source_location": "L71",
+      "weight": 1.0,
+      "_src": "wallet",
+      "_tgt": "wallet_withdraw",
+      "source": "wallet",
+      "target": "wallet_withdraw",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/market.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "market",
+      "_tgt": "server",
+      "source": "market",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/market.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "market",
+      "_tgt": "authcontext",
+      "source": "market",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/market.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "market",
+      "_tgt": "api",
+      "source": "market",
+      "target": "api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/market.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "market",
+      "_tgt": "layout",
+      "source": "market",
+      "target": "layout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/market.tsx",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_src": "market",
+      "_tgt": "market_buyp2p",
+      "source": "market",
+      "target": "market_buyp2p",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/http.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_src": "http",
+      "_tgt": "server",
+      "source": "http",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/http.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "http",
+      "_tgt": "telegram",
+      "source": "http",
+      "target": "telegram",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "telegram",
+      "_tgt": "server",
+      "source": "telegram",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "telegram",
+      "_tgt": "telegram_getbottoken",
+      "source": "telegram",
+      "target": "telegram_getbottoken",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_src": "telegram",
+      "_tgt": "telegram_getwebhooksecret",
+      "source": "telegram",
+      "target": "telegram_getwebhooksecret",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_src": "telegram",
+      "_tgt": "telegram_getminiappurl",
+      "source": "telegram",
+      "target": "telegram_getminiappurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_src": "telegram",
+      "_tgt": "telegram_sendtelegrammessage",
+      "source": "telegram",
+      "target": "telegram_sendtelegrammessage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/telegram.ts",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_src": "telegram_sendtelegrammessage",
+      "_tgt": "telegram_getbottoken",
+      "source": "telegram_getbottoken",
+      "target": "telegram_sendtelegrammessage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/envCheck.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "envcheck",
+      "_tgt": "server",
+      "source": "envcheck",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/webhookTest.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "webhooktest",
+      "_tgt": "server",
+      "source": "webhooktest",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/_generated/dataModel.d.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_src": "datamodel_d",
+      "_tgt": "server",
+      "source": "datamodel_d",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/_generated/server.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_src": "server",
+      "_tgt": "server",
+      "source": "server",
+      "target": "server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/_generated/server.d.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_src": "server_d",
+      "_tgt": "server",
+      "source": "server",
+      "target": "server_d",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "convex/_generated/api.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_src": "api",
+      "_tgt": "server",
+      "source": "server",
+      "target": "api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/convex/_generated/api.d.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "api_d",
+      "_tgt": "server",
+      "source": "server",
+      "target": "api_d",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/convex/_generated/api.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "api",
+      "_tgt": "api_createapi",
+      "source": "api",
+      "target": "api_createapi",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/dashboard.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "dashboard",
+      "_tgt": "api",
+      "source": "api",
+      "target": "dashboard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/war.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_src": "war",
+      "_tgt": "api",
+      "source": "api",
+      "target": "war",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "authcontext",
+      "_tgt": "api",
+      "source": "api",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/_app.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "app",
+      "_tgt": "app",
+      "source": "app",
+      "target": "app",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/App.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_src": "app",
+      "_tgt": "authcontext",
+      "source": "app",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/App.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_src": "app",
+      "_tgt": "videoloadingscreen",
+      "source": "app",
+      "target": "videoloadingscreen",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/dashboard.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "dashboard",
+      "_tgt": "authcontext",
+      "source": "dashboard",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/dashboard.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "dashboard",
+      "_tgt": "layout",
+      "source": "dashboard",
+      "target": "layout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/index.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "index",
+      "_tgt": "authcontext",
+      "source": "index",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/index.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "index",
+      "_tgt": "videoloadingscreen",
+      "source": "index",
+      "target": "videoloadingscreen",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/profile.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "profile",
+      "_tgt": "authcontext",
+      "source": "profile",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/profile.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_src": "profile",
+      "_tgt": "layout",
+      "source": "profile",
+      "target": "layout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/profile.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_src": "profile",
+      "_tgt": "profile_handlelogout",
+      "source": "profile",
+      "target": "profile_handlelogout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/war.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "war",
+      "_tgt": "authcontext",
+      "source": "war",
+      "target": "authcontext",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/war.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_src": "war",
+      "_tgt": "layout",
+      "source": "war",
+      "target": "layout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/pages/war.tsx",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_src": "war",
+      "_tgt": "war_handledeclarewar",
+      "source": "war",
+      "target": "war_handledeclarewar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_src": "authcontext",
+      "_tgt": "authcontext_useauth",
+      "source": "authcontext",
+      "target": "authcontext_useauth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_src": "authcontext",
+      "_tgt": "authcontext_haswindow",
+      "source": "authcontext",
+      "target": "authcontext_haswindow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/context/AuthContext.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_src": "authcontext",
+      "_tgt": "authcontext_authprovider",
+      "source": "authcontext",
+      "target": "authcontext_authprovider",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/components/Layout.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_src": "layout",
+      "_tgt": "authcontext",
+      "source": "authcontext",
+      "target": "layout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/components/AuthDebug.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_src": "authdebug",
+      "_tgt": "authcontext",
+      "source": "authcontext",
+      "target": "authdebug",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/components/VideoLoadingScreen.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_src": "videoloadingscreen",
+      "_tgt": "videoloadingscreen_animate",
+      "source": "videoloadingscreen",
+      "target": "videoloadingscreen_animate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/src/lib/haptics.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_src": "haptics_test",
+      "_tgt": "haptics",
+      "source": "haptics",
+      "target": "haptics_test",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/__tests__/integration/telegram-webhook.test.ts",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_src": "telegram_webhook_test",
+      "_tgt": "telegram_webhook_test_validupdatewithcommand",
+      "source": "telegram_webhook_test",
+      "target": "telegram_webhook_test_validupdatewithcommand",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "apps/miniapp/__tests__/integration/telegram-webhook.test.ts",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_src": "telegram_webhook_test",
+      "_tgt": "telegram_webhook_test_validcallbackquery",
+      "source": "telegram_webhook_test",
+      "target": "telegram_webhook_test_validcallbackquery",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": []
+}
