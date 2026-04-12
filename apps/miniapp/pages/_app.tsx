@@ -2,7 +2,7 @@
 
 import type { AppProps } from 'next/app';
 import { useState, useEffect } from 'react';
-import { ConvexProvider } from 'convex/react';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { AuthProvider } from '../src/context/AuthContext';
 import '../src/styles/global.css';
 import '../src/index.css';
@@ -10,16 +10,14 @@ import '../src/index.css';
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || 
   'https://peaceful-scorpion-529.convex.cloud';
 
-export default function App({ Component, pageProps }: AppProps) {
-  const [convexClient, setConvexClient] = useState<any>(null);
+function AppContent({ Component, pageProps }: AppProps) {
+  const [convexClient, setConvexClient] = useState<ConvexReactClient | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    // Only create client on client side
-    import('convex/react').then(({ ConvexReactClient }) => {
-      setConvexClient(new ConvexReactClient(CONVEX_URL));
-    });
+    const client = new ConvexReactClient(CONVEX_URL);
+    setConvexClient(client);
   }, []);
 
   if (!mounted || !convexClient) {
@@ -48,4 +46,8 @@ export default function App({ Component, pageProps }: AppProps) {
       </AuthProvider>
     </ConvexProvider>
   );
+}
+
+export default function App(props: AppProps) {
+  return <AppContent {...props} />;
 }
