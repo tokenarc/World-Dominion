@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth outside AuthProvider');
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
 
@@ -49,8 +49,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    tg.ready();
-    tg.expand();
+    try {
+      tg.ready();
+      tg.expand();
+    } catch (e) {
+      console.warn('[Auth] Telegram init warning:', e);
+    }
 
     verifyMutation({ initData: tg.initData })
       .then((result: any) => {
@@ -73,7 +77,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (sessionUser === undefined) return;
     
     if (sessionUser === null) {
-      localStorage.removeItem('wd_token');
+      try {
+        localStorage.removeItem('wd_token');
+      } catch (e) {}
       setToken(null);
       setState('error');
       setError('Session expired. Reopen the app.');
@@ -84,12 +90,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token, sessionUser]);
 
   const logout = () => {
-    localStorage.removeItem('wd_token');
+    try {
+      localStorage.removeItem('wd_token');
+    } catch (e) {}
     setToken(null);
     setState('loading');
   };
 
-  const value = React.useMemo(() => ({
+  const value = useMemo(() => ({
     state,
     error,
     user: sessionUser?.user || null,
