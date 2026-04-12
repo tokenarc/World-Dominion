@@ -11,36 +11,36 @@ const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL ||
   'https://peaceful-scorpion-529.convex.cloud';
 
 function AppContent({ Component, pageProps }: AppProps) {
-  const [convexClient, setConvexClient] = useState<ConvexReactClient | null>(null);
+  const [client, setClient] = useState<ConvexReactClient | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const client = new ConvexReactClient(CONVEX_URL);
-    setConvexClient(client);
+    const convexClient = new ConvexReactClient(CONVEX_URL);
+    setClient(convexClient);
   }, []);
 
-  if (!mounted || !convexClient) {
+  if (!mounted || !client) {
     return (
       <div style={{ 
         minHeight: '100vh', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        background: '#0a0f14',
+        background: '#050810',
         color: '#FFD700',
         fontFamily: 'monospace',
       }}>
-        <div style={{ textAlign: 'center' }}>
+        <div>
           <div style={{ fontSize: '20px', letterSpacing: '4px' }}>WORLD DOMINION</div>
-          <div style={{ fontSize: '10px', color: '#8892a4', marginTop: '10px' }}>Initializing...</div>
+          <div style={{ fontSize: '10px', color: '#667788', marginTop: '10px' }}>Initializing...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <ConvexProvider client={convexClient}>
+    <ConvexProvider client={client}>
       <AuthProvider>
         <Component {...pageProps} />
       </AuthProvider>

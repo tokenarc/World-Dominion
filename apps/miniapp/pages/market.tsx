@@ -13,23 +13,23 @@ function Spinner() {
 }
 
 export default function MarketPage() {
-  const { sessionToken, authStage } = useAuth();
+  const { token, state } = useAuth();
   const [tab,      setTab]      = useState<'stocks'|'p2p'>('stocks');
   const [msg,      setMsg]      = useState('');
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const apiRef = api as any;
-  const stocks = authStage === 'ready' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : null;
+  const stocks = state === 'ready' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : null;
   const stocksArr = Array.isArray(stocks) ? stocks : [];
-  const listings = authStage === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : null;
+  const listings = state === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : null;
   const listingsArr = Array.isArray(listings) ? listings : [];
-  const buyMutation = authStage === 'ready' && apiRef?.market?.buyListing ? useMutation(apiRef.market.buyListing) : null;
+  const buyMutation = state === 'ready' && apiRef?.market?.buyListing ? useMutation(apiRef.market.buyListing) : null;
 
   const buyP2P = async (listingId: any, quantity: number) => {
-    if (!sessionToken || !buyMutation) return;
+    if (!token || !buyMutation) return;
     tg?.HapticFeedback?.impactOccurred('medium');
     try {
-      const result = await buyMutation({ token: sessionToken, listingId, quantity });
+      const result = await buyMutation({ token: token, listingId, quantity });
       setMsg('✅ Purchased!');
       tg?.HapticFeedback?.notificationOccurred('success');
     } catch (err: any) {

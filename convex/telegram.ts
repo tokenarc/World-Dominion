@@ -39,14 +39,10 @@ async function sendTelegramMessage(chatId: number, text: string, replyMarkup?: o
 }
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
-  console.log("[BOT] Received webhook request");
-  
-  // Validate webhook secret
-  const secretToken = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
-  const expectedSecret = getWebhookSecret();
-  
-  if (expectedSecret && secretToken !== expectedSecret) {
-    console.log("[BOT] Unauthorized - secret mismatch");
+  const incoming = request.headers.get("X-Telegram-Bot-Api-Secret-Token") || "";
+  const expected = process.env.WEBHOOK_SECRET || "";
+
+  if (expected && incoming !== expected) {
     return new Response("Unauthorized", { status: 401 });
   }
   

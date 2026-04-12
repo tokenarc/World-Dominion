@@ -34,32 +34,32 @@ function Spinner() {
 }
 
 export default function WarPage() {
-  const { player, sessionToken, isAuthenticated, authStage } = useAuth();
+  const { player, token, state } = useAuth();
   const [target, setTarget] = useState('');
   const [declaring, setDeclaring] = useState(false);
   const [msg, setMsg] = useState('');
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const activeWars = (authStage === 'ready' && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive as any) : null;
+  const activeWars = (state === 'ready' && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive as any) : null;
   const activeWarsArr = activeWars || [];
-  const myWars = (authStage === 'ready' && typeof api?.wars?.getForNation === 'function') ? useQuery(
+  const myWars = (state === 'ready' && typeof api?.wars?.getForNation === 'function') ? useQuery(
     api.wars.getForNation as any,
     player?.currentNation ? { nationIso: player.currentNation } : 'skip'
   ) : null;
   const myWarsArr = myWars || [];
-  const declareWarMutation = (authStage === 'ready' && typeof api?.wars?.declareWar === 'function') ? useMutation(api.wars.declareWar as any) : null;
+  const declareWarMutation = (state === 'ready' && typeof api?.wars?.declareWar === 'function') ? useMutation(api.wars.declareWar as any) : null;
 
   const hasNation = !!player?.currentNation;
   const canDeclare = hasNation && (player?.role === 'PRESIDENT' || player?.role === 'MILITARY');
 
   const handleDeclareWar = async () => {
-    if (!target.trim() || !sessionToken || !player?.currentNation) return;
+    if (!target.trim() || !token || !player?.currentNation) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setDeclaring(true);
     setMsg('');
     try {
       await declareWarMutation({ 
-        token: sessionToken, 
+        token: token, 
         attackerIso: player.currentNation, 
         defenderIso: target.trim() 
       });

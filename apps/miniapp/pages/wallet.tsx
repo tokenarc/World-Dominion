@@ -25,7 +25,7 @@ function Spinner() {
 }
 
 export default function WalletPage() {
-  const { player, sessionToken, authStage } = useAuth();
+  const { player, token, state } = useAuth();
   const apiRef = api as any;
   const [tab,     setTab]     = useState<'balance'|'deposit'|'withdraw'>('balance');
   const [txHash,  setTxHash]  = useState('');
@@ -35,26 +35,26 @@ export default function WalletPage() {
   const [busy,    setBusy]    = useState(false);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const balance = authStage === 'ready' && apiRef?.wallet?.getBalance ? useQuery(apiRef.wallet.getBalance, sessionToken ? { token: sessionToken } : 'skip') : null;
+  const balance = state === 'ready' && apiRef?.wallet?.getBalance ? useQuery(apiRef.wallet.getBalance, token ? { token: token } : 'skip') : null;
   const balanceData = balance as any;
   
-  const transactions = authStage === 'ready' && apiRef?.wallet?.getTransactions ? useQuery(
+  const transactions = state === 'ready' && apiRef?.wallet?.getTransactions ? useQuery(
     apiRef.wallet.getTransactions, 
-    sessionToken ? { token: sessionToken, limit: 20 } : 'skip'
+    token ? { token: token, limit: 20 } : 'skip'
   ) : null;
   const transactionsArr: Tx[] = (transactions as any) || [];
-  const verifyMutation = authStage === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
-  const withdrawMutation = authStage === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
+  const verifyMutation = state === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
+  const withdrawMutation = state === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
 
   const warBonds = balanceData?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
   const cp = balanceData?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
 
   const verifyDeposit = async () => {
-    if (!txHash.trim() || !sessionToken || !amount) return;
+    if (!txHash.trim() || !token || !amount) return;
     tg?.HapticFeedback?.impactOccurred('medium');
     setBusy(true); setMsg('');
     try {
-      const result = await verifyMutation({ token: sessionToken, txHash: txHash.trim(), amount: parseFloat(amount) || 0 }) as any;
+      const result = await verifyMutation({ token: token, txHash: txHash.trim(), amount: parseFloat(amount) || 0 }) as any;
       if (result.success) {
         setMsg(`✅ Credited ${result.amount} War Bonds!`);
         tg?.HapticFeedback?.notificationOccurred('success');
@@ -69,11 +69,11 @@ export default function WalletPage() {
   };
 
   const withdraw = async () => {
-    if (!toAddr.trim() || !amount || !sessionToken) return;
+    if (!toAddr.trim() || !amount || !token) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setBusy(true); setMsg('');
     try {
-      const result = await withdrawMutation({ token: sessionToken, amount: parseInt(amount), walletAddress: toAddr.trim() }) as any;
+      const result = await withdrawMutation({ token: token, amount: parseInt(amount), walletAddress: toAddr.trim() }) as any;
       setMsg(`✅ Withdrawal submitted! ID: ${result.withdrawalId?.slice(-6)}`);
       tg?.HapticFeedback?.notificationOccurred('success');
     } catch (err: any) { 

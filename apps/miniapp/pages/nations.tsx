@@ -27,10 +27,10 @@ function Spinner() {
 }
 
 function NationsPage() {
-  const { authStage } = useAuth();
+  const { state } = useAuth();
   const apiRef = api as any;
   
-  const nations = (authStage === 'ready' && typeof apiRef.nations?.getAll === 'function')
+  const nations = (state === 'ready' && typeof apiRef.nations?.getAll === 'function')
     ? useQuery(apiRef.nations.getAll)
     : undefined;
   const [search, setSearch] = useState('');

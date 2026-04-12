@@ -6,7 +6,7 @@ import Layout from '../src/components/Layout';
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, player, logout, sessionToken } = useAuth();
+  const { user, player, logout, token } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const initials  = user?.firstName?.[0]?.toUpperCase() || '?';

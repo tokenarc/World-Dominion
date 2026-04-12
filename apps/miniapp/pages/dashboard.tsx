@@ -112,8 +112,9 @@ function IntelItem({ text, time, type }: { text: string; time: string; type: 'wa
 
 function Dashboard() {
   const router  = useRouter();
-  const { user, player, sessionToken, isAuthenticated, authStage } = useAuth();
+  const { user, player, token, state } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+  const isAuthenticated = state === 'ready';
 
   const events = typeof api?.events?.getRecent === 'function' ? useQuery(api.events.getRecent as any, { limit: 5 }) : undefined;
   const eventsArr = Array.isArray(events) ? events : [];
