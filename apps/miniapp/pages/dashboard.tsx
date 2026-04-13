@@ -39,9 +39,13 @@ function Dashboard() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   const isAuthenticated = state === 'ready';
 
-  const events = typeof api?.events?.getRecent === 'function' ? useQuery(api.events.getRecent as any, { limit: 5 }) : undefined;
+  const events = state === 'ready' && api?.events?.getRecent 
+    ? useQuery(api.events.getRecent as any, { limit: 5 }) 
+    : undefined;
   const eventsArr = Array.isArray(events) ? events : [];
-  const activeWars = typeof api?.wars?.getActive === 'function' ? useQuery(api.wars.getActive as any) : undefined;
+  const activeWars = state === 'ready' && api?.wars?.getActive 
+    ? useQuery(api.wars.getActive as any) 
+    : undefined;
 
   useEffect(() => {
     if (state === 'error') {

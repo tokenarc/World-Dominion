@@ -40,14 +40,21 @@ export default function WarPage() {
   const [msg, setMsg] = useState('');
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const activeWars = (state === 'ready' && typeof api?.wars?.getActive === 'function') ? useQuery(api.wars.getActive as any) : null;
+  const apiRef = api as any;
+  const activeWars = state === 'ready' && apiRef?.wars?.getActive 
+    ? useQuery(apiRef.wars.getActive) 
+    : undefined;
   const activeWarsArr = activeWars || [];
-  const myWars = (state === 'ready' && typeof api?.wars?.getForNation === 'function') ? useQuery(
-    api.wars.getForNation as any,
-    player?.currentNation ? { nationIso: player.currentNation } : 'skip'
-  ) : null;
+  const myWars = state === 'ready' && apiRef?.wars?.getForNation 
+    ? useQuery(
+        apiRef.wars.getForNation,
+        player?.currentNation ? { nationIso: player.currentNation } : 'skip'
+      ) 
+    : undefined;
   const myWarsArr = myWars || [];
-  const declareWarMutation = (state === 'ready' && typeof api?.wars?.declareWar === 'function') ? useMutation(api.wars.declareWar as any) : null;
+  const declareWarMutation = state === 'ready' && apiRef?.wars?.declareWar 
+    ? useMutation(apiRef.wars.declareWar) 
+    : null;
 
   const hasNation = !!player?.currentNation;
   const canDeclare = hasNation && (player?.role === 'PRESIDENT' || player?.role === 'MILITARY');
