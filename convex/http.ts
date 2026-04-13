@@ -1,6 +1,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { telegramWebhook } from "./telegram";
+import { api } from "./_generated/api";
 import { v } from "convex/values";
 
 function getBotToken(): string {
@@ -152,6 +153,24 @@ http.route({
     });
     const result = await res.json();
     return new Response(JSON.stringify(result), { status: 200 });
+  }),
+});
+
+http.route({
+  path: "/admin/seed-nations",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    const envSecret = "dominion-admin-2026";
+    if (body.adminSecret !== envSecret) {
+      return new Response("Unauthorized", { status: 401 });
+    }
+    
+    const result = await ctx.runMutation(api.nations.seedNations);
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   }),
 });
 

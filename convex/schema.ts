@@ -77,11 +77,38 @@ export default defineSchema({
     resources: v.array(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
+    capital: v.optional(v.string()),
+    continent: v.optional(v.string()),
+    ideology: v.optional(v.string()),
+    militaryStrength: v.optional(v.number()),
+    borders: v.optional(v.array(v.string())),
+    alliances: v.optional(v.array(v.string())),
+    primaryReligion: v.optional(v.string()),
   })
     .index("iso", ["iso"])
     .index("name", ["name"])
     .index("stability", ["stability"])
-    .index("atWarWith", ["atWarWith"]),
+    .index("atWarWith", ["atWarWith"])
+    .index("by_continent", ["continent"]),
+
+  role_applications: defineTable({
+    playerTelegramId: v.number(),
+    playerName: v.string(),
+    playerUsername: v.optional(v.string()),
+    nationIso: v.string(),
+    nationName: v.string(),
+    roleId: v.string(),
+    roleName: v.string(),
+    essay: v.string(),
+    status: v.string(),
+    adminNote: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_player", ["playerTelegramId"])
+    .index("by_status", ["status"])
+    .index("by_nation", ["nationIso"])
+    .index("by_player_nation", ["playerTelegramId", "nationIso"]),
 
   events: defineTable({
     type: v.string(),
