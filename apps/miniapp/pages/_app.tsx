@@ -2,15 +2,13 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode, Component } from 'react';
 import type { AppProps } from 'next/app';
-import { ConvexProvider, ConvexReactClient, useMutation, useQuery } from 'convex/react';
-import { api } from '../convex/_generated/api';
 import '../src/styles/global.css';
 import '../src/index.css';
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || 
   'https://peaceful-scorpion-529.convex.cloud';
 
-type AuthState = 'loading' | 'ready' | 'error';
+type AuthState = 'loading' | 'authenticating' | 'ready' | 'error';
 
 interface AuthContextType {
   state: AuthState;
@@ -81,7 +79,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-function LoadingScreen() {
+function LoadingScreen({ message = 'Initializing...' }: { message?: string }) {
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -94,7 +92,7 @@ function LoadingScreen() {
     }}>
       <div>
         <div style={{ fontSize: '20px', letterSpacing: '4px' }}>WORLD DOMINION</div>
-        <div style={{ fontSize: '10px', color: '#667788', marginTop: '10px' }}>Initializing...</div>
+        <div style={{ fontSize: '10px', color: '#667788', marginTop: '10px' }}>{message}</div>
       </div>
     </div>
   );
@@ -124,83 +122,94 @@ function ErrorScreen({ message }: { message: string }) {
   );
 }
 
+async function convexFetch(action: string, args: any): Promise<any> {
+  const response = await fetch(`${CONVEX_URL}/api/${action}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ args }),
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
 function AuthApp({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [clientReady, setClientReady] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [player, setPlayer] = useState<any>(null);
 
   useEffect(() => {
-    setClientReady(true);
-  }, []);
-
-  const verifyMutation = useMutation(api.auth.telegramVerify as any);
-  const sessionUser = useQuery(api.auth.getSessionUser as any, token ? { token } : 'skip');
-
-  useEffect(() => {
-    if (!clientReady) return;
-
     const stored = localStorage.getItem('wd_token');
     if (stored) {
       setToken(stored);
-      return;
     }
-
-    if (typeof window === 'undefined') return;
-    
-    const tg = (window as any).Telegram?.WebApp;
-    if (!tg?.initData) {
-      setState('error');
-      setError('Open through Telegram bot.');
-      return;
-    }
-
-    try {
-      tg.ready();
-      tg.expand();
-    } catch (e) {
-      console.warn('[Auth] Telegram warning:', e);
-    }
-
-    verifyMutation({ initData: tg.initData })
-      .then((result: any) => {
-        if (result?.success && result?.token) {
-          localStorage.setItem('wd_token', result.token);
-          setToken(result.token);
-        } else {
-          setState('error');
-          setError(result?.message || 'Auth failed. Try again.');
-        }
-      })
-      .catch((err: any) => {
-        setState('error');
-        setError(err?.message || 'Auth failed.');
-      });
-  }, [clientReady]);
+    setState('authenticating');
+  }, []);
 
   useEffect(() => {
-    if (!token) return;
-    if (sessionUser === undefined) return;
-    
-    if (sessionUser === null) {
-      try { localStorage.removeItem('wd_token'); } catch (e) {}
-      setToken(null);
-      setState('error');
-      setError('Session expired. Reopen the app.');
+    if (state !== 'authenticating') return;
+    if (!token) {
+      const tg = (window as any).Telegram?.WebApp;
+      if (!tg?.initData) {
+        setState('error');
+        setError('Open through Telegram bot.');
+        return;
+      }
+
+      convexFetch('auth/telegramVerify', { initData: tg.initData })
+        .then((result) => {
+          if (result?.success && result?.token) {
+            localStorage.setItem('wd_token', result.token);
+            setToken(result.token);
+            setUser(result.user);
+            setPlayer(result.player);
+            setState('ready');
+          } else {
+            setState('error');
+            setError(result?.message || 'Auth failed. Try again.');
+          }
+        })
+        .catch((err) => {
+          setState('error');
+          setError(err?.message || 'Auth failed.');
+        });
       return;
     }
-    
-    setState('ready');
-  }, [token, sessionUser]);
+
+    convexFetch('auth/getSessionUser', { token })
+      .then((session) => {
+        if (session === null) {
+          try { localStorage.removeItem('wd_token'); } catch (e) {}
+          setToken(null);
+          setState('error');
+          setError('Session expired. Reopen the app.');
+          return;
+        }
+        setUser(session.user);
+        setPlayer(session.player);
+        setState('ready');
+      })
+      .catch(() => {
+        setState('error');
+        setError('Session check failed.');
+      });
+  }, [state, token]);
 
   const logout = () => {
     try { localStorage.removeItem('wd_token'); } catch (e) {}
     setToken(null);
+    setUser(null);
+    setPlayer(null);
     setState('loading');
   };
 
-  if (!clientReady) {
+  if (state === 'loading') {
     return <LoadingScreen />;
+  }
+
+  if (state === 'authenticating') {
+    return <LoadingScreen message="Connecting to Telegram..." />;
   }
 
   if (state === 'error') {
@@ -208,44 +217,28 @@ function AuthApp({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{
-      state,
-      error,
-      user: sessionUser?.user || null,
-      player: sessionUser?.player || null,
-      token,
-      logout,
-    }}>
+    <AuthContext.Provider value={{ state, error, user, player, token, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 function AppContent({ Component, pageProps }: AppProps) {
-  const [client, setClient] = useState<ConvexReactClient | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const convexClient = new ConvexReactClient(CONVEX_URL);
-    setClient(convexClient);
   }, []);
 
   if (!mounted) {
     return <LoadingScreen />;
   }
 
-  if (!client) {
-    return <ErrorScreen message="Failed to connect to server" />;
-  }
-
   return (
     <ErrorBoundary>
-      <ConvexProvider client={client}>
-        <AuthApp>
-          <Component {...pageProps} />
-        </AuthApp>
-      </ConvexProvider>
+      <AuthApp>
+        <Component {...pageProps} />
+      </AuthApp>
     </ErrorBoundary>
   );
 }
