@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 
 type AuthState = 'initializing' | 'authenticating' | 'authenticated' | 'unauthenticated' | 'error';
 
@@ -35,6 +35,16 @@ export function useBalance() {
 }
 
 const AUTH_TIMEOUT_MS = 8000;
+const GLOBAL_FAILSAFE_MS = 12000;
+
+function withTimeout<T>(promise: Promise<T>, ms: number = AUTH_TIMEOUT_MS): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error("Timeout")), ms)
+    )
+  ]);
+}
 
 function getInitDataFromUrl(): string | null {
   if (typeof window === 'undefined') return null;
@@ -44,13 +54,21 @@ function getInitDataFromUrl(): string | null {
     const params = new URLSearchParams(hash.substring(1));
     const initData = params.get('tgWebAppData');
     return initData ? decodeURIComponent(initData) : null;
-  } catch { return null; }
+  } catch (e) { 
+    console.error('[Auth] URL parse error:', e);
+    return null; 
+  }
 }
 
-async function callAuthApi(path: string, args: any, timeout = AUTH_TIMEOUT_MS): Promise<any> {
+async function callAuthApi(path: string, args: any): Promise<any> {
   const url = '/api/auth';
+  console.log('[Auth] API call start:', path);
+  
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  const timeoutId = setTimeout(() => {
+    console.error('[Auth] API timeout:', path);
+    controller.abort();
+  }, AUTH_TIMEOUT_MS);
   
   try {
     const response = await fetch(url, {
@@ -63,14 +81,16 @@ async function callAuthApi(path: string, args: any, timeout = AUTH_TIMEOUT_MS): 
     
     if (!response.ok) {
       const errText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errText}`);
+      console.error('[Auth] API error:', path, response.status, errText);
+      throw new Error(`HTTP ${response.status}`);
     }
-    return await response.json();
+    
+    const data = await response.json();
+    console.log('[Auth] API result:', path, !!data);
+    return data;
   } catch (err: any) {
     clearTimeout(timeoutId);
-    if (err.name === 'AbortError') {
-      throw new Error('Auth request timeout');
-    }
+    console.error('[Auth] API exception:', path, err.message);
     throw err;
   }
 }
@@ -81,84 +101,96 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [player, setPlayer] = useState<any>(null);
-  const [initFailed, setInitFailed] = useState(false);
+  const initialized = useRef(false);
+
+  const failSafeTimer = useRef<NodeJS.Timeout>();
 
   useEffect(() => {
-    if (initFailed) return;
+    if (initialized.current) return;
+    initialized.current = true;
     
-    const stored = localStorage.getItem('wd_token');
+    console.log('[Auth] Starting initialization');
     
-    const doInit = async () => {
-      const timeoutId = setTimeout(() => {
+    failSafeTimer.current = setTimeout(() => {
+      if (state === 'initializing' || state === 'authenticating') {
+        console.error('[Auth] Global failsafe triggered');
         setError('Initialization timeout - please reopen from Telegram');
         setState('error');
-      }, AUTH_TIMEOUT_MS);
-      
+      }
+    }, GLOBAL_FAILSAFE_MS);
+
+    const doInit = async () => {
       try {
+        const stored = localStorage.getItem('wd_token');
+        console.log('[Auth] Stored token exists:', !!stored);
+        
         if (stored) {
           setToken(stored);
           setState('authenticating');
           
-          const sessionRes = await callAuthApi('/auth/getSessionUser', { token: stored });
+          console.log('[Auth] Checking session...');
+          const sessionRes = await withTimeout(callAuthApi('/auth/getSessionUser', { token: stored }));
+          console.log('[Auth] Session result:', sessionRes?.error ? sessionRes.error : 'ok');
           
-          if (sessionRes && sessionRes.user && !sessionRes.error) {
+          if (sessionRes.error) {
+            console.log('[Auth] Invalid session, clearing');
+            localStorage.removeItem('wd_token');
+            stored = null;
+          } else {
             setUser(sessionRes.user);
             setPlayer(sessionRes.player);
             setState('authenticated');
-          } else {
-            localStorage.removeItem('wd_token');
-            const urlInitData = getInitDataFromUrl();
-            if (urlInitData) {
-              setState('authenticating');
-              const authRes = await callAuthApi('/auth/telegramVerify', { initData: urlInitData });
-              if (authRes.success && authRes.token) {
-                localStorage.setItem('wd_token', authRes.token);
-                setToken(authRes.token);
-                setUser(authRes.user);
-                setPlayer(authRes.player);
-                setState('authenticated');
-              } else {
-                setError(authRes.message || 'Auth failed');
-                setState('unauthenticated');
-              }
-            } else {
-              setState('unauthenticated');
-            }
+            clearTimeout(failSafeTimer.current);
+            console.log('[Auth] Session valid, logged in');
+            return;
           }
-        } else {
-          const urlInitData = getInitDataFromUrl();
-          if (urlInitData) {
-            setState('authenticating');
-            const authRes = await callAuthApi('/auth/telegramVerify', { initData: urlInitData });
-            if (authRes.success && authRes.token) {
-              localStorage.setItem('wd_token', authRes.token);
-              setToken(authRes.token);
-              setUser(authRes.user);
-              setPlayer(authRes.player);
-              setState('authenticated');
-            } else {
-              setError(authRes.message || 'Auth failed');
-              setState('unauthenticated');
-            }
+        }
+        
+        const urlInitData = getInitDataFromUrl();
+        console.log('[Auth] URL initData exists:', !!urlInitData);
+        
+        if (urlInitData) {
+          setState('authenticating');
+          
+          console.log('[Auth] Authenticating with Telegram...');
+          const authRes = await withTimeout(callAuthApi('/auth/telegramVerify', { initData: urlInitData }));
+          console.log('[Auth] Auth result:', authRes?.success);
+          
+          if (authRes.success && authRes.token) {
+            localStorage.setItem('wd_token', authRes.token);
+            setToken(authRes.token);
+            setUser(authRes.user);
+            setPlayer(authRes.player);
+            setState('authenticated');
+            clearTimeout(failSafeTimer.current);
+            console.log('[Auth] Auth successful');
           } else {
+            console.error('[Auth] Auth failed:', authRes?.message);
+            setError(authRes.message || 'Auth failed');
             setState('unauthenticated');
           }
+        } else {
+          console.log('[Auth] No auth data, unauthenticated');
+          setState('unauthenticated');
         }
       } catch (err: any) {
         console.error('[Auth] Init error:', err.message);
         setError(err.message || 'Auth failed');
         setState('error');
       } finally {
-        clearTimeout(timeoutId);
+        clearTimeout(failSafeTimer.current);
       }
     };
     
     doInit();
     
-    return () => {};
-  }, [initFailed]);
+    return () => {
+      clearTimeout(failSafeTimer.current);
+    };
+  }, []);
 
   const logout = () => {
+    console.log('[Auth] Logout');
     try { localStorage.removeItem('wd_token'); } catch {}
     setToken(null);
     setUser(null);
