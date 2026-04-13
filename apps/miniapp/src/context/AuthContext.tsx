@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type AuthState = 'loading' | 'checking' | 'authenticating' | 'ready' | 'unauthenticated' | 'error';
+type AuthState = 'initializing' | 'authenticating' | 'authenticated' | 'unauthenticated' | 'error';
 
 interface AuthContextType {
   state: AuthState;
@@ -13,7 +13,7 @@ interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType>({
-  state: 'loading',
+  state: 'initializing',
   error: null,
   user: null,
   player: null,
@@ -34,6 +34,8 @@ export function useBalance() {
   };
 }
 
+const AUTH_TIMEOUT_MS = 8000;
+
 function getInitDataFromUrl(): string | null {
   if (typeof window === 'undefined') return null;
   try {
@@ -45,84 +47,116 @@ function getInitDataFromUrl(): string | null {
   } catch { return null; }
 }
 
-async function callAuthApi(path: string, args: any): Promise<any> {
+async function callAuthApi(path: string, args: any, timeout = AUTH_TIMEOUT_MS): Promise<any> {
   const url = '/api/auth';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
   try {
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path, args }),
+      signal: controller.signal,
     });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`HTTP ${response.status}: ${errText}`);
+    }
     return await response.json();
   } catch (err: any) {
-    throw new Error(err.message || 'Request failed');
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('Auth request timeout');
+    }
+    throw err;
   }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>('loading');
+  const [state, setState] = useState<AuthState>('initializing');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [player, setPlayer] = useState<any>(null);
+  const [initFailed, setInitFailed] = useState(false);
 
   useEffect(() => {
+    if (initFailed) return;
+    
     const stored = localStorage.getItem('wd_token');
-    if (stored) {
-      setToken(stored);
-      setState('checking');
-    } else {
-      const urlInitData = getInitDataFromUrl();
-      if (urlInitData) {
-        setState('authenticating');
-        doAuth(urlInitData);
-      } else {
-        setState('unauthenticated');
-      }
-    }
-  }, []);
-
-  async function doAuth(initData: string) {
-    try {
-      const result = await callAuthApi('/auth/telegramVerify', { initData });
-      if (result?.success && result?.token) {
-        try { localStorage.setItem('wd_token', result.token); } catch {}
-        setToken(result.token);
-        setUser(result.user);
-        setPlayer(result.player);
-        setState('ready');
-      } else {
-        setError(result?.message || 'Auth failed');
+    
+    const doInit = async () => {
+      const timeoutId = setTimeout(() => {
+        setError('Initialization timeout - please reopen from Telegram');
         setState('error');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Auth failed');
-      setState('error');
-    }
-  }
-
-  useEffect(() => {
-    if (state === 'checking' && token) {
-      callAuthApi('/auth/getSessionUser', { token })
-        .then((res) => {
-          if (res === null || !res?.user) {
-            try { localStorage.removeItem('wd_token'); } catch {}
-            setToken(null);
-            setUser(null);
-            setPlayer(null);
-            setState('unauthenticated');
+      }, AUTH_TIMEOUT_MS);
+      
+      try {
+        if (stored) {
+          setToken(stored);
+          setState('authenticating');
+          
+          const sessionRes = await callAuthApi('/auth/getSessionUser', { token: stored });
+          
+          if (sessionRes && sessionRes.user && !sessionRes.error) {
+            setUser(sessionRes.user);
+            setPlayer(sessionRes.player);
+            setState('authenticated');
           } else {
-            setUser(res.user);
-            setPlayer(res.player);
-            setState('ready');
+            localStorage.removeItem('wd_token');
+            const urlInitData = getInitDataFromUrl();
+            if (urlInitData) {
+              setState('authenticating');
+              const authRes = await callAuthApi('/auth/telegramVerify', { initData: urlInitData });
+              if (authRes.success && authRes.token) {
+                localStorage.setItem('wd_token', authRes.token);
+                setToken(authRes.token);
+                setUser(authRes.user);
+                setPlayer(authRes.player);
+                setState('authenticated');
+              } else {
+                setError(authRes.message || 'Auth failed');
+                setState('unauthenticated');
+              }
+            } else {
+              setState('unauthenticated');
+            }
           }
-        })
-        .catch(() => {
-          setState('unauthenticated');
-        });
-    }
-  }, [state, token]);
+        } else {
+          const urlInitData = getInitDataFromUrl();
+          if (urlInitData) {
+            setState('authenticating');
+            const authRes = await callAuthApi('/auth/telegramVerify', { initData: urlInitData });
+            if (authRes.success && authRes.token) {
+              localStorage.setItem('wd_token', authRes.token);
+              setToken(authRes.token);
+              setUser(authRes.user);
+              setPlayer(authRes.player);
+              setState('authenticated');
+            } else {
+              setError(authRes.message || 'Auth failed');
+              setState('unauthenticated');
+            }
+          } else {
+            setState('unauthenticated');
+          }
+        }
+      } catch (err: any) {
+        console.error('[Auth] Init error:', err.message);
+        setError(err.message || 'Auth failed');
+        setState('error');
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    };
+    
+    doInit();
+    
+    return () => {};
+  }, [initFailed]);
 
   const logout = () => {
     try { localStorage.removeItem('wd_token'); } catch {}
@@ -130,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setPlayer(null);
     setState('unauthenticated');
+    setError(null);
   };
 
   const balance = {

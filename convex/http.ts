@@ -134,10 +134,78 @@ http.route({
         return new Response(JSON.stringify({ success: false, message: "Session expired" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
+      const telegramId = result.userData.id;
+      
+      let user = await ctx.db
+        .query("users")
+        .withIndex("telegramId", q => q.eq("telegramId", telegramId))
+        .first();
+
+      if (!user) {
+        const userId = await ctx.db.insert("users", {
+          telegramId,
+          firstName: result.userData.first_name,
+          lastName: result.userData.last_name,
+          username: result.userData.username,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+        user = await ctx.db.get(userId);
+      }
+
+      let player = await ctx.db
+        .query("players")
+        .withIndex("telegramId", q => q.eq("telegramId", telegramId))
+        .first();
+
+      if (!player) {
+        const playerId = await ctx.db.insert("players", {
+          userId: user._id,
+          telegramId,
+          username: result.userData.username || result.userData.first_name,
+          firstName: result.userData.first_name,
+          lastName: result.userData.last_name,
+          stats: {
+            totalScore: 0,
+            humanScore: 0,
+            militaryIq: 0,
+            diplomaticSkill: 0,
+            economicAcumen: 0,
+            intelligenceOps: 0,
+            leadership: 0,
+            strategicIq: 0,
+            reputation: 0,
+            loyalty: 0,
+            warBonds: 0,
+            commandPoints: 0,
+          },
+          reputation: 0,
+          kycVerified: false,
+          joinedAt: Date.now(),
+          lastActive: Date.now(),
+        });
+        player = await ctx.db.get(playerId);
+      }
+
+      const tokenArray = new Uint8Array(32);
+      crypto.getRandomValues(tokenArray);
+      const token = Array.from(tokenArray).map((b) => b.toString(16).padStart(2, "0")).join("");
+      const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000;
+
+      await ctx.db.insert("sessions", {
+        token,
+        userId: user._id,
+        telegramId,
+        expiresAt,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+
       return new Response(JSON.stringify({ 
         success: true, 
-        user: result.userData,
-        message: "Auth successful" 
+        token,
+        user: { id: telegramId, firstName: result.userData.first_name, lastName: result.userData.last_name },
+        player,
       }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
 
     } catch (error: any) {
@@ -161,7 +229,33 @@ http.route({
         return new Response(JSON.stringify({ error: "Missing token" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
-      return new Response(JSON.stringify({ error: "Use Convex query instead" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      const session = await ctx.db
+        .query("sessions")
+        .withIndex("token", q => q.eq("token", token))
+        .first();
+
+      if (!session || session.expiresAt < Date.now()) {
+        return new Response(JSON.stringify({ error: "Invalid or expired session" }), { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      }
+
+      const user = await ctx.db
+        .query("users")
+        .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
+        .first();
+
+      if (!user) {
+        return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } });
+      }
+
+      const player = await ctx.db
+        .query("players")
+        .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
+        .first();
+
+      return new Response(
+        JSON.stringify({ user, player }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
     } catch (error: any) {
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
