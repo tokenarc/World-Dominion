@@ -38,8 +38,6 @@ function LoadingScreen() {
 }
 
 function ErrorScreen({ error }: { error: string }) {
-  const router = useRouter();
-  
   return (
     <div style={{
       minHeight: '100vh',
@@ -62,9 +60,23 @@ function ErrorScreen({ error }: { error: string }) {
   );
 }
 
+function BrowserBanner() {
+  return (
+    <div style={{
+      background: 'linear-gradient(90deg, #8B0000, #cc0000)',
+      padding: '8px 16px',
+      textAlign: 'center',
+      fontSize: '10px',
+      color: '#fff',
+      letterSpacing: '1px',
+      fontWeight: 'bold',
+    }}>
+      🔸 BROWSER MODE - Limited functionality
+    </div>
+  );
+}
+
 function UnauthenticatedScreen() {
-  const router = useRouter();
-  
   return (
     <div style={{
       minHeight: '100vh',
@@ -86,7 +98,7 @@ function UnauthenticatedScreen() {
 
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
-  const { state, error } = useAuth();
+  const { state, env, error } = useAuth();
   const [pageKey, setPageKey] = useState(0);
 
   useEffect(() => {
@@ -101,10 +113,6 @@ export default function AppShell({ children }: AppShellProps) {
     return <ErrorScreen error={error} />;
   }
 
-  if (state === 'unauthenticated') {
-    return <UnauthenticatedScreen />;
-  }
-
   return (
     <div style={{
       minHeight: '100vh',
@@ -112,11 +120,10 @@ export default function AppShell({ children }: AppShellProps) {
       paddingTop: '52px',
       paddingBottom: '60px',
     }}>
+      {env === 'browser' && <BrowserBanner />}
       <TopBar />
       <BottomNav />
-      <div key={pageKey} style={{
-        animation: 'fadeUp 0.3s ease-out',
-      }}>
+      <div key={pageKey}>
         {children}
       </div>
     </div>

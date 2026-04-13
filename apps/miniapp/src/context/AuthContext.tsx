@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 
 type AuthState = 'initializing' | 'authenticating' | 'authenticated' | 'unauthenticated' | 'error';
+type EnvState = 'checking' | 'telegram' | 'browser';
 
 interface AuthContextType {
   state: AuthState;
+  env: EnvState;
   error: string | null;
   user: any;
   player: any;
@@ -14,6 +16,7 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType>({
   state: 'initializing',
+  env: 'checking',
   error: null,
   user: null,
   player: null,
@@ -60,6 +63,19 @@ function getInitDataFromUrl(): string | null {
   }
 }
 
+function detectTelegramEnvironment(): EnvState {
+  if (typeof window === 'undefined') return 'checking';
+  
+  const tg = (window as any).Telegram?.WebApp;
+  console.log('[Env] Telegram object:', !!tg);
+  console.log('[Env] initData:', !!tg?.initData);
+  
+  if (tg && tg.initData) {
+    return 'telegram';
+  }
+  return 'browser';
+}
+
 async function callAuthApi(path: string, args: any): Promise<any> {
   const url = '/api/auth';
   console.log('[Auth] API call start:', path);
@@ -96,26 +112,37 @@ async function callAuthApi(path: string, args: any): Promise<any> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AuthState>('initializing');
+  const [authState, setAuthState] = useState<AuthState>('initializing');
+  const [env, setEnv] = useState<EnvState>('checking');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [player, setPlayer] = useState<any>(null);
   const initialized = useRef(false);
 
-  const failSafeTimer = useRef<ReturnType<typeof setTimeout>>();
+  const failSafeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (initialized.current) return;
+    const checkEnv = setTimeout(() => {
+      const detectedEnv = detectTelegramEnvironment();
+      console.log('[Env] Detected:', detectedEnv);
+      setEnv(detectedEnv);
+    }, 500);
+    
+    return () => clearTimeout(checkEnv);
+  }, []);
+
+  useEffect(() => {
+    if (initialized.current || env === 'checking') return;
     initialized.current = true;
     
-    console.log('[Auth] Starting initialization');
+    console.log('[Auth] Starting initialization, env:', env);
     
     failSafeTimer.current = setTimeout(() => {
-      if (state === 'initializing' || state === 'authenticating') {
+      if (authState === 'initializing' || authState === 'authenticating') {
         console.error('[Auth] Global failsafe triggered');
-        setError('Initialization timeout - please reopen from Telegram');
-        setState('error');
+        setError('Initialization timeout');
+        setAuthState('error');
       }
     }, GLOBAL_FAILSAFE_MS);
 
@@ -126,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         if (storedToken) {
           setToken(storedToken);
-          setState('authenticating');
+          setAuthState('authenticating');
           
           console.log('[Auth] Checking session...');
           const sessionRes = await withTimeout(callAuthApi('/auth/getSessionUser', { token: storedToken }));
@@ -138,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             setUser(sessionRes.user);
             setPlayer(sessionRes.player);
-            setState('authenticated');
+            setAuthState('authenticated');
             clearTimeout(failSafeTimer.current);
             console.log('[Auth] Session valid, logged in');
             return;
@@ -149,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log('[Auth] URL initData exists:', !!urlInitData);
         
         if (urlInitData) {
-          setState('authenticating');
+          setAuthState('authenticating');
           
           console.log('[Auth] Authenticating with Telegram...');
           const authRes = await withTimeout(callAuthApi('/auth/telegramVerify', { initData: urlInitData }));
@@ -160,22 +187,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setToken(authRes.token);
             setUser(authRes.user);
             setPlayer(authRes.player);
-            setState('authenticated');
+            setAuthState('authenticated');
             clearTimeout(failSafeTimer.current);
             console.log('[Auth] Auth successful');
           } else {
             console.error('[Auth] Auth failed:', authRes?.message);
             setError(authRes.message || 'Auth failed');
-            setState('unauthenticated');
+            setAuthState('unauthenticated');
           }
+        } else if (env === 'browser') {
+          console.log('[Auth] Browser mode - unauthenticated');
+          setAuthState('unauthenticated');
         } else {
           console.log('[Auth] No auth data, unauthenticated');
-          setState('unauthenticated');
+          setAuthState('unauthenticated');
         }
       } catch (err: any) {
         console.error('[Auth] Init error:', err.message);
         setError(err.message || 'Auth failed');
-        setState('error');
+        setAuthState('error');
       } finally {
         clearTimeout(failSafeTimer.current);
       }
@@ -186,7 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       clearTimeout(failSafeTimer.current);
     };
-  }, []);
+  }, [env]);
 
   const logout = () => {
     console.log('[Auth] Logout');
@@ -194,7 +224,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
     setUser(null);
     setPlayer(null);
-    setState('unauthenticated');
+    setAuthState('unauthenticated');
     setError(null);
   };
 
@@ -204,7 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ state, error, user, player, token, logout, balance }}>
+    <AuthContext.Provider value={{ state: authState, env, error, user, player, token, logout, balance }}>
       {children}
     </AuthContext.Provider>
   );
