@@ -2,7 +2,7 @@
 
 import { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import { useApp, useBalance } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
 
@@ -92,7 +92,7 @@ function BrowserBanner() {
 }
 
 function DevModeScreen() {
-  const { logout } = useApp();
+  const { logout } = useAuth();
   
   return (
     <div style={{
@@ -133,27 +133,19 @@ function DevModeScreen() {
 
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
-  const { appState, env, error, retry } = useApp();
+  const { state, error, logout } = useAuth();
   const [pageKey, setPageKey] = useState(0);
 
   useEffect(() => {
     setPageKey(k => k + 1);
   }, [router.asPath]);
 
-  if (appState === 'booting') {
-    return <LoadingScreen message="BOOTING..." />;
+  if (state === 'loading') {
+    return <LoadingScreen message="CONNECTING..." />;
   }
 
-  if (appState === 'detecting') {
-    return <LoadingScreen message="DETECTING ENVIRONMENT..." />;
-  }
-
-  if (appState === 'authenticating') {
-    return <LoadingScreen message="AUTHENTICATING..." />;
-  }
-
-  if (appState === 'error') {
-    return <ErrorScreen error={error} onRetry={retry} />;
+  if (state === 'error') {
+    return <ErrorScreen error={error || 'Error'} onRetry={logout} />;
   }
 
   return (
@@ -163,7 +155,6 @@ export default function AppShell({ children }: AppShellProps) {
       paddingTop: '52px',
       paddingBottom: '60px',
     }}>
-      {env === 'browser' && <BrowserBanner />}
       <TopBar />
       <BottomNav />
       <div key={pageKey}>

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useApp } from '../src/context/AppContext';
+import { useAuth } from '../src/context/AuthContext';
 
 const LOADING_TIPS = [
   "Tip: Build your economy before declaring war!",
@@ -13,7 +13,7 @@ const LOADING_TIPS = [
 
 function IndexPage() {
   const router = useRouter();
-  const { appState, error } = useApp();
+  const { state, error, token } = useAuth();
   const [progress, setProgress] = useState(0);
   const [tip] = useState(() => LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]);
   const navigated = useRef(false);
@@ -26,14 +26,23 @@ function IndexPage() {
   }, []);
 
   useEffect(() => {
-    if (appState === 'ready' && !navigated.current) {
+    if (state === 'ready' && !navigated.current) {
       navigated.current = true;
       setProgress(100);
       setTimeout(() => router.replace('/dashboard'), 500);
     }
   }, [state, router]);
 
-  if (appState === 'error') {
+  const getStatusText = () => {
+    if (state === 'error') return error || 'Authentication failed';
+    if (state === 'loading') {
+      if (token) return 'Restoring your session...';
+      return 'Connecting to Telegram...';
+    }
+    return 'Loading assets...';
+  };
+
+  if (state === 'error') {
     return (
       <div style={{
         minHeight: '100vh',
@@ -115,7 +124,7 @@ function IndexPage() {
       </div>
 
       <div style={{ fontSize: '10px', letterSpacing: '2px', color: '#445566' }}>
-        {appState === 'booting' || appState === 'detecting' || appState === 'authenticating' ? 'Connecting to Telegram...' : 'Loading assets...'}
+        {getStatusText()}
       </div>
 
       <div style={{ position: 'fixed', bottom: '30px', fontSize: '10px', color: '#334455' }}>

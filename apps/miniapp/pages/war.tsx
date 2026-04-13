@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -34,7 +34,7 @@ function Spinner() {
 }
 
 export default function WarPage() {
-  const { player, token, appState } = useApp();
+  const { player, token, state } = useAuth();
   const [target, setTarget] = useState('');
   const [declaring, setDeclaring] = useState(false);
   const [msg, setMsg] = useState('');
@@ -53,7 +53,7 @@ export default function WarPage() {
   const canDeclare = hasNation && (player?.role === 'PRESIDENT' || player?.role === 'MILITARY');
 
   const handleDeclareWar = async () => {
-    if (!target.trim() || !token || !player?.currentNation) return;
+    if (!declareWarMutation || !target.trim() || !token || !player?.currentNation) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setDeclaring(true);
     setMsg('');

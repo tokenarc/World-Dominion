@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -25,7 +25,7 @@ function Spinner() {
 }
 
 export default function WalletPage() {
-  const { player, token, appState } = useApp();
+  const { player, token, state } = useAuth();
   const apiRef = api as any;
   const [tab,     setTab]     = useState<'balance'|'deposit'|'withdraw'>('balance');
   const [txHash,  setTxHash]  = useState('');
@@ -50,7 +50,7 @@ export default function WalletPage() {
   const cp = balanceData?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
 
   const verifyDeposit = async () => {
-    if (!txHash.trim() || !token || !amount) return;
+    if (!verifyMutation || !txHash.trim() || !token || !amount) return;
     tg?.HapticFeedback?.impactOccurred('medium');
     setBusy(true); setMsg('');
     try {
@@ -69,7 +69,7 @@ export default function WalletPage() {
   };
 
   const withdraw = async () => {
-    if (!toAddr.trim() || !amount || !token) return;
+    if (!withdrawMutation || !toAddr.trim() || !amount || !token) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setBusy(true); setMsg('');
     try {

@@ -1,16 +1,16 @@
 'use client';
 
-import { useApp, useBalance } from '../context/AppContext';
+import { useAuth, useBalance } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 
 export default function TopBar() {
   const router = useRouter();
-  const { user, appState } = useApp();
+  const { user, state } = useAuth();
   const { warBonds, commandPoints } = useBalance();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   
   const firstName = user?.firstName?.[0]?.toUpperCase() || '?';
-  const isReady = appState === 'ready';
+  const isReady = state === 'ready';
 
   const handleHaptic = () => {
     tg?.HapticFeedback?.impactOccurred('light');

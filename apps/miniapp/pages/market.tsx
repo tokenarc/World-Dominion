@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { useApp } from '../src/context/AppContext';
+import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -13,7 +13,7 @@ function Spinner() {
 }
 
 export default function MarketPage() {
-  const { token, appState } = useApp();
+  const { token, state } = useAuth();
   const [tab,      setTab]      = useState<'stocks'|'p2p'>('stocks');
   const [msg,      setMsg]      = useState('');
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;

@@ -3,11 +3,6 @@ import { createContext, useContext, useState, useEffect, ReactNode, useRef, useC
 type AppState = 'booting' | 'detecting' | 'authenticating' | 'ready' | 'error';
 type EnvState = 'checking' | 'telegram' | 'browser';
 
-interface TelegramResult {
-  type: 'telegram' | 'browser';
-  tg: any;
-}
-
 interface AppContextType {
   appState: AppState;
   env: EnvState;
@@ -44,41 +39,31 @@ export function useBalance() {
   };
 }
 
+const TOKEN_KEY = 'wd_token';
 const AUTH_TIMEOUT_MS = 8000;
 
-async function detectTelegramReliable(timeout = 3000): Promise<TelegramResult> {
+async function waitForTelegramSDK(timeout = 2000): Promise<any> {
   return new Promise((resolve) => {
     const start = Date.now();
-
+    
     function check() {
       const tg = (window as any).Telegram?.WebApp;
       
       console.log('[Env] TG OBJECT:', !!tg);
-      console.log('[Env] WEBAPP:', !!tg);
-      console.log('[Env] INIT DATA:', !!tg?.initData);
-      console.log('[Env] INIT DATA UNSAFE:', !!tg?.initDataUnsafe);
-      console.log('[Env] PLATFORM:', tg?.platform);
-      console.log('[Env] VERSION:', tg?.version);
-
-      const hasWebApp = !!tg;
-      const hasInitData = !!tg?.initData && tg.initData.length > 0;
-      const hasInitDataUnsafe = !!tg?.initDataUnsafe && tg.initDataUnsafe.length > 0;
-      const hasPlatform = !!tg?.platform;
-      const hasVersion = !!tg?.version;
-
-      if (hasWebApp && (hasInitData || hasInitDataUnsafe || hasPlatform || hasVersion)) {
-        console.log('[Env] Telegram detected!');
-        return resolve({ type: 'telegram', tg });
+      
+      if (tg) {
+        console.log('[Env] Telegram SDK detected!');
+        return resolve(tg);
       }
-
+      
       if (Date.now() - start > timeout) {
-        console.log('[Env] Telegram timeout - browser mode');
-        return resolve({ type: 'browser', tg: null });
+        console.log('[Env] Telegram SDK timeout - browser mode');
+        return resolve(null);
       }
-
-      requestAnimationFrame(check);
+      
+      setTimeout(check, 100);
     }
-
+    
     check();
   });
 }
@@ -86,7 +71,7 @@ async function detectTelegramReliable(timeout = 3000): Promise<TelegramResult> {
 async function waitForInitData(tg: any, timeout = 2000): Promise<string> {
   return new Promise((resolve, reject) => {
     const start = Date.now();
-
+    
     function check() {
       const initData = tg.initData || tg.initDataUnsafe;
       
@@ -97,15 +82,15 @@ async function waitForInitData(tg: any, timeout = 2000): Promise<string> {
         console.log('[Init] initData available!');
         return resolve(initData);
       }
-
+      
       if (Date.now() - start > timeout) {
         console.log('[Init] initData timeout');
         return reject(new Error("initData not available"));
       }
-
+      
       requestAnimationFrame(check);
     }
-
+    
     check();
   });
 }
@@ -177,43 +162,85 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAppState('booting');
     
     try {
+      // Step 1: Check for existing valid token
+      const stored = localStorage.getItem(TOKEN_KEY);
+      if (stored) {
+        console.log('[Boot] Found stored token, will validate via session query...');
+        setToken(stored);
+        // Token will be validated when we query the session
+        // For now, try to get session data
+        try {
+          const sessionRes = await callAuthApi('/auth/getSessionUser', { token: stored });
+          if (sessionRes?.user) {
+            setUser(sessionRes.user);
+            setPlayer(sessionRes.player);
+            setEnv('telegram');
+            setAppState('ready');
+            console.log('[Boot] Token valid - ready');
+            return;
+          } else {
+            console.log('[Boot] Session invalid, clearing token...');
+            localStorage.removeItem(TOKEN_KEY);
+          }
+        } catch (e) {
+          console.log('[Boot] Session query failed, clearing token...');
+          localStorage.removeItem(TOKEN_KEY);
+        }
+      }
+      
+      // Step 2: Wait for Telegram SDK
       console.log('[Boot] Detecting environment...');
       setAppState('detecting');
-      const result = await detectTelegramReliable(3000);
       
-      if (result.type === 'telegram') {
-        console.log('[Boot] Telegram detected, waiting for initData...');
-        setEnv('telegram');
-        
-        try {
-          const initData = await waitForInitData(result.tg, 2000);
-          console.log('[Boot] initData available, authenticating...');
-          
-          setAppState('authenticating');
-          const authRes = await callAuthApi('/auth/telegramVerify', { initData });
-          console.log('[Boot] Auth result:', authRes?.success);
-          
-          if (authRes.success && authRes.token) {
-            localStorage.setItem('wd_token', authRes.token);
-            setToken(authRes.token);
-            setUser(authRes.user);
-            setPlayer(authRes.player);
-            setAppState('ready');
-            console.log('[Boot] Auth complete - ready');
-          } else {
-            console.error('[Boot] Auth failed:', authRes?.message);
-            setError(authRes.message || 'Auth failed. Please reopen from Telegram bot.');
-            setAppState('error');
-          }
-        } catch (initErr: any) {
-          console.error('[Boot] initData error:', initErr.message);
-          setError('Telegram session failed. Please reopen from Telegram bot.');
-          setAppState('error');
-        }
-      } else {
-        console.log('[Boot] Browser mode');
+      const tg = await waitForTelegramSDK(3000);
+      
+      if (!tg) {
+        console.log('[Boot] No Telegram SDK - browser mode');
         setEnv('browser');
         setAppState('ready');
+        return;
+      }
+      
+      // Step 3: Verify we have initData
+      console.log('[Boot] Telegram detected, waiting for initData...');
+      setEnv('telegram');
+      
+      let initData: string | null = null;
+      try {
+        initData = await waitForInitData(tg, 2000);
+      } catch (initErr: any) {
+        console.error('[Boot] initData error:', initErr.message);
+        
+        // Try URL fallback
+        initData = getInitDataFromUrl();
+        if (!initData) {
+          setError('Telegram session failed. Please reopen from Telegram bot.');
+          setAppState('error');
+          return;
+        }
+      }
+      
+      // Tell Telegram the app is ready
+      tg.ready();
+      tg.expand();
+      
+      console.log('[Boot] initData available, authenticating...');
+      setAppState('authenticating');
+      
+      const authRes = await callAuthApi('/auth/telegramVerify', { initData });
+      console.log('[Boot] Auth result:', authRes?.success);
+      
+      if (authRes.success && authRes.token) {
+        localStorage.setItem(TOKEN_KEY, authRes.token);
+        setToken(authRes.token);
+        setUser(authRes.user);
+        setPlayer(authRes.player);
+        setAppState('ready');
+        console.log('[Boot] Auth complete - ready');
+      } else {
+        console.error('[Boot] Auth failed:', authRes?.message);
+        setError(authRes.message || 'Auth failed. Please reopen from Telegram bot.');
+        setAppState('error');
       }
     } catch (err: any) {
       console.error('[Boot] Bootstrap error:', err.message);
@@ -228,7 +255,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     console.log('[Boot] Logout');
-    try { localStorage.removeItem('wd_token'); } catch {}
+    try { localStorage.removeItem(TOKEN_KEY); } catch {}
     setToken(null);
     setUser(null);
     setPlayer(null);

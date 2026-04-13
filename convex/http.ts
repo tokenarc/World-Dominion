@@ -39,7 +39,7 @@ function getCorsHeaders(origin: string): Record<string, string> {
 async function verifyHMAC(initData: string, botToken: string): Promise<{ valid: boolean; userData: any; authDate: number }> {
   const encoder = new TextEncoder();
   const params = new URLSearchParams(initData);
-  const hashFromTg = params.get("auth_date");
+  const hashFromTg = params.get("hash");
   
   if (!hashFromTg) return { valid: false, userData: null, authDate: 0 };
 
@@ -70,7 +70,8 @@ async function verifyHMAC(initData: string, botToken: string): Promise<{ valid: 
 
   const userStr = params.get("user");
   const userData = userStr ? JSON.parse(userStr) : null;
-  const authDate = parseInt(hashFromTg, 10);
+  const authDateStr = params.get("auth_date");
+  const authDate = authDateStr ? parseInt(authDateStr, 10) : 0;
 
   return { valid: true, userData, authDate };
 }
