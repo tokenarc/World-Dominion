@@ -2,7 +2,7 @@
 
 import { useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../context/AuthContext';
+import { useApp, useBalance } from '../context/AppContext';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
 
@@ -10,7 +10,7 @@ interface AppShellProps {
   children: ReactNode;
 }
 
-function LoadingScreen() {
+function LoadingScreen({ message = 'INITIALIZING...' }: { message?: string }) {
   return (
     <div style={{
       minHeight: '100vh',
@@ -31,13 +31,13 @@ function LoadingScreen() {
       }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       <div style={{ fontSize: '11px', color: '#8892a4', letterSpacing: '3px' }}>
-        INITIALIZING...
+        {message}
       </div>
     </div>
   );
 }
 
-function ErrorScreen({ error }: { error: string }) {
+function ErrorScreen({ error, onRetry }: { error: string; onRetry?: () => void }) {
   return (
     <div style={{
       minHeight: '100vh',
@@ -47,15 +47,30 @@ function ErrorScreen({ error }: { error: string }) {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '20px',
-      gap: '16px',
+      gap: '20px',
     }}>
       <div style={{ fontSize: '48px' }}>⚠️</div>
-      <div style={{ fontSize: '14px', color: '#cc0000', textAlign: 'center', letterSpacing: '1px' }}>
-        {error || 'Auth error'}
+      <div style={{ fontSize: '14px', color: '#cc0000', textAlign: 'center', letterSpacing: '1px', maxWidth: '280px' }}>
+        {error || 'Error'}
       </div>
-      <div style={{ fontSize: '10px', color: '#8892a4', textAlign: 'center' }}>
-        Please reopen from Telegram bot
-      </div>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          style={{
+            background: 'linear-gradient(135deg, #8B0000, #cc0000)',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '12px 24px',
+            color: '#fff',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            letterSpacing: '1px',
+          }}
+        >
+          RETRY
+        </button>
+      )}
     </div>
   );
 }
@@ -76,7 +91,9 @@ function BrowserBanner() {
   );
 }
 
-function UnauthenticatedScreen() {
+function DevModeScreen() {
+  const { logout } = useApp();
+  
   return (
     <div style={{
       minHeight: '100vh',
@@ -86,31 +103,57 @@ function UnauthenticatedScreen() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '20px',
-      gap: '16px',
+      gap: '20px',
     }}>
-      <div style={{ fontSize: '48px' }}>🔒</div>
-      <div style={{ fontSize: '14px', color: '#8892a4', textAlign: 'center', letterSpacing: '1px' }}>
-        Please open through Telegram
+      <div style={{ fontSize: '48px' }}>🔧</div>
+      <div style={{ fontSize: '14px', color: '#FFD700', textAlign: 'center', letterSpacing: '1px' }}>
+        DEVELOPMENT MODE
       </div>
+      <div style={{ fontSize: '11px', color: '#8892a4', textAlign: 'center', maxWidth: '260px', lineHeight: '1.6' }}>
+        The app requires Telegram to function fully. 
+        Open from the Telegram bot to authenticate.
+      </div>
+      <button
+        onClick={logout}
+        style={{
+          background: 'transparent',
+          border: '1px solid #cc0000',
+          borderRadius: '8px',
+          padding: '10px 20px',
+          color: '#cc0000',
+          fontSize: '11px',
+          cursor: 'pointer',
+        }}
+      >
+        RETRY AUTH
+      </button>
     </div>
   );
 }
 
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
-  const { state, env, error } = useAuth();
+  const { appState, env, error, retry } = useApp();
   const [pageKey, setPageKey] = useState(0);
 
   useEffect(() => {
     setPageKey(k => k + 1);
   }, [router.asPath]);
 
-  if (state === 'initializing' || state === 'authenticating') {
-    return <LoadingScreen />;
+  if (appState === 'booting') {
+    return <LoadingScreen message="BOOTING..." />;
   }
 
-  if (state === 'error') {
-    return <ErrorScreen error={error} />;
+  if (appState === 'detecting') {
+    return <LoadingScreen message="DETECTING ENVIRONMENT..." />;
+  }
+
+  if (appState === 'authenticating') {
+    return <LoadingScreen message="AUTHENTICATING..." />;
+  }
+
+  if (appState === 'error') {
+    return <ErrorScreen error={error} onRetry={retry} />;
   }
 
   return (

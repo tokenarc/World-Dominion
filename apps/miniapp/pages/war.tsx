@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { useAuth } from '../src/context/AuthContext';
+import { useApp } from '../src/context/AppContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -34,7 +34,7 @@ function Spinner() {
 }
 
 export default function WarPage() {
-  const { player, token, state } = useAuth();
+  const { player, token, appState } = useApp();
   const [target, setTarget] = useState('');
   const [declaring, setDeclaring] = useState(false);
   const [msg, setMsg] = useState('');

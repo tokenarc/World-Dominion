@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth, useBalance } from '../src/context/AuthContext';
+import { useApp, useBalance } from '../src/context/AppContext';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -33,10 +33,10 @@ function IntelItem({ text, time, type }: { text: string; time: string; type: 'wa
 
 function Dashboard() {
   const router  = useRouter();
-  const { user, player, state } = useAuth();
+  const { user, player, appState } = useApp();
   const { warBonds, commandPoints } = useBalance();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-  const isAuthenticated = state === 'ready';
+  const isAuthenticated = appState === 'ready';
 
   const events = typeof api?.events?.getRecent === 'function' ? useQuery(api.events.getRecent as any, { limit: 5 }) : undefined;
   const eventsArr = Array.isArray(events) ? events : [];

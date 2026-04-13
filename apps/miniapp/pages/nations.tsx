@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 import { useState, useMemo, useEffect } from 'react';
-import { useAuth } from '../src/context/AuthContext';
+import { useApp } from '../src/context/AppContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -257,7 +257,7 @@ function NationDetailModal({ nation, onClose, onApply }: { nation: Nation; onClo
 }
 
 function NationsPage() {
-  const { state, token } = useAuth();
+  const { appState, token } = useApp();
   const apiRef = api as any;
   
   const nations = (state === 'ready' && typeof apiRef.nations?.getAll === 'function')

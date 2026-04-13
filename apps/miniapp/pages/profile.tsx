@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../src/context/AuthContext';
+import { useApp, useBalance } from '../src/context/AppContext';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -44,7 +44,7 @@ function StatBar({ label, value }: { label: string; value: number }) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { user, player, token, state } = useAuth();
+  const { user, player, token, appState } = useApp();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   
   const apiRef = api as any;

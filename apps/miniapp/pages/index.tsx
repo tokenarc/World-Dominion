@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
-import { useAuth } from '../src/context/AuthContext';
+import { useApp } from '../src/context/AppContext';
 
 const LOADING_TIPS = [
   "Tip: Build your economy before declaring war!",
@@ -13,7 +13,7 @@ const LOADING_TIPS = [
 
 function IndexPage() {
   const router = useRouter();
-  const { state, error } = useAuth();
+  const { appState, error } = useApp();
   const [progress, setProgress] = useState(0);
   const [tip] = useState(() => LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]);
   const navigated = useRef(false);
@@ -26,14 +26,14 @@ function IndexPage() {
   }, []);
 
   useEffect(() => {
-    if (state === 'ready' && !navigated.current) {
+    if (appState === 'ready' && !navigated.current) {
       navigated.current = true;
       setProgress(100);
       setTimeout(() => router.replace('/dashboard'), 500);
     }
   }, [state, router]);
 
-  if (state === 'error') {
+  if (appState === 'error') {
     return (
       <div style={{
         minHeight: '100vh',
@@ -115,7 +115,7 @@ function IndexPage() {
       </div>
 
       <div style={{ fontSize: '10px', letterSpacing: '2px', color: '#445566' }}>
-        {state === 'loading' ? 'Connecting to Telegram...' : 'Loading assets...'}
+        {appState === 'booting' || appState === 'detecting' || appState === 'authenticating' ? 'Connecting to Telegram...' : 'Loading assets...'}
       </div>
 
       <div style={{ position: 'fixed', bottom: '30px', fontSize: '10px', color: '#334455' }}>
