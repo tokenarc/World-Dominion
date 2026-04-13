@@ -3,6 +3,11 @@ import { createContext, useContext, useState, useEffect, ReactNode, useRef, useC
 type AppState = 'booting' | 'detecting' | 'authenticating' | 'ready' | 'error';
 type EnvState = 'checking' | 'telegram' | 'browser';
 
+interface TelegramResult {
+  type: 'telegram' | 'browser';
+  tg: any;
+}
+
 interface AppContextType {
   appState: AppState;
   env: EnvState;
@@ -41,21 +46,66 @@ export function useBalance() {
 
 const AUTH_TIMEOUT_MS = 8000;
 
-async function waitForTelegram(timeout = 1500): Promise<any> {
+async function detectTelegramReliable(timeout = 3000): Promise<TelegramResult> {
   return new Promise((resolve) => {
     const start = Date.now();
-    const check = () => {
+
+    function check() {
       const tg = (window as any).Telegram?.WebApp;
-      if (tg && tg.initData) {
-        console.log('[Boot] Telegram found with initData');
-        resolve(tg);
-      } else if (Date.now() - start > timeout) {
-        console.log('[Boot] Telegram timeout');
-        resolve(null);
-      } else {
-        requestAnimationFrame(check);
+      
+      console.log('[Env] TG OBJECT:', !!tg);
+      console.log('[Env] WEBAPP:', !!tg);
+      console.log('[Env] INIT DATA:', !!tg?.initData);
+      console.log('[Env] INIT DATA UNSAFE:', !!tg?.initDataUnsafe);
+      console.log('[Env] PLATFORM:', tg?.platform);
+      console.log('[Env] VERSION:', tg?.version);
+
+      const hasWebApp = !!tg;
+      const hasInitData = !!tg?.initData && tg.initData.length > 0;
+      const hasInitDataUnsafe = !!tg?.initDataUnsafe && tg.initDataUnsafe.length > 0;
+      const hasPlatform = !!tg?.platform;
+      const hasVersion = !!tg?.version;
+
+      if (hasWebApp && (hasInitData || hasInitDataUnsafe || hasPlatform || hasVersion)) {
+        console.log('[Env] Telegram detected!');
+        return resolve({ type: 'telegram', tg });
       }
-    };
+
+      if (Date.now() - start > timeout) {
+        console.log('[Env] Telegram timeout - browser mode');
+        return resolve({ type: 'browser', tg: null });
+      }
+
+      requestAnimationFrame(check);
+    }
+
+    check();
+  });
+}
+
+async function waitForInitData(tg: any, timeout = 2000): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+
+    function check() {
+      const initData = tg.initData || tg.initDataUnsafe;
+      
+      console.log('[Init] Checking initData:', !!initData);
+      console.log('[Init] initData length:', initData?.length);
+      
+      if (initData && initData.length > 0) {
+        console.log('[Init] initData available!');
+        return resolve(initData);
+      }
+
+      if (Date.now() - start > timeout) {
+        console.log('[Init] initData timeout');
+        return reject(new Error("initData not available"));
+      }
+
+      requestAnimationFrame(check);
+    }
+
     check();
   });
 }
@@ -127,44 +177,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setAppState('booting');
     
     try {
-      console.log('[Boot] Waiting for Telegram...');
+      console.log('[Boot] Detecting environment...');
       setAppState('detecting');
-      const tg = await waitForTelegram(1500);
+      const result = await detectTelegramReliable(3000);
       
-      if (tg) {
-        console.log('[Boot] Telegram detected');
+      if (result.type === 'telegram') {
+        console.log('[Boot] Telegram detected, waiting for initData...');
         setEnv('telegram');
         
-        const urlInitData = getInitDataFromUrl();
-        console.log('[Boot] URL initData:', !!urlInitData);
-        
-        if (!urlInitData) {
-          console.error('[Boot] No initData');
-          setError('Telegram init data missing. Please reopen from bot.');
-          setAppState('error');
-          return;
-        }
-        
-        setAppState('authenticating');
-        console.log('[Boot] Authenticating...');
-        
-        const authRes = await callAuthApi('/auth/telegramVerify', { initData: urlInitData });
-        console.log('[Boot] Auth result:', authRes?.success);
-        
-        if (authRes.success && authRes.token) {
-          localStorage.setItem('wd_token', authRes.token);
-          setToken(authRes.token);
-          setUser(authRes.user);
-          setPlayer(authRes.player);
-          setAppState('ready');
-          console.log('[Boot] Auth complete - ready');
-        } else {
-          console.error('[Boot] Auth failed:', authRes?.message);
-          setError(authRes.message || 'Auth failed');
+        try {
+          const initData = await waitForInitData(result.tg, 2000);
+          console.log('[Boot] initData available, authenticating...');
+          
+          setAppState('authenticating');
+          const authRes = await callAuthApi('/auth/telegramVerify', { initData });
+          console.log('[Boot] Auth result:', authRes?.success);
+          
+          if (authRes.success && authRes.token) {
+            localStorage.setItem('wd_token', authRes.token);
+            setToken(authRes.token);
+            setUser(authRes.user);
+            setPlayer(authRes.player);
+            setAppState('ready');
+            console.log('[Boot] Auth complete - ready');
+          } else {
+            console.error('[Boot] Auth failed:', authRes?.message);
+            setError(authRes.message || 'Auth failed. Please reopen from Telegram bot.');
+            setAppState('error');
+          }
+        } catch (initErr: any) {
+          console.error('[Boot] initData error:', initErr.message);
+          setError('Telegram session failed. Please reopen from Telegram bot.');
           setAppState('error');
         }
       } else {
-        console.log('[Boot] No Telegram - browser mode');
+        console.log('[Boot] Browser mode');
         setEnv('browser');
         setAppState('ready');
       }
@@ -192,6 +239,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const retry = useCallback(() => {
     console.log('[Boot] Retry');
     bootRef.current = false;
+    setError(null);
     doBootstrap();
   }, [doBootstrap]);
 
