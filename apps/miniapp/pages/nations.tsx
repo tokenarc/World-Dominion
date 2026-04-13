@@ -260,11 +260,13 @@ function NationsPage() {
   const { state, token } = useAuth();
   const apiRef = api as any;
   
-  const nations = (state === 'ready' && typeof apiRef.nations?.getAll === 'function')
+  const nations = state === 'authenticated' && apiRef?.nations?.getAll
     ? useQuery(apiRef.nations.getAll)
     : undefined;
   
-  const submitApplication = useMutation(apiRef.roles?.submitApplication);
+  const submitApplication = state === 'authenticated' && apiRef?.roles?.submitApplication 
+    ? useMutation(apiRef.roles.submitApplication)
+    : null;
   
   const [search, setSearch] = useState('');
   const [continent, setContinent] = useState('ALL');

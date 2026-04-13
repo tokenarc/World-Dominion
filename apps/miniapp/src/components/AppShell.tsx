@@ -140,12 +140,12 @@ export default function AppShell({ children }: AppShellProps) {
     setPageKey(k => k + 1);
   }, [router.asPath]);
 
-  if (state === 'loading') {
-    return <LoadingScreen message="CONNECTING..." />;
+  if (state === 'checking' || state === 'authenticating') {
+    return <LoadingScreen message={state === 'checking' ? 'CHECKING...' : 'AUTHENTICATING...'} />;
   }
 
-  if (state === 'error') {
-    return <ErrorScreen error={error || 'Error'} onRetry={logout} />;
+  if (state === 'error' || state === 'unauthenticated') {
+    return <ErrorScreen error={error || 'Authentication failed'} onRetry={retry} />;
   }
 
   return (

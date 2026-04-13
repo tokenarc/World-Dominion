@@ -13,7 +13,7 @@ const LOADING_TIPS = [
 
 function IndexPage() {
   const router = useRouter();
-  const { state, error, token } = useAuth();
+  const { state, error, retry } = useAuth();
   const [progress, setProgress] = useState(0);
   const [tip] = useState(() => LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]);
   const navigated = useRef(false);
@@ -26,7 +26,7 @@ function IndexPage() {
   }, []);
 
   useEffect(() => {
-    if (state === 'ready' && !navigated.current) {
+    if (state === 'authenticated' && !navigated.current) {
       navigated.current = true;
       setProgress(100);
       setTimeout(() => router.replace('/dashboard'), 500);
@@ -35,14 +35,13 @@ function IndexPage() {
 
   const getStatusText = () => {
     if (state === 'error') return error || 'Authentication failed';
-    if (state === 'loading') {
-      if (token) return 'Restoring your session...';
-      return 'Connecting to Telegram...';
-    }
+    if (state === 'checking') return 'Checking environment...';
+    if (state === 'authenticating') return 'Authenticating...';
+    if (state === 'unauthenticated') return 'Please reopen from Telegram bot';
     return 'Loading assets...';
   };
 
-  if (state === 'error') {
+  if (state === 'error' || state === 'unauthenticated') {
     return (
       <div style={{
         minHeight: '100vh',
@@ -57,13 +56,13 @@ function IndexPage() {
       }}>
         <div style={{ fontSize: '32px', marginBottom: '20px' }}>⚠️</div>
         <h2 style={{ letterSpacing: '3px', marginBottom: '12px', fontSize: '14px' }}>
-          AUTHENTICATION FAILED
+          {state === 'unauthenticated' ? 'SESSION EXPIRED' : 'AUTHENTICATION FAILED'}
         </h2>
         <p style={{ fontSize: '12px', color: '#667788', marginBottom: '24px', maxWidth: '280px', textAlign: 'center' }}>
           {error || 'Open through Telegram bot.'}
         </p>
         <button 
-          onClick={() => { localStorage.removeItem('wd_token'); window.location.reload(); }}
+          onClick={retry}
           style={{
             padding: '12px 32px',
             background: 'linear-gradient(135deg, #cc0000, #8B0000)',
@@ -80,6 +79,8 @@ function IndexPage() {
       </div>
     );
   }
+
+  const isLoading = state === 'checking' || state === 'authenticating';
 
   return (
     <div style={{

@@ -19,11 +19,11 @@ export default function MarketPage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const apiRef = api as any;
-  const stocks = state === 'ready' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : null;
+  const stocks = state === 'authenticated' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : undefined;
   const stocksArr = Array.isArray(stocks) ? stocks : [];
-  const listings = state === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : null;
+  const listings = state === 'authenticated' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : undefined;
   const listingsArr = Array.isArray(listings) ? listings : [];
-  const buyMutation = state === 'ready' && apiRef?.market?.buyListing ? useMutation(apiRef.market.buyListing) : null;
+  const buyMutation = state === 'authenticated' && apiRef?.market?.buyListing ? useMutation(apiRef.market.buyListing) : null;
 
   const buyP2P = async (listingId: any, quantity: number) => {
     if (!token || !buyMutation) return;

@@ -48,9 +48,9 @@ export default function ProfilePage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   
   const apiRef = api as any;
-  const humanScoreData = (state === 'ready' && token && typeof apiRef?.players?.getHumanScore === 'function')
+  const humanScoreData = state === 'authenticated' && token && apiRef?.players?.getHumanScore
     ? useQuery(apiRef.players.getHumanScore, { token })
-    : null;
+    : undefined;
   
   const initials = user?.firstName?.[0]?.toUpperCase() || '?';
   const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Commander';
