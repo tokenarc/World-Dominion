@@ -5,8 +5,7 @@ import type { AppProps } from 'next/app';
 import '../src/styles/global.css';
 import '../src/index.css';
 
-const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL || 
-  'https://peaceful-scorpion-529.convex.cloud';
+const CONVEX_URL = 'https://peaceful-scorpion-529.convex.cloud';
 
 type AuthState = 'loading' | 'authenticating' | 'ready' | 'error';
 
@@ -80,6 +79,30 @@ function getInitDataFromUrl(): string | null {
   } catch { return null; }
 }
 
+async function callConvex(action: string, args: any): Promise<any> {
+  const url = `${CONVEX_URL}/api/${action}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ args }),
+  });
+  
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  
+  const text = await response.text();
+  if (!text) {
+    throw new Error('Empty response from server');
+  }
+  
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error('Invalid JSON: ' + text.substring(0, 100));
+  }
+}
+
 function AuthApp({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
@@ -103,13 +126,8 @@ function AuthApp({ children }: { children: ReactNode }) {
     }
 
     if (token) {
-      fetch(`${CONVEX_URL}/api/auth/getSessionUser`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ args: { token } }),
-      })
-        .then(res => res.json())
-        .then((session: any) => {
+      callConvex('auth/getSessionUser', { token })
+        .then((session) => {
           if (session === null) {
             try { localStorage.removeItem('wd_token'); } catch {}
             setToken(null);
@@ -117,21 +135,16 @@ function AuthApp({ children }: { children: ReactNode }) {
           }
           setState('ready');
         })
-        .catch(() => {
+        .catch((err: Error) => {
           setState('error');
-          setError('Session check failed');
+          setError('Session check failed: ' + err.message);
         });
       return;
     }
 
     if (urlInitData) {
-      fetch(`${CONVEX_URL}/api/auth/telegramVerify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ args: { initData: urlInitData } }),
-      })
-        .then(res => res.json())
-        .then((result: any) => {
+      callConvex('auth/telegramVerify', { initData: urlInitData })
+        .then((result) => {
           if (result?.success && result?.token) {
             localStorage.setItem('wd_token', result.token);
             setToken(result.token);
@@ -141,9 +154,9 @@ function AuthApp({ children }: { children: ReactNode }) {
             setError(result?.message || 'Auth failed');
           }
         })
-        .catch((err: any) => {
+        .catch((err: Error) => {
           setState('error');
-          setError('Auth failed: ' + (err?.message || 'Unknown'));
+          setError('Auth failed: ' + err.message);
         });
     }
   }, [state, token]);
