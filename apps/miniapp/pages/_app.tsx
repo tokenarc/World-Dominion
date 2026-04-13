@@ -2,6 +2,9 @@
 
 import { useState, useEffect, createContext, useContext, ReactNode, Component } from 'react';
 import type { AppProps } from 'next/app';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import '../src/styles/global.css';
 import '../src/index.css';
 
@@ -98,30 +101,6 @@ function LoadingScreen({ message = 'Initializing...' }: { message?: string }) {
   );
 }
 
-function DebugScreen({ info }: { info: any }) {
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#050810',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      color: '#cc0000',
-      fontFamily: 'monospace',
-      padding: '20px',
-    }}>
-      <div style={{ fontSize: '32px', marginBottom: '20px' }}>⚠️</div>
-      <h2 style={{ letterSpacing: '3px', marginBottom: '12px', fontSize: '14px', color: '#FFD700' }}>
-        DEBUG INFO
-      </h2>
-      <pre style={{ fontSize: '10px', color: '#00ff88', marginBottom: '20px', maxWidth: '300px', whiteSpace: 'pre-wrap' }}>
-        {JSON.stringify(info, null, 2)}
-      </pre>
-    </div>
-  );
-}
-
 function ErrorScreen({ message }: { message: string }) {
   return (
     <div style={{
@@ -146,41 +125,32 @@ function ErrorScreen({ message }: { message: string }) {
   );
 }
 
-async function convexFetch(action: string, args: any): Promise<any> {
-  const response = await fetch(`${CONVEX_URL}/api/${action}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ args }),
-  });
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
+function getInitDataFromUrl(): string | null {
+  if (typeof window === 'undefined') return null;
+  const hash = window.location.hash;
+  if (!hash) return null;
+  const params = new URLSearchParams(hash.substring(1));
+  const initData = params.get('tgWebAppData');
+  if (initData) {
+    try {
+      return decodeURIComponent(initData);
+    } catch {
+      return initData;
+    }
+  }
+  return null;
 }
 
-function AuthApp({ children }: { children: ReactNode }) {
+function AuthContent({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
-  const [player, setPlayer] = useState<any>(null);
-  const [debugInfo, setDebugInfo] = useState<any>(null);
 
-  useEffect(() => {
-    if (document.readyState === 'complete') {
-      initTelegram();
-    } else {
-      window.addEventListener('load', initTelegram);
-      return () => window.removeEventListener('load', initTelegram);
-    }
-  }, []);
-
-  function initTelegram() {
-    const script = document.createElement('script');
-    script.src = 'https://telegram.org/js/telegram-web-app.js';
-    script.async = true;
-    script.onload = () => console.log('[Telegram] SDK loaded');
-    script.onerror = () => console.error('[Telegram] SDK failed to load');
-    document.head.appendChild(script);
-  }
+  const verifyMutation = useMutation(api.auth.telegramVerify as any);
+  const sessionUser = useQuery(
+    api.auth.getSessionUser as any, 
+    token ? { token } : 'skip'
+  );
 
   useEffect(() => {
     const stored = localStorage.getItem('wd_token');
@@ -193,106 +163,53 @@ function AuthApp({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (state !== 'authenticating') return;
 
-    const interval = setInterval(() => {
-      const tg = (window as any).Telegram?.WebApp;
-      const initData = tg?.initData;
-      
-      const info = {
-        hasWindow: typeof window !== 'undefined',
-        hasTelegram: !!(window as any).Telegram,
-        hasWebApp: !!(window as any).Telegram?.WebApp,
-        initData: initData ? initData.substring(0, 30) + '...' : 'none',
-        initDataLength: initData?.length || 0,
-        token: token ? 'present' : 'none',
-        url: typeof window !== 'undefined' ? window.location.href : 'server',
-      };
-      
-      console.log('[Debug]', info);
-      setDebugInfo(info);
-
-      if (token) {
-        clearInterval(interval);
-      }
-    }, 500);
-
-    setTimeout(() => clearInterval(interval), 5000);
-
-    return () => clearInterval(interval);
-  }, [state, token]);
-
-  useEffect(() => {
-    if (state !== 'authenticating') return;
-    if (!debugInfo) return;
-    if (!debugInfo.hasWebApp) return;
-
-    const tg = (window as any).Telegram?.WebApp;
-    const initData = tg?.initData;
-
-    if (!token && !initData) {
+    const urlInitData = getInitDataFromUrl();
+    
+    if (!token && !urlInitData) {
       setState('error');
       setError('Open through Telegram bot.');
       return;
     }
 
     if (token) {
-      convexFetch('auth/getSessionUser', { token })
-        .then((session) => {
-          if (session === null) {
-            try { localStorage.removeItem('wd_token'); } catch (e) {}
-            setToken(null);
-            setState('authenticating');
-            return;
-          }
-          setUser(session.user);
-          setPlayer(session.player);
-          setState('ready');
-        })
-        .catch((err) => {
-          setState('error');
-          setError('Session check failed: ' + err.message);
-        });
+      if (sessionUser === undefined) return;
+      
+      if (sessionUser === null) {
+        try { localStorage.removeItem('wd_token'); } catch (e) {}
+        setToken(null);
+        return;
+      }
+      
+      setState('ready');
       return;
     }
 
-    if (initData) {
-      convexFetch('auth/telegramVerify', { initData })
-        .then((result) => {
+    if (urlInitData) {
+      verifyMutation({ initData: urlInitData })
+        .then((result: any) => {
           if (result?.success && result?.token) {
             localStorage.setItem('wd_token', result.token);
             setToken(result.token);
-            setUser(result.user);
-            setPlayer(result.player);
-            setState('ready');
           } else {
             setState('error');
             setError(result?.message || 'Auth failed. Try again.');
           }
         })
-        .catch((err) => {
+        .catch((err: any) => {
           setState('error');
-          setError('Auth failed: ' + err.message);
+          setError('Auth failed: ' + (err?.message || 'Unknown error'));
         });
     }
-  }, [state, token, debugInfo]);
+  }, [state, token, sessionUser, verifyMutation]);
 
   const logout = () => {
     try { localStorage.removeItem('wd_token'); } catch (e) {}
     setToken(null);
-    setUser(null);
-    setPlayer(null);
     setState('loading');
   };
 
-  if (debugInfo && !token && state === 'authenticating') {
-    return <DebugScreen info={debugInfo} />;
-  }
-
-  if (state === 'loading') {
-    return <LoadingScreen />;
-  }
-
-  if (state === 'authenticating') {
-    return <LoadingScreen message="Connecting to Telegram..." />;
+  if (state === 'authenticating' && !token) {
+    return <LoadingScreen message="Authenticating..." />;
   }
 
   if (state === 'error') {
@@ -300,23 +217,47 @@ function AuthApp({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ state, error, user, player, token, logout }}>
+    <AuthContext.Provider value={{ 
+      state, 
+      error, 
+      user: sessionUser?.user || null, 
+      player: sessionUser?.player || null, 
+      token, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-function AppContent({ Component, pageProps }: AppProps) {
+function AuthApp({ children }: { children: ReactNode }) {
+  const [convexClient, setConvexClient] = useState<ConvexReactClient | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    const client = new ConvexReactClient(CONVEX_URL);
+    setConvexClient(client);
   }, []);
 
   if (!mounted) {
     return <LoadingScreen />;
   }
 
+  if (!convexClient) {
+    return <LoadingScreen message="Connecting..." />;
+  }
+
+  return (
+    <ConvexProvider client={convexClient}>
+      <AuthContent>
+        {children}
+      </AuthContent>
+    </ConvexProvider>
+  );
+}
+
+function AppContent({ Component, pageProps }: AppProps) {
   return (
     <ErrorBoundary>
       <AuthApp>
