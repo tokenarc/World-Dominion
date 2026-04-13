@@ -1,6 +1,4 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/api';
 
 type AuthState = 'loading' | 'checking' | 'authenticating' | 'ready' | 'unauthenticated' | 'error';
 
@@ -68,13 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [player, setPlayer] = useState<any>(null);
-  const [initData, setInitData] = useState<string | null>(null);
-
-  const telegramVerify = useMutation(api?.auth?.telegramVerify as any);
-  const sessionUser = useQuery(
-    (api as any)?.auth?.getSessionUser,
-    token ? { token } : 'skip'
-  );
 
   useEffect(() => {
     const stored = localStorage.getItem('wd_token');
@@ -84,57 +75,54 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       const urlInitData = getInitDataFromUrl();
       if (urlInitData) {
-        setInitData(urlInitData);
         setState('authenticating');
+        doAuth(urlInitData);
       } else {
         setState('unauthenticated');
       }
     }
   }, []);
 
-  useEffect(() => {
-    if (state === 'checking' && token) {
-      if (sessionUser === null || sessionUser === undefined) {
-        try { localStorage.removeItem('wd_token'); } catch {}
-        setToken(null);
-        setUser(null);
-        setPlayer(null);
-        const urlInitData = getInitDataFromUrl();
-        if (urlInitData) {
-          setInitData(urlInitData);
-          setState('authenticating');
-        } else {
-          setState('unauthenticated');
-        }
-      } else if (sessionUser?.user) {
-        setUser(sessionUser.user);
-        setPlayer(sessionUser.player);
+  async function doAuth(initData: string) {
+    try {
+      const result = await callAuthApi('/auth/telegramVerify', { initData });
+      if (result?.success && result?.token) {
+        try { localStorage.setItem('wd_token', result.token); } catch {}
+        setToken(result.token);
+        setUser(result.user);
+        setPlayer(result.player);
         setState('ready');
+      } else {
+        setError(result?.message || 'Auth failed');
+        setState('error');
       }
+    } catch (err: any) {
+      setError(err.message || 'Auth failed');
+      setState('error');
     }
-  }, [state, token, sessionUser]);
+  }
 
   useEffect(() => {
-    if (state === 'authenticating' && initData && token === null) {
-      telegramVerify({ initData })
-        .then((result: any) => {
-          if (result?.success && result?.token) {
-            try { localStorage.setItem('wd_token', result.token); } catch {}
-            setToken(result.token);
-            setUser(result.user);
-            setPlayer(result.player);
-            setState('ready');
+    if (state === 'checking' && token) {
+      callAuthApi('/auth/getSessionUser', { token })
+        .then((res) => {
+          if (res === null || !res?.user) {
+            try { localStorage.removeItem('wd_token'); } catch {}
+            setToken(null);
+            setUser(null);
+            setPlayer(null);
+            setState('unauthenticated');
           } else {
-            setError(result?.message || 'Auth failed');
-            setState('error');
+            setUser(res.user);
+            setPlayer(res.player);
+            setState('ready');
           }
         })
-        .catch((err: any) => {
-          setError(err.message || 'Auth failed');
-          setState('error');
+        .catch(() => {
+          setState('unauthenticated');
         });
     }
-  }, [state, initData, token]);
+  }, [state, token]);
 
   const logout = () => {
     try { localStorage.removeItem('wd_token'); } catch {}
