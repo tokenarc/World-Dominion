@@ -98,6 +98,30 @@ function LoadingScreen({ message = 'Initializing...' }: { message?: string }) {
   );
 }
 
+function DebugScreen({ info }: { info: any }) {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      background: '#050810',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      color: '#cc0000',
+      fontFamily: 'monospace',
+      padding: '20px',
+    }}>
+      <div style={{ fontSize: '32px', marginBottom: '20px' }}>⚠️</div>
+      <h2 style={{ letterSpacing: '3px', marginBottom: '12px', fontSize: '14px', color: '#FFD700' }}>
+        DEBUG INFO
+      </h2>
+      <pre style={{ fontSize: '10px', color: '#00ff88', marginBottom: '20px', maxWidth: '300px', whiteSpace: 'pre-wrap' }}>
+        {JSON.stringify(info, null, 2)}
+      </pre>
+    </div>
+  );
+}
+
 function ErrorScreen({ message }: { message: string }) {
   return (
     <div style={{
@@ -138,6 +162,14 @@ function AuthApp({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [player, setPlayer] = useState<any>(null);
+  const [debugInfo, setDebugInfo] = useState<any>(null);
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = 'https://telegram.org/js/telegram-web-app.js';
+    script.async = true;
+    document.head.appendChild(script);
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem('wd_token');
@@ -149,15 +181,49 @@ function AuthApp({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (state !== 'authenticating') return;
-    if (!token) {
-      const tg = (window as any).Telegram?.WebApp;
-      if (!tg?.initData) {
-        setState('error');
-        setError('Open through Telegram bot.');
-        return;
-      }
 
-      convexFetch('auth/telegramVerify', { initData: tg.initData })
+    const tg = (window as any).Telegram?.WebApp;
+    const initData = tg?.initData;
+    
+    setTimeout(() => {
+      const tg2 = (window as any).Telegram?.WebApp;
+      setDebugInfo({
+        hasTelegram: !!tg2,
+        hasWebApp: !!(tg2 as any)?.WebApp,
+        initData: tg2?.initData ? (tg2.initData.substring(0, 50) + '...') : 'none',
+        initDataLength: tg2?.initData?.length || 0,
+        token: token ? 'present' : 'none',
+      });
+    }, 1000);
+
+    if (!token && !initData) {
+      setState('error');
+      setError('Open through Telegram bot.');
+      return;
+    }
+
+    if (token) {
+      convexFetch('auth/getSessionUser', { token })
+        .then((session) => {
+          if (session === null) {
+            try { localStorage.removeItem('wd_token'); } catch (e) {}
+            setToken(null);
+            setState('authenticating');
+            return;
+          }
+          setUser(session.user);
+          setPlayer(session.player);
+          setState('ready');
+        })
+        .catch((err) => {
+          setState('error');
+          setError('Session check failed: ' + err.message);
+        });
+      return;
+    }
+
+    if (initData) {
+      convexFetch('auth/telegramVerify', { initData })
         .then((result) => {
           if (result?.success && result?.token) {
             localStorage.setItem('wd_token', result.token);
@@ -172,28 +238,9 @@ function AuthApp({ children }: { children: ReactNode }) {
         })
         .catch((err) => {
           setState('error');
-          setError(err?.message || 'Auth failed.');
+          setError('Auth failed: ' + err.message);
         });
-      return;
     }
-
-    convexFetch('auth/getSessionUser', { token })
-      .then((session) => {
-        if (session === null) {
-          try { localStorage.removeItem('wd_token'); } catch (e) {}
-          setToken(null);
-          setState('error');
-          setError('Session expired. Reopen the app.');
-          return;
-        }
-        setUser(session.user);
-        setPlayer(session.player);
-        setState('ready');
-      })
-      .catch(() => {
-        setState('error');
-        setError('Session check failed.');
-      });
   }, [state, token]);
 
   const logout = () => {
@@ -203,6 +250,10 @@ function AuthApp({ children }: { children: ReactNode }) {
     setPlayer(null);
     setState('loading');
   };
+
+  if (debugInfo && !token) {
+    return <DebugScreen info={debugInfo} />;
+  }
 
   if (state === 'loading') {
     return <LoadingScreen />;
