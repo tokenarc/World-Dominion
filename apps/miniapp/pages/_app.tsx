@@ -5,7 +5,7 @@ import type { AppProps } from 'next/app';
 import '../src/styles/global.css';
 import '../src/index.css';
 
-const CONVEX_URL = 'https://peaceful-scorpion-529.convex.cloud';
+const CONVEX_URL = 'https://peaceful-scorpion-529.convex.site';
 
 type AuthState = 'loading' | 'authenticating' | 'ready' | 'error';
 
