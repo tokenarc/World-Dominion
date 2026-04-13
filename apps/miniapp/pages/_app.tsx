@@ -165,11 +165,22 @@ function AuthApp({ children }: { children: ReactNode }) {
   const [debugInfo, setDebugInfo] = useState<any>(null);
 
   useEffect(() => {
+    if (document.readyState === 'complete') {
+      initTelegram();
+    } else {
+      window.addEventListener('load', initTelegram);
+      return () => window.removeEventListener('load', initTelegram);
+    }
+  }, []);
+
+  function initTelegram() {
     const script = document.createElement('script');
     script.src = 'https://telegram.org/js/telegram-web-app.js';
     script.async = true;
+    script.onload = () => console.log('[Telegram] SDK loaded');
+    script.onerror = () => console.error('[Telegram] SDK failed to load');
     document.head.appendChild(script);
-  }, []);
+  }
 
   useEffect(() => {
     const stored = localStorage.getItem('wd_token');
@@ -182,19 +193,40 @@ function AuthApp({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (state !== 'authenticating') return;
 
+    const interval = setInterval(() => {
+      const tg = (window as any).Telegram?.WebApp;
+      const initData = tg?.initData;
+      
+      const info = {
+        hasWindow: typeof window !== 'undefined',
+        hasTelegram: !!(window as any).Telegram,
+        hasWebApp: !!(window as any).Telegram?.WebApp,
+        initData: initData ? initData.substring(0, 30) + '...' : 'none',
+        initDataLength: initData?.length || 0,
+        token: token ? 'present' : 'none',
+        url: typeof window !== 'undefined' ? window.location.href : 'server',
+      };
+      
+      console.log('[Debug]', info);
+      setDebugInfo(info);
+
+      if (token) {
+        clearInterval(interval);
+      }
+    }, 500);
+
+    setTimeout(() => clearInterval(interval), 5000);
+
+    return () => clearInterval(interval);
+  }, [state, token]);
+
+  useEffect(() => {
+    if (state !== 'authenticating') return;
+    if (!debugInfo) return;
+    if (!debugInfo.hasWebApp) return;
+
     const tg = (window as any).Telegram?.WebApp;
     const initData = tg?.initData;
-    
-    setTimeout(() => {
-      const tg2 = (window as any).Telegram?.WebApp;
-      setDebugInfo({
-        hasTelegram: !!tg2,
-        hasWebApp: !!(tg2 as any)?.WebApp,
-        initData: tg2?.initData ? (tg2.initData.substring(0, 50) + '...') : 'none',
-        initDataLength: tg2?.initData?.length || 0,
-        token: token ? 'present' : 'none',
-      });
-    }, 1000);
 
     if (!token && !initData) {
       setState('error');
@@ -241,7 +273,7 @@ function AuthApp({ children }: { children: ReactNode }) {
           setError('Auth failed: ' + err.message);
         });
     }
-  }, [state, token]);
+  }, [state, token, debugInfo]);
 
   const logout = () => {
     try { localStorage.removeItem('wd_token'); } catch (e) {}
@@ -251,7 +283,7 @@ function AuthApp({ children }: { children: ReactNode }) {
     setState('loading');
   };
 
-  if (debugInfo && !token) {
+  if (debugInfo && !token && state === 'authenticating') {
     return <DebugScreen info={debugInfo} />;
   }
 
