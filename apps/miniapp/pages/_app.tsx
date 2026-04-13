@@ -42,7 +42,7 @@ class ErrorBoundary extends Component<{children: ReactNode}, {hasError: boolean;
         <div style={{minHeight: '100vh', background: '#050810', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', color: '#cc0000', fontFamily: 'monospace', padding: '20px'}}>
           <div style={{fontSize: '32px', marginBottom: '20px'}}>⚠️</div>
           <h2 style={{letterSpacing: '3px', marginBottom: '12px', fontSize: '14px', color: '#FFD700'}}>APPLICATION ERROR</h2>
-          <pre style={{fontSize: '10px', color: '#cc0000', maxWidth: '300px'}}>{this.state.error?.message || 'Unknown error'}</pre>
+          <pre style={{fontSize: '10px', color: '#cc0000', maxWidth: '300px', whiteSpace: 'pre-wrap'}}>{this.state.error?.message || 'Unknown error'}</pre>
         </div>
       );
     }
@@ -79,27 +79,41 @@ function getInitDataFromUrl(): string | null {
   } catch { return null; }
 }
 
-async function callConvex(action: string, args: any): Promise<any> {
-  const url = `${CONVEX_URL}/api/${action}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ args }),
-  });
+async function callConvex(path: string, body: any): Promise<any> {
+  const url = `${CONVEX_URL}${path}`;
   
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-  }
-  
-  const text = await response.text();
-  if (!text) {
-    throw new Error('Empty response from server');
-  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
   
   try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+      mode: 'cors',
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const text = await response.text();
+    if (!text) {
+      throw new Error('Empty response');
+    }
+    
     return JSON.parse(text);
-  } catch {
-    throw new Error('Invalid JSON: ' + text.substring(0, 100));
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('Request timeout');
+    }
+    throw err;
   }
 }
 
@@ -126,7 +140,7 @@ function AuthApp({ children }: { children: ReactNode }) {
     }
 
     if (token) {
-      callConvex('auth/getSessionUser', { token })
+      callConvex('/auth/getSessionUser', { args: { token } })
         .then((session) => {
           if (session === null) {
             try { localStorage.removeItem('wd_token'); } catch {}
@@ -143,7 +157,7 @@ function AuthApp({ children }: { children: ReactNode }) {
     }
 
     if (urlInitData) {
-      callConvex('auth/telegramVerify', { initData: urlInitData })
+      callConvex('/auth/telegramVerify', { args: { initData: urlInitData } })
         .then((result) => {
           if (result?.success && result?.token) {
             localStorage.setItem('wd_token', result.token);
