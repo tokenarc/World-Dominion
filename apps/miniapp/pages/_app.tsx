@@ -5,7 +5,8 @@ import type { AppProps } from 'next/app';
 import '../src/styles/global.css';
 import '../src/index.css';
 
-const CONVEX_URL = 'https://peaceful-scorpion-529.convex.site';
+// Use the .cloud endpoint which is the main Convex URL
+const CONVEX_URL = 'https://peaceful-scorpion-529.convex.cloud';
 
 type AuthState = 'loading' | 'authenticating' | 'ready' | 'error';
 
@@ -89,39 +90,37 @@ function getInitDataFromUrl(): string | null {
 }
 
 async function callConvexDebug(path: string, body: any): Promise<any> {
-  const url = `${CONVEX_URL}${path}`;
+  // Different URL format - try both
+  const url1 = `https://peaceful-scorpion-529.convex.cloud${path}`;
+  const url2 = `https://peaceful-scorpion-529.convex.site${path}`;
+  
   const startTime = Date.now();
   
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    
-    const elapsed = Date.now() - startTime;
-    const status = response.status;
-    const statusText = response.statusText;
-    
-    let data;
+  for (const url of [url1, url2]) {
     try {
-      data = await response.json();
-    } catch {
-      const text = await response.text();
-      data = { raw: text, parseError: true };
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      
+      const elapsed = Date.now() - startTime;
+      const data = await response.json();
+      
+      return { success: true, url, status: response.status, elapsed, data };
+    } catch (err: any) {
+      console.log('Failed:', url, err.message);
+      continue;
     }
-    
-    return { success: true, status, statusText, elapsed, data };
-  } catch (err: any) {
-    const elapsed = Date.now() - startTime;
-    return { 
-      success: false, 
-      error: err.message, 
-      errorName: err.name,
-      elapsed,
-      url: url,
-    };
   }
+  
+  return { 
+    success: false, 
+    error: 'Failed to fetch from both URLs',
+    url1,
+    url2,
+    elapsed: Date.now() - startTime,
+  };
 }
 
 function AuthApp({ children }: { children: ReactNode }) {
@@ -148,44 +147,44 @@ function AuthApp({ children }: { children: ReactNode }) {
     }
 
     if (token) {
-      const result = callConvexDebug('/auth/getSessionUser', { args: { token } });
-      result.then((res) => {
-        if (!res.success) {
-          setState('error');
-          setError('Network error: ' + res.error);
-          setDebug(res);
-          return;
-        }
-        if (res.data === null) {
-          try { localStorage.removeItem('wd_token'); } catch {}
-          setToken(null);
-          return;
-        }
-        setState('ready');
-      });
+      callConvexDebug('/auth/getSessionUser', { args: { token } })
+        .then((res) => {
+          if (!res.success) {
+            setState('error');
+            setError('Network error: ' + res.error);
+            setDebug(res);
+            return;
+          }
+          if (res.data === null) {
+            try { localStorage.removeItem('wd_token'); } catch {}
+            setToken(null);
+            return;
+          }
+          setState('ready');
+        });
       return;
     }
 
     if (urlInitData) {
-      const result = callConvexDebug('/auth/telegramVerify', { args: { initData: urlInitData } });
-      result.then((res) => {
-        setDebug(res);
-        
-        if (!res.success) {
-          setState('error');
-          setError('Network error: ' + res.error);
-          return;
-        }
-        
-        if (res.data?.success && res.data?.token) {
-          try { localStorage.setItem('wd_token', res.data.token); } catch {}
-          setToken(res.data.token);
-          setState('ready');
-        } else {
-          setState('error');
-          setError(res.data?.message || 'Auth failed');
-        }
-      });
+      callConvexDebug('/auth/telegramVerify', { args: { initData: urlInitData } })
+        .then((res) => {
+          setDebug(res);
+          
+          if (!res.success) {
+            setState('error');
+            setError('Network error: ' + res.error);
+            return;
+          }
+          
+          if (res.data?.success && res.data?.token) {
+            try { localStorage.setItem('wd_token', res.data.token); } catch {}
+            setToken(res.data.token);
+            setState('ready');
+          } else {
+            setState('error');
+            setError(res.data?.message || 'Auth failed');
+          }
+        });
     }
   }, [state, token]);
 
@@ -195,7 +194,7 @@ function AuthApp({ children }: { children: ReactNode }) {
     setState('loading');
   };
 
-  if (debug) {
+  if (debug && !debug.success) {
     return <DebugScreen info={debug} />;
   }
 
