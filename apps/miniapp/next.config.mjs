@@ -3,7 +3,10 @@ const nextConfig = {
   images: { unoptimized: true },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  // Skip static generation for problematic pages
+  compiler: { removeConsole: process.env.NODE_ENV === 'production' },
   pageExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  experimental: {
+    serverActions: { bodySizeLimit: '2mb' },
+  },
 }
 export default nextConfig
