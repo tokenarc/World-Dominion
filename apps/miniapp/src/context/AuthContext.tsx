@@ -103,7 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [player, setPlayer] = useState<any>(null);
   const initialized = useRef(false);
 
-  const failSafeTimer = useRef<NodeJS.Timeout>();
+  const failSafeTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
     if (initialized.current) return;
@@ -121,21 +121,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const doInit = async () => {
       try {
-        const stored = localStorage.getItem('wd_token');
-        console.log('[Auth] Stored token exists:', !!stored);
+        const storedToken = localStorage.getItem('wd_token');
+        console.log('[Auth] Stored token exists:', !!storedToken);
         
-        if (stored) {
-          setToken(stored);
+        if (storedToken) {
+          setToken(storedToken);
           setState('authenticating');
           
           console.log('[Auth] Checking session...');
-          const sessionRes = await withTimeout(callAuthApi('/auth/getSessionUser', { token: stored }));
+          const sessionRes = await withTimeout(callAuthApi('/auth/getSessionUser', { token: storedToken }));
           console.log('[Auth] Session result:', sessionRes?.error ? sessionRes.error : 'ok');
           
           if (sessionRes.error) {
             console.log('[Auth] Invalid session, clearing');
             localStorage.removeItem('wd_token');
-            stored = null;
           } else {
             setUser(sessionRes.user);
             setPlayer(sessionRes.player);
