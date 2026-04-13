@@ -1,10 +1,8 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext, ReactNode, Component } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode, Component, Suspense } from 'react';
 import type { AppProps } from 'next/app';
-import { ConvexProvider, ConvexReactClient } from 'convex/react';
-import { useMutation, useQuery } from 'convex/react';
-import { api } from '../convex/_generated/api';
+import dynamic from 'next/dynamic';
 import '../src/styles/global.css';
 import '../src/index.css';
 
@@ -141,27 +139,22 @@ function getInitDataFromUrl(): string | null {
   return null;
 }
 
-function AuthContent({ children }: { children: ReactNode }) {
+function AuthAppInner({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
-
-  const verifyMutation = useMutation(api.auth.telegramVerify as any);
-  const sessionUser = useQuery(
-    api.auth.getSessionUser as any, 
-    token ? { token } : 'skip'
-  );
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('wd_token');
     if (stored) {
       setToken(stored);
     }
-    setState('authenticating');
+    setAuthReady(true);
   }, []);
 
   useEffect(() => {
-    if (state !== 'authenticating') return;
+    if (!authReady) return;
 
     const urlInitData = getInitDataFromUrl();
     
@@ -172,24 +165,24 @@ function AuthContent({ children }: { children: ReactNode }) {
     }
 
     if (token) {
-      if (sessionUser === undefined) return;
-      
-      if (sessionUser === null) {
-        try { localStorage.removeItem('wd_token'); } catch (e) {}
-        setToken(null);
-        return;
-      }
-      
       setState('ready');
       return;
     }
 
     if (urlInitData) {
-      verifyMutation({ initData: urlInitData })
+      setState('authenticating');
+      
+      fetch(`${CONVEX_URL}/api/auth/telegramVerify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ args: { initData: urlInitData } }),
+      })
+        .then(res => res.json())
         .then((result: any) => {
           if (result?.success && result?.token) {
             localStorage.setItem('wd_token', result.token);
             setToken(result.token);
+            setState('ready');
           } else {
             setState('error');
             setError(result?.message || 'Auth failed. Try again.');
@@ -200,15 +193,21 @@ function AuthContent({ children }: { children: ReactNode }) {
           setError('Auth failed: ' + (err?.message || 'Unknown error'));
         });
     }
-  }, [state, token, sessionUser, verifyMutation]);
+  }, [authReady, token]);
 
   const logout = () => {
     try { localStorage.removeItem('wd_token'); } catch (e) {}
     setToken(null);
     setState('loading');
+    setAuthReady(false);
+    setTimeout(() => setAuthReady(true), 100);
   };
 
-  if (state === 'authenticating' && !token) {
+  if (!authReady) {
+    return <LoadingScreen />;
+  }
+
+  if (state === 'authenticating') {
     return <LoadingScreen message="Authenticating..." />;
   }
 
@@ -220,8 +219,8 @@ function AuthContent({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{ 
       state, 
       error, 
-      user: sessionUser?.user || null, 
-      player: sessionUser?.player || null, 
+      user: null, 
+      player: null, 
       token, 
       logout 
     }}>
@@ -230,43 +229,25 @@ function AuthContent({ children }: { children: ReactNode }) {
   );
 }
 
-function AuthApp({ children }: { children: ReactNode }) {
-  const [convexClient, setConvexClient] = useState<ConvexReactClient | null>(null);
-  const [mounted, setMounted] = useState(false);
+function AppContent({ Component, pageProps }: AppProps) {
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    const client = new ConvexReactClient(CONVEX_URL);
-    setConvexClient(client);
+    const timer = setTimeout(() => setReady(true), 500);
+    return () => clearTimeout(timer);
   }, []);
 
-  if (!mounted) {
+  if (!ready) {
     return <LoadingScreen />;
   }
 
-  if (!convexClient) {
-    return <LoadingScreen message="Connecting..." />;
-  }
-
-  return (
-    <ConvexProvider client={convexClient}>
-      <AuthContent>
-        {children}
-      </AuthContent>
-    </ConvexProvider>
-  );
-}
-
-function AppContent({ Component, pageProps }: AppProps) {
   return (
     <ErrorBoundary>
-      <AuthApp>
+      <AuthAppInner>
         <Component {...pageProps} />
-      </AuthApp>
+      </AuthAppInner>
     </ErrorBoundary>
   );
 }
 
-export default function App(props: AppProps) {
-  return <AppContent {...props} />;
-}
+export default dynamic(() => Promise.resolve(AppContent), { ssr: false });
