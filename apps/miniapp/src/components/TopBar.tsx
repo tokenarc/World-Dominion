@@ -1,12 +1,10 @@
 'use client';
 
 import { useAuth } from '../context/AuthContext';
+import { useRouter } from 'next/router';
 
-interface TopBarProps {
-  onMenuClick: () => void;
-}
-
-export default function TopBar({ onMenuClick }: TopBarProps) {
+export default function TopBar() {
+  const router = useRouter();
   const { user, player } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   
@@ -66,7 +64,7 @@ export default function TopBar({ onMenuClick }: TopBarProps) {
         </div>
 
         <div
-          onClick={() => { handleHaptic(); onMenuClick(); }}
+          onClick={() => { handleHaptic(); router.push('/profile'); }}
           style={{
             width: '32px',
             height: '32px',

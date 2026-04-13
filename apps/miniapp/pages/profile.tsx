@@ -1,10 +1,13 @@
 export const dynamic = 'force-dynamic';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
 import { useAuth } from '../src/context/AuthContext';
+import { useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
 
-function CountUp({ end, duration = 500, prefix = '', suffix = '' }: { end: number; duration?: number; prefix?: string; suffix?: string }) {
+function CountUp({ end, duration = 800, prefix = '', suffix = '' }: { end: number; duration?: number; prefix?: string; suffix?: string }) {
   const [count, setCount] = useState(0);
   
   useEffect(() => {
@@ -24,32 +27,60 @@ function CountUp({ end, duration = 500, prefix = '', suffix = '' }: { end: numbe
   return <span>{prefix}{count.toLocaleString()}{suffix}</span>;
 }
 
+function StatBar({ label, value }: { label: string; value: number }) {
+  const width = Math.min(100, Math.max(0, value));
+  return (
+    <div style={{ marginBottom: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+        <span style={{ fontSize: '9px', color: '#8892a4', letterSpacing: '1px' }}>{label}</span>
+        <span style={{ fontSize: '9px', color: '#FFD700', fontFamily: 'monospace' }}>{value}/100</span>
+      </div>
+      <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${width}%`, background: 'linear-gradient(90deg, #cc0000, #FFD700)', borderRadius: '2px', transition: 'width 0.8s ease' }} />
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
-  const { user, player, state } = useAuth();
+  const router = useRouter();
+  const { user, player, token, state } = useAuth();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
+  
+  const apiRef = api as any;
+  const humanScoreData = (state === 'ready' && token && typeof apiRef?.players?.getHumanScore === 'function')
+    ? useQuery(apiRef.players.getHumanScore, { token })
+    : null;
   
   const initials = user?.firstName?.[0]?.toUpperCase() || '?';
   const fullName = `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || 'Commander';
-  const uid = user?.telegramId ? `WD-${String(user.telegramId).slice(-6).toUpperCase()}` : 'WD-??????';
+  const uid = player?.uid || 'WD-LOADING...';
   const username = user?.username ? `@${user.username}` : '—';
-  const warBonds = player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
-  const cp = player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
-  const rep = player?.reputation ?? player?.stats?.reputation ?? 50;
+  const warBonds = player?.stats?.warBonds ?? 0;
+  const cp = player?.stats?.commandPoints ?? 0;
+  const rep = player?.stats?.reputation ?? 0;
+  const humanScore = humanScoreData?.score ?? 0;
   const nation = player?.currentNation || player?.nationId || null;
   const role = player?.currentRole || player?.role || null;
   const joined = player?.joinedAt ? new Date(player.joinedAt).toLocaleDateString() : '—';
   const kyc = player?.kycVerified;
   
+  const [showStats, setShowStats] = useState(false);
+  
   useEffect(() => {
     tg?.ready();
   }, [tg]);
   
-  const Row = ({ label, value, color = '#e8e8e8' }: { label: string; value: React.ReactNode; color?: string }) => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: '1px solid rgba(139,0,0,0.1)' }}>
-      <span style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '2px' }}>{label}</span>
-      <span style={{ fontSize: '11px', color, fontWeight: 'bold', letterSpacing: '1px', fontFamily: 'monospace' }}>{value}</span>
-    </div>
-  );
+  const stats = player?.stats || {
+    leadership: 0,
+    strategicIq: 0,
+    militaryIq: 0,
+    diplomaticSkill: 0,
+    economicAcumen: 0,
+    intelligenceOps: 0,
+    reputation: 0,
+    loyalty: 0,
+  };
   
   return (
     <Layout>
@@ -62,10 +93,6 @@ export default function ProfilePage() {
           0%, 100% { box-shadow: 0 0 10px rgba(255,215,0,0.4); }
           50% { box-shadow: 0 0 20px rgba(255,215,0,0.8); }
         }
-        @keyframes countup {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
       `}</style>
       <div style={{ padding: '12px', paddingBottom: '80px' }}>
         
@@ -73,7 +100,7 @@ export default function ProfilePage() {
           background: 'linear-gradient(135deg, #0d1117, #1a0505)',
           border: '1px solid rgba(139,0,0,0.5)',
           borderRadius: '16px',
-          padding: '24px 20px',
+          padding: '20px',
           marginBottom: '12px',
           display: 'flex',
           gap: '16px',
@@ -86,14 +113,14 @@ export default function ProfilePage() {
           </div>
           
           <div style={{
-            width: '60px',
-            height: '60px',
+            width: '64px',
+            height: '64px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #8B0000, #cc0000)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '24px',
+            fontSize: '28px',
             fontWeight: 'bold',
             color: '#FFD700',
             border: '2px solid rgba(255,215,0,0.4)',
@@ -104,25 +131,26 @@ export default function ProfilePage() {
             {initials}
           </div>
           
-          <div>
+          <div style={{ flex: 1 }}>
             <div style={{ fontSize: '20px', fontWeight: 900, color: '#FFD700', letterSpacing: '2px', marginBottom: '4px', fontFamily: 'Orbitron, monospace' }}>{fullName.toUpperCase()}</div>
-            <div style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '1px', marginBottom: '3px' }}>{username}</div>
+            <div style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '1px', marginBottom: '4px' }}>{username}</div>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px',
               background: 'rgba(139,0,0,0.2)',
-              border: '1px solid rgba(204,0,0,0.4)',
+              border: '1px solid #cc0000',
               borderRadius: '6px',
               padding: '3px 8px',
-              fontSize: '9px',
+              fontSize: '10px',
               color: '#cc0000',
               letterSpacing: '1px',
               fontFamily: 'monospace',
+              marginBottom: '4px',
             }}>
               {uid}
             </div>
-            <div style={{ fontSize: '9px', color: '#00ff88', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ fontSize: '9px', color: '#00ff88', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00ff88' }} />
               ACTIVE COMMANDER
             </div>
@@ -130,53 +158,130 @@ export default function ProfilePage() {
         </div>
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-          {[
-            { icon: '💎', label: 'WAR BONDS', value: warBonds, color: '#FFD700' },
-            { icon: '⚡', label: 'CMD PTS', value: cp, color: '#00ff88' },
-            { icon: '⭐', label: 'REPUTATION', value: `${rep}/100`, color: '#FFD700' },
-          ].map((stat, i) => {
-            const numVal = typeof stat.value === 'number' ? stat.value : parseInt(String(stat.value).replace(/[^0-9]/g, '')) || 0;
-            return (
-              <div key={i} style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
-                <div style={{ fontSize: '16px', marginBottom: '4px' }}>{stat.icon}</div>
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: stat.color, fontFamily: 'monospace' }}>
-                  <CountUp end={numVal} />
-                </div>
-                <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '1px', marginTop: '2px' }}>{stat.label}</div>
-              </div>
-            );
-          })}
+          <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '18px', marginBottom: '4px' }}>💎</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#FFD700', fontFamily: 'monospace' }}>
+              <CountUp end={warBonds} />
+            </div>
+            <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '1px', marginTop: '2px' }}>WAR BONDS</div>
+          </div>
+          <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '18px', marginBottom: '4px' }}>⚡</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#00ff88', fontFamily: 'monospace' }}>
+              <CountUp end={cp} />
+            </div>
+            <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '1px', marginTop: '2px' }}>CMD PTS</div>
+          </div>
+          <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '10px', padding: '12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '18px', marginBottom: '4px' }}>⭐</div>
+            <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#FFD700', fontFamily: 'monospace' }}>
+              {humanScore}/100
+            </div>
+            <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '1px', marginTop: '2px' }}>SCORE</div>
+          </div>
+        </div>
+        
+        <div 
+          onClick={() => { setShowStats(!showStats); tg?.HapticFeedback?.impactOccurred('light'); }}
+          style={{ 
+            background: '#0d1117', 
+            border: '1px solid rgba(139,0,0,0.2)', 
+            borderRadius: '12px', 
+            padding: '14px', 
+            marginBottom: '12px',
+            cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: showStats ? '12px' : '0' }}>
+            <div style={{ fontSize: '10px', color: '#cc0000', letterSpacing: '3px' }}>📊 COMMANDER PROFILE</div>
+            <div style={{ fontSize: '12px', color: '#8892a4' }}>{showStats ? '▼' : '▶'}</div>
+          </div>
+          
+          {showStats && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <StatBar label="LEADERSHIP" value={stats.leadership || 0} />
+              <StatBar label="STRATEGIC IQ" value={stats.strategicIq || 0} />
+              <StatBar label="MILITARY IQ" value={stats.militaryIq || 0} />
+              <StatBar label="DIPLOMATIC" value={stats.diplomaticSkill || 0} />
+              <StatBar label="ECONOMIC" value={stats.economicAcumen || 0} />
+              <StatBar label="INTEL OPS" value={stats.intelligenceOps || 0} />
+              <StatBar label="REPUTATION" value={stats.reputation || 0} />
+              <StatBar label="LOYALTY" value={stats.loyalty || 0} />
+            </div>
+          )}
         </div>
         
         <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '12px' }}>
-          <div style={{ fontSize: '9px', color: '#8B0000', letterSpacing: '3px', marginBottom: '10px' }}>CURRENT ASSIGNMENT</div>
+          <div style={{ fontSize: '10px', color: '#cc0000', letterSpacing: '3px', marginBottom: '10px' }}>CURRENT ASSIGNMENT</div>
           {nation ? (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '20px' }}>🏳️</span>
-                <span style={{ fontSize: '14px', color: '#FFD700', fontWeight: 'bold' }}>{nation}</span>
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🏳️</span>
+                  <span style={{ fontSize: '14px', color: '#FFD700', fontWeight: 'bold' }}>{nation}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ fontSize: '11px', color: '#cc0000', fontWeight: 'bold' }}>{role}</span>
+                  <span style={{ fontSize: '8px', background: 'rgba(0,255,136,0.2)', color: '#00ff88', padding: '2px 6px', borderRadius: '4px', letterSpacing: '1px' }}>ACTIVE DUTY</span>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '11px', color: '#cc0000', fontWeight: 'bold' }}>{role}</span>
-                <span style={{ fontSize: '8px', background: 'rgba(204,0,0,0.3)', color: '#cc0000', padding: '2px 6px', borderRadius: '4px', letterSpacing: '1px' }}>SERVING</span>
+              <div 
+                onClick={() => router.push('/nations')}
+                style={{ fontSize: '10px', color: '#8892a4', cursor: 'pointer', textDecoration: 'underline' }}
+              >
+                VIEW MY NATION →
               </div>
             </div>
           ) : (
             <div style={{ textAlign: 'center', padding: '10px' }}>
-              <div style={{ fontSize: '11px', color: '#8892a4', marginBottom: '8px' }}>NO ASSIGNMENT</div>
-              <div style={{ fontSize: '10px', color: '#cc0000', letterSpacing: '2px', animation: 'pulse 2s ease-in-out infinite', display: 'inline-block', padding: '6px 12px', border: '1px solid rgba(204,0,0,0.4)', borderRadius: '6px' }}>
-                BROWSE NATIONS →
+              <div style={{ fontSize: '11px', color: '#8892a4', marginBottom: '8px' }}>⚠️ NO ASSIGNMENT</div>
+              <div style={{ fontSize: '10px', color: '#666', marginBottom: '12px' }}>You have not been assigned a role yet.</div>
+              <div 
+                onClick={() => router.push('/nations')}
+                style={{ 
+                  fontSize: '11px', 
+                  color: '#cc0000', 
+                  letterSpacing: '2px', 
+                  animation: 'pulse 2s ease-in-out infinite', 
+                  display: 'inline-block', 
+                  padding: '10px 16px', 
+                  border: '1px solid rgba(204,0,0,0.4)', 
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                BROWSE NATIONS & APPLY →
               </div>
             </div>
           )}
         </div>
         
         <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '12px' }}>
-          <div style={{ fontSize: '9px', color: '#8B0000', letterSpacing: '3px', marginBottom: '10px' }}>COMMAND PROFILE</div>
-          <Row label="JOINED" value={joined} />
-          <Row label="TELEGRAM" value={username} />
-          <Row label="AUTH" value="HMAC VERIFIED" color="#00ff88" />
-          <Row label="KYC" value={kyc ? '✅ VERIFIED' : '⚠️ UNVERIFIED'} color={kyc ? '#00ff88' : '#FFD700'} />
+          <div style={{ fontSize: '10px', color: '#cc0000', letterSpacing: '3px', marginBottom: '10px' }}>📋 MY APPLICATIONS</div>
+          <div style={{ fontSize: '11px', color: '#8892a4', textAlign: 'center', padding: '10px' }}>
+            No applications submitted yet.
+          </div>
+          <div style={{ fontSize: '9px', color: '#666', textAlign: 'center' }}>Browse nations to apply for a role</div>
+        </div>
+        
+        <div style={{ background: '#0d1117', border: '1px solid rgba(139,0,0,0.2)', borderRadius: '12px', padding: '14px', marginBottom: '12px' }}>
+          <div style={{ fontSize: '10px', color: '#cc0000', letterSpacing: '3px', marginBottom: '10px' }}>COMMAND IDENTITY</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(139,0,0,0.1)' }}>
+            <span style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '2px' }}>JOINED</span>
+            <span style={{ fontSize: '10px', color: '#e8e8e8', fontFamily: 'monospace' }}>{joined}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(139,0,0,0.1)' }}>
+            <span style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '2px' }}>TELEGRAM</span>
+            <span style={{ fontSize: '10px', color: '#e8e8e8', fontFamily: 'monospace' }}>{username}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid rgba(139,0,0,0.1)' }}>
+            <span style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '2px' }}>AUTH</span>
+            <span style={{ fontSize: '10px', color: '#00ff88', fontWeight: 'bold' }}>HMAC VERIFIED</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+            <span style={{ fontSize: '10px', color: '#8892a4', letterSpacing: '2px' }}>KYC</span>
+            <span style={{ fontSize: '10px', color: kyc ? '#00ff88' : '#FFD700', fontWeight: 'bold' }}>{kyc ? '✅ VERIFIED' : '⚠️ UNVERIFIED'}</span>
+          </div>
         </div>
         
       </div>

@@ -37,16 +37,20 @@ export default defineSchema({
     currentNation: v.optional(v.string()),
     role: v.optional(v.string()),
     currentRole: v.optional(v.string()),
-    wallet: v.object({
-      warBonds: v.number(),
-      commandPoints: v.number(),
-    }),
+    uid: v.optional(v.string()),
     stats: v.object({
       totalScore: v.number(),
+      humanScore: v.number(),
+      militaryIq: v.number(),
+      diplomaticSkill: v.number(),
+      economicAcumen: v.number(),
+      intelligenceOps: v.number(),
+      leadership: v.number(),
+      strategicIq: v.number(),
+      reputation: v.number(),
+      loyalty: v.number(),
       warBonds: v.number(),
       commandPoints: v.number(),
-      reputation: v.number(),
-      militaryKnowledge: v.number(),
     }),
     reputation: v.number(),
     kycVerified: v.boolean(),
@@ -84,6 +88,13 @@ export default defineSchema({
     borders: v.optional(v.array(v.string())),
     alliances: v.optional(v.array(v.string())),
     primaryReligion: v.optional(v.string()),
+    corruptionIndex: v.optional(v.number()),
+    gdpGrowth: v.optional(v.number()),
+    inflation: v.optional(v.number()),
+    unemployment: v.optional(v.number()),
+    latitude: v.optional(v.number()),
+    longitude: v.optional(v.number()),
+    classifiedData: v.optional(v.any()),
   })
     .index("iso", ["iso"])
     .index("name", ["name"])
@@ -103,6 +114,9 @@ export default defineSchema({
     status: v.string(),
     adminNote: v.optional(v.string()),
     reviewedAt: v.optional(v.number()),
+    uid: v.optional(v.string()),
+    humanScore: v.optional(v.number()),
+    statsSnapshot: v.optional(v.any()),
     createdAt: v.number(),
   })
     .index("by_player", ["playerTelegramId"])

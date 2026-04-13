@@ -4,6 +4,19 @@ import { Id } from "./_generated/dataModel";
 import { api } from "./_generated/api";
 import { notifyAdmin } from "./telegram";
 
+function calculateHumanScore(stats: any): number {
+  const s = stats;
+  return Math.round(
+    (s.leadership * 0.20) +
+    (s.strategicIq * 0.20) +
+    (s.militaryIq * 0.15) +
+    (s.diplomaticSkill * 0.15) +
+    (s.economicAcumen * 0.15) +
+    (s.intelligenceOps * 0.10) +
+    (s.loyalty * 0.05)
+  );
+}
+
 const ROLES = [
   { id: "president", name: "President", description: "Head of state. Supreme political authority." },
   { id: "prime_minister", name: "Prime Minister", description: "Executive leader in parliamentary systems." },
@@ -50,6 +63,21 @@ export const submitApplication = mutation({
       throw new Error("You already have a role. Resign first.");
     }
     
+    const pendingApps = await ctx.db
+      .query("role_applications")
+      .withIndex("by_player", q => q.eq("playerTelegramId", telegramId))
+      .filter(q => q.eq(q.field("status"), "pending"))
+      .collect();
+    
+    if (pendingApps.length >= 3) {
+      throw new Error("Max 3 pending applications allowed");
+    }
+    
+    const essay = args.essay.trim();
+    if (essay.length < 50 || essay.length > 500) {
+      throw new Error("Essay must be 50-500 characters");
+    }
+    
     const existingApp = await ctx.db
       .query("role_applications")
       .withIndex("by_player", q => q.eq("playerTelegramId", telegramId))
@@ -77,6 +105,10 @@ export const submitApplication = mutation({
       .first();
     
     const now = Date.now();
+    const humanScore = calculateHumanScore(player.stats || {});
+    const appCount = await ctx.db.query("role_applications").collect();
+    const applicationNumber = appCount.length + 1;
+    
     const applicationId = await ctx.db.insert("role_applications", {
       playerTelegramId: telegramId,
       playerName: player.firstName,
@@ -87,6 +119,9 @@ export const submitApplication = mutation({
       roleName: getRoleName(args.roleId),
       essay: args.essay,
       status: "pending",
+      uid: player.uid,
+      humanScore,
+      statsSnapshot: player.stats,
       createdAt: now,
     });
     

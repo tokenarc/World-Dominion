@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import TopBar from './TopBar';
 import BottomNav from './BottomNav';
-import ProfileDrawer from './ProfileDrawer';
 
 interface AppShellProps {
   children: ReactNode;
@@ -14,7 +13,6 @@ interface AppShellProps {
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
   const { state } = useAuth();
-  const [showDrawer, setShowDrawer] = useState(false);
   const [pageKey, setPageKey] = useState(0);
 
   useEffect(() => {
@@ -32,9 +30,8 @@ export default function AppShell({ children }: AppShellProps) {
       paddingTop: '52px',
       paddingBottom: '60px',
     }}>
-      <TopBar onMenuClick={() => setShowDrawer(true)} />
+      <TopBar />
       <BottomNav />
-      <ProfileDrawer open={showDrawer} onClose={() => setShowDrawer(false)} />
       <div key={pageKey} style={{
         animation: 'fadeUp 0.3s ease-out',
       }}>

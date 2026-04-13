@@ -210,3 +210,18 @@ export const setAtWar = mutation({
     return { success: true };
   },
 });
+
+export const clearAndReseed = mutation({
+  args: { adminSecret: v.string() },
+  handler: async (ctx, args) => {
+    const envSecret = process.env.ADMIN_SECRET || "dominion-admin-2026";
+    if (args.adminSecret !== envSecret) {
+      throw new Error("Unauthorized");
+    }
+    const all = await ctx.db.query("nations").collect();
+    for (const n of all) {
+      await ctx.db.delete(n._id);
+    }
+    return { deleted: all.length };
+  },
+});

@@ -1,6 +1,18 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+function generateUID(telegramId: number, joinedAt: number): string {
+  const raw = `${telegramId}${joinedAt}`;
+  let hash = 0;
+  for (let i = 0; i < raw.length; i++) {
+    const char = raw.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  const hex = Math.abs(hash).toString(16).toUpperCase().padStart(6, '0').slice(0, 6);
+  return `WD-${hex}`;
+}
+
 function getBotToken(): string {
   const token = process.env.BOT_TOKEN;
   if (!token) throw new Error("BOT_TOKEN not set");
@@ -63,6 +75,18 @@ export const telegramVerify = mutation({
     }
 
     const telegramId = result.userData.id;
+    const recentAttempts = await ctx.db
+      .query("sessions")
+      .withIndex("telegramId", q => q.eq("telegramId", telegramId))
+      .collect();
+    const lastHour = Date.now() - 3600000;
+    const recentCount = recentAttempts.filter(
+      (s: any) => s.createdAt > lastHour
+    ).length;
+    if (recentCount >= 10) {
+      throw new Error("Rate limit exceeded. Try again later.");
+    }
+
     const oldSessions = await ctx.db
       .query("sessions")
       .withIndex("telegramId", q => q.eq("telegramId", telegramId))
@@ -100,6 +124,7 @@ export const telegramVerify = mutation({
       .first();
 
     if (!player) {
+      const uid = generateUID(telegramId, Date.now());
       const playerId = await ctx.db.insert("players", {
         userId: user._id,
         telegramId,
@@ -110,29 +135,27 @@ export const telegramVerify = mutation({
         currentNation: undefined,
         role: undefined,
         currentRole: undefined,
-        wallet: { warBonds: 1000, commandPoints: 100 },
+        uid,
         stats: {
           totalScore: 0,
-          warBonds: 1000,
-          commandPoints: 100,
-          reputation: 50,
-          militaryKnowledge: 0,
+          humanScore: 0,
+          militaryIq: 0,
+          diplomaticSkill: 0,
+          economicAcumen: 0,
+          intelligenceOps: 0,
+          leadership: 0,
+          strategicIq: 0,
+          reputation: 0,
+          loyalty: 0,
+          warBonds: 0,
+          commandPoints: 0,
         },
-        reputation: 50,
+        reputation: 0,
         kycVerified: false,
         joinedAt: Date.now(),
         lastActive: Date.now(),
       });
       player = await ctx.db.get(playerId);
-
-      await ctx.db.insert("transactions", {
-        playerId: playerId,
-        type: "welcome_bonus",
-        amount: 1000,
-        currency: "warBonds",
-        description: "Welcome to World Dominion",
-        createdAt: Date.now(),
-      });
     } else {
       await ctx.db.patch(player._id, { lastActive: Date.now() });
     }

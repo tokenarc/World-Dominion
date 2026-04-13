@@ -300,10 +300,12 @@ function NationsPage() {
   const handleApply = async (roleId: string) => {
     if (!selectedNation || !token) return;
     try {
+      const role = ROLES.find(r => r.id === roleId);
       await submitApplication({
         token,
         nationIso: selectedNation.iso,
         roleId,
+        roleName: role?.name || roleId,
         essay: 'Applying for role in ' + selectedNation.name,
       });
     } catch (e) {

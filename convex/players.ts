@@ -2,6 +2,45 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 
+function calculateHumanScore(stats: any): number {
+  const s = stats;
+  return Math.round(
+    (s.leadership * 0.20) +
+    (s.strategicIq * 0.20) +
+    (s.militaryIq * 0.15) +
+    (s.diplomaticSkill * 0.15) +
+    (s.economicAcumen * 0.15) +
+    (s.intelligenceOps * 0.10) +
+    (s.loyalty * 0.05)
+  );
+}
+
+export const getHumanScore = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("token", q => q.eq("token", args.token))
+      .first();
+    
+    if (!session || session.expiresAt < Date.now()) {
+      return null;
+    }
+    
+    const player = await ctx.db
+      .query("players")
+      .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
+      .first();
+    
+    if (!player) {
+      return null;
+    }
+    
+    const score = calculateHumanScore(player.stats);
+    return { score, breakdown: player.stats };
+  },
+});
+
 export const getMe = query({
   args: { token: v.string() },
   handler: async (ctx, args) => {

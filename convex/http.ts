@@ -174,4 +174,23 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/admin/reseed-nations",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await request.json();
+    const envSecret = process.env.ADMIN_SECRET || "dominion-admin-2026";
+    if (!body.adminSecret || body.adminSecret !== envSecret) {
+      return new Response("Service Unavailable", { status: 503 });
+    }
+    
+    const cleared = await ctx.runMutation(api.nations.clearAndReseed, { adminSecret: body.adminSecret });
+    const seeded = await ctx.runMutation(api.nations.seedNations);
+    return new Response(JSON.stringify({ cleared, seeded }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }),
+});
+
 export default http;

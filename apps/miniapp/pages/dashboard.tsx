@@ -259,13 +259,6 @@ function Dashboard() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '12px' }}>
-          <ActionBtn icon="🌍" label="NATIONS"   color="#8B0000"  onClick={() => router.push('/nations')} />
-          <ActionBtn icon="🎯" label="MISSIONS"  color="#FFD700"  onClick={() => router.push('/missions')} />
-          <ActionBtn icon="📈" label="MARKET"    color="#00ff88"  onClick={() => router.push('/market')} />
-          <ActionBtn icon="💰" label="VAULT"     color="#8892a4"  onClick={() => router.push('/wallet')} />
-        </div>
-
         <div style={{
           background:    '#0d1117',
           border:        '1px solid rgba(139,0,0,0.4)',
