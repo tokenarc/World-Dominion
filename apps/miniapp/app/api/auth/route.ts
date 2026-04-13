@@ -2,11 +2,20 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
+const ALLOWED_PATHS = [
+  '/auth/telegramVerify',
+  '/auth/getSessionUser',
+];
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const path = body.path || '/auth/telegramVerify';
+    const path = body.path;
     const args = body.args || {};
+    
+    if (!path || !ALLOWED_PATHS.includes(path)) {
+      return NextResponse.json({ error: 'Path not allowed' }, { status: 403 });
+    }
     
     const response = await fetch(`https://peaceful-scorpion-529.convex.site${path}`, {
       method: 'POST',

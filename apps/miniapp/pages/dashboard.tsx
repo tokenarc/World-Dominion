@@ -1,7 +1,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useAuth } from '../src/context/AuthContext';
+import { useAuth, useBalance } from '../src/context/AuthContext';
 import { useQuery } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import Layout from '../src/components/Layout';
@@ -9,85 +9,6 @@ import Layout from '../src/components/Layout';
 const DashboardContent = dynamic(() => Promise.resolve(Dashboard), { ssr: false });
 
 export default DashboardContent;
-
-function StatCard({ icon, label, value, color = '#FFD700', glow = false }: { icon: string; label: string; value: string; color?: string; glow?: boolean }) {
-  return (
-    <div style={{
-      background:   'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
-      border:       `1px solid ${color}40`,
-      borderRadius: '10px',
-      padding:      '12px',
-      display:      'flex',
-      alignItems:   'center',
-      gap:          '10px',
-      position:     'relative',
-      overflow:     'hidden',
-      boxShadow:    glow ? `0 0 12px ${color}30` : 'none',
-    }}>
-      <div style={{
-        position:   'absolute', top: 0, left: 0, right: 0, height: '1px',
-        background: `linear-gradient(90deg, transparent, ${color}, transparent)`
-      }} />
-      <div style={{ fontSize: '22px' }}>{icon}</div>
-      <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px', marginBottom: '2px' }}>
-          {label}
-        </div>
-        <div style={{
-          fontSize:     '13px',
-          fontWeight:   'bold',
-          color,
-          whiteSpace:   'nowrap',
-          overflow:     'hidden',
-          textOverflow: 'ellipsis',
-        }}>
-          {value}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ActionBtn({ icon, label, color, onClick }: { icon: string; label: string; color: string; onClick: () => void }) {
-  const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-  return (
-    <button
-      onClick={() => {
-        tg?.HapticFeedback?.impactOccurred('light');
-        onClick();
-      }}
-      style={{
-        background:    'linear-gradient(135deg, #0d1117, #161b22)',
-        border:        `1px solid ${color}`,
-        borderRadius:  '10px',
-        padding:       '14px 8px',
-        color,
-        fontSize:      '9px',
-        letterSpacing: '1.5px',
-        fontWeight:    'bold',
-        cursor:        'pointer',
-        display:       'flex',
-        flexDirection: 'column',
-        alignItems:    'center',
-        gap:           '6px',
-        boxShadow:     `0 0 10px ${color}20`,
-        transition:    'all 0.15s',
-        width:         '100%',
-      }}
-      onTouchStart={e => {
-        (e.currentTarget as HTMLElement).style.transform = 'scale(0.97)';
-        (e.currentTarget as HTMLElement).style.boxShadow = `0 0 20px ${color}50`;
-      }}
-      onTouchEnd={e => {
-        (e.currentTarget as HTMLElement).style.transform = 'scale(1)';
-        (e.currentTarget as HTMLElement).style.boxShadow = `0 0 10px ${color}20`;
-      }}
-    >
-      <span style={{ fontSize: '24px' }}>{icon}</span>
-      {label}
-    </button>
-  );
-}
 
 function IntelItem({ text, time, type }: { text: string; time: string; type: 'war' | 'intel' | 'economy' }) {
   const colors = { war: '#cc0000', intel: '#FFD700', economy: '#00ff88' };
@@ -112,7 +33,8 @@ function IntelItem({ text, time, type }: { text: string; time: string; type: 'wa
 
 function Dashboard() {
   const router  = useRouter();
-  const { user, player, token, state } = useAuth();
+  const { user, player, state } = useAuth();
+  const { warBonds, commandPoints } = useBalance();
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   const isAuthenticated = state === 'ready';
 
@@ -121,10 +43,10 @@ function Dashboard() {
   const activeWars = typeof api?.wars?.getActive === 'function' ? useQuery(api.wars.getActive as any) : undefined;
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (state === 'unauthenticated' || state === 'error') {
       router.replace('/');
     }
-  }, [isAuthenticated, router]);
+  }, [state, router]);
 
   useEffect(() => {
     tg?.BackButton?.hide();
@@ -133,9 +55,7 @@ function Dashboard() {
   const firstName    = user?.firstName?.toUpperCase() || 'COMMANDER';
   const nationName   = player?.currentNation || 'UNASSIGNED';
   const roleName     = player?.currentRole   || player?.role || 'CIVILIAN';
-  const warBonds     = player?.wallet?.warBonds     ?? player?.stats?.warBonds     ?? 0;
-  const commandPoints = player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
-  const reputation   = player?.reputation ?? player?.stats?.reputation ?? 50;
+  const humanScore   = player?.stats?.humanScore ?? player?.stats?.reputation ?? 0;
   const hasNation    = !!player?.currentNation;
 
   if (!isAuthenticated) return null;
@@ -177,13 +97,13 @@ function Dashboard() {
           </div>
           <div style={{ marginTop: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px' }}>REPUTATION</span>
-              <span style={{ fontSize: '8px', color: '#FFD700' }}>{reputation}/100</span>
+              <span style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px' }}>HUMAN SCORE</span>
+              <span style={{ fontSize: '8px', color: '#FFD700' }}>{humanScore}/100</span>
             </div>
             <div style={{ height: '3px', background: 'rgba(255,215,0,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
               <div style={{
                 height:     '100%',
-                width:      `${reputation}%`,
+                width:      `${humanScore}%`,
                 background: 'linear-gradient(90deg, #8B0000, #FFD700)',
                 borderRadius: '2px',
                 transition: 'width 1s ease',
@@ -193,20 +113,82 @@ function Dashboard() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-          <StatCard icon="💎" label="WAR BONDS" value={warBonds.toLocaleString()} color="#FFD700" glow />
-          <StatCard icon="⚡" label="CMD POINTS" value={commandPoints.toLocaleString()} color="#00ff88" glow />
+          <div style={{
+            background:   'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
+            border:       '1px solid #FFD70040',
+            borderRadius: '10px',
+            padding:      '12px',
+            display:      'flex',
+            alignItems:   'center',
+            gap:          '10px',
+            position:     'relative',
+            overflow:     'hidden',
+            boxShadow:    '0 0 12px #FFD70030',
+          }}>
+            <div style={{ fontSize: '22px' }}>💎</div>
+            <div>
+              <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px', marginBottom: '2px' }}>WAR BONDS</div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#FFD700' }}>{warBonds.toLocaleString()}</div>
+            </div>
+          </div>
+          <div style={{
+            background:   'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
+            border:       '1px solid #00ff8840',
+            borderRadius: '10px',
+            padding:      '12px',
+            display:      'flex',
+            alignItems:   'center',
+            gap:          '10px',
+            position:     'relative',
+            overflow:     'hidden',
+            boxShadow:    '0 0 12px #00ff8830',
+          }}>
+            <div style={{ fontSize: '22px' }}>⚡</div>
+            <div>
+              <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px', marginBottom: '2px' }}>CMD POINTS</div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#00ff88' }}>{commandPoints.toLocaleString()}</div>
+            </div>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
-          <StatCard icon="🌍" label="NATION" value={nationName} color="#8892a4" />
-          <StatCard icon="🎖️" label="ROLE" value={roleName} color="#cc0000" />
+          <div style={{
+            background:   'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
+            border:       '1px solid #8892a440',
+            borderRadius: '10px',
+            padding:      '12px',
+            display:      'flex',
+            alignItems:   'center',
+            gap:          '10px',
+          }}>
+            <div style={{ fontSize: '22px' }}>🌍</div>
+            <div>
+              <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px', marginBottom: '2px' }}>NATION</div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#8892a4' }}>{nationName}</div>
+            </div>
+          </div>
+          <div style={{
+            background:   'linear-gradient(135deg, #0d1117 0%, #161b22 100%)',
+            border:       '1px solid #cc000040',
+            borderRadius: '10px',
+            padding:      '12px',
+            display:      'flex',
+            alignItems:   'center',
+            gap:          '10px',
+          }}>
+            <div style={{ fontSize: '22px' }}>🎖️</div>
+            <div>
+              <div style={{ fontSize: '8px', color: '#8892a4', letterSpacing: '2px', marginBottom: '2px' }}>ROLE</div>
+              <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#cc0000' }}>{roleName}</div>
+            </div>
+          </div>
         </div>
 
         {!hasNation ? (
           <div
             onClick={() => {
               tg?.HapticFeedback?.impactOccurred('medium');
-              router.push('/apply');
+              router.push('/nations');
             }}
             style={{
               background:    'linear-gradient(135deg, #1a0505, #0d1117)',

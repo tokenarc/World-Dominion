@@ -1,6 +1,8 @@
-import { createContext, useContext, useState, useEffect, ReactNode, Component } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
-type AuthState = 'loading' | 'authenticating' | 'ready' | 'error';
+type AuthState = 'loading' | 'checking' | 'authenticating' | 'ready' | 'unauthenticated' | 'error';
 
 interface AuthContextType {
   state: AuthState;
@@ -9,6 +11,7 @@ interface AuthContextType {
   player: any;
   token: string | null;
   logout: () => void;
+  balance: { warBonds: number; commandPoints: number };
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -18,10 +21,19 @@ export const AuthContext = createContext<AuthContextType>({
   player: null,
   token: null,
   logout: () => {},
+  balance: { warBonds: 0, commandPoints: 0 },
 });
 
 export function useAuth() {
   return useContext(AuthContext);
+}
+
+export function useBalance() {
+  const { player } = useAuth();
+  return {
+    warBonds: player?.stats?.warBonds ?? 0,
+    commandPoints: player?.stats?.commandPoints ?? 0,
+  };
 }
 
 function getInitDataFromUrl(): string | null {
@@ -56,73 +68,89 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [player, setPlayer] = useState<any>(null);
+  const [initData, setInitData] = useState<string | null>(null);
+
+  const telegramVerify = useMutation(api?.auth?.telegramVerify as any);
+  const sessionUser = useQuery(
+    (api as any)?.auth?.getSessionUser,
+    token ? { token } : 'skip'
+  );
 
   useEffect(() => {
     const stored = localStorage.getItem('wd_token');
-    if (stored) setToken(stored);
-    setState('authenticating');
+    if (stored) {
+      setToken(stored);
+      setState('checking');
+    } else {
+      const urlInitData = getInitDataFromUrl();
+      if (urlInitData) {
+        setInitData(urlInitData);
+        setState('authenticating');
+      } else {
+        setState('unauthenticated');
+      }
+    }
   }, []);
 
   useEffect(() => {
-    if (state !== 'authenticating') return;
-    const urlInitData = getInitDataFromUrl();
-    
-    if (!token && !urlInitData) {
-      setState('error');
-      setError('Open through Telegram bot.');
-      return;
+    if (state === 'checking' && token) {
+      if (sessionUser === null || sessionUser === undefined) {
+        try { localStorage.removeItem('wd_token'); } catch {}
+        setToken(null);
+        setUser(null);
+        setPlayer(null);
+        const urlInitData = getInitDataFromUrl();
+        if (urlInitData) {
+          setInitData(urlInitData);
+          setState('authenticating');
+        } else {
+          setState('unauthenticated');
+        }
+      } else if (sessionUser?.user) {
+        setUser(sessionUser.user);
+        setPlayer(sessionUser.player);
+        setState('ready');
+      }
     }
+  }, [state, token, sessionUser]);
 
-    if (token) {
-      callAuthApi('/auth/getSessionUser', { token })
-        .then((res) => {
-          if (res === null) {
-            try { localStorage.removeItem('wd_token'); } catch {}
-            setToken(null);
-            return;
-          }
-          setUser(res?.user);
-          setPlayer(res?.player);
-          setState('ready');
-        })
-        .catch((err: Error) => {
-          setState('error');
-          setError('Session check failed: ' + err.message);
-        });
-      return;
-    }
-
-    if (urlInitData) {
-      callAuthApi('/auth/telegramVerify', { initData: urlInitData })
-        .then((res) => {
-          if (res?.success && res?.token) {
-            try { localStorage.setItem('wd_token', res.token); } catch {}
-            setToken(res.token);
-            setUser(res?.user);
-            setPlayer(res?.player);
+  useEffect(() => {
+    if (state === 'authenticating' && initData && token === null) {
+      telegramVerify({ initData })
+        .then((result: any) => {
+          if (result?.success && result?.token) {
+            try { localStorage.setItem('wd_token', result.token); } catch {}
+            setToken(result.token);
+            setUser(result.user);
+            setPlayer(result.player);
             setState('ready');
           } else {
+            setError(result?.message || 'Auth failed');
             setState('error');
-            setError(res?.message || 'Auth failed');
           }
         })
-        .catch((err: Error) => {
+        .catch((err: any) => {
+          setError(err.message || 'Auth failed');
           setState('error');
-          setError('Auth failed: ' + err.message);
         });
     }
-  }, [state, token]);
+  }, [state, initData, token]);
 
   const logout = () => {
     try { localStorage.removeItem('wd_token'); } catch {}
     setToken(null);
     setUser(null);
     setPlayer(null);
-    setState('loading');
+    setState('unauthenticated');
+  };
+
+  const balance = {
+    warBonds: player?.stats?.warBonds ?? 0,
+    commandPoints: player?.stats?.commandPoints ?? 0,
   };
 
   return (
-    <AuthContext.Provider value={{ state, error, user, player, token, logout }}>
+    <AuthContext.Provider value={{ state, error, user, player, token, logout, balance }}>
       {children}
     </AuthContext.Provider>
   );
