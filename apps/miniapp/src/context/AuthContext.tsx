@@ -56,6 +56,39 @@ async function apiPost(path: string, body: object) {
   return res.json();
 }
 
+async function waitForTelegram(timeout = 3000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    function check() {
+      const tg = window.Telegram?.WebApp;
+      if (tg) {
+        return resolve(tg);
+      }
+      if (Date.now() - start > timeout) {
+        return resolve(null);
+      }
+      requestAnimationFrame(check);
+    }
+    check();
+  });
+}
+
+async function waitForInitData(tg, timeout = 2000) {
+  return new Promise((resolve, reject) => {
+    const start = Date.now();
+    function check() {
+      if (tg.initData && tg.initData.length > 0) {
+        return resolve(tg.initData);
+      }
+      if (Date.now() - start > timeout) {
+        return reject(new Error("No initData"));
+      }
+      requestAnimationFrame(check);
+    }
+    check();
+  });
+}
+
 export function AuthProvider({
   children,
 }: {
@@ -82,7 +115,6 @@ export function AuthProvider({
       }
     } catch (err: any) {
       console.error('[Auth] Session load error:', err.message);
-      // Don't clear token on error - let user retry
       setState('error');
       setError('Session check failed. Please try again.');
     }
@@ -94,7 +126,6 @@ export function AuthProvider({
 
     async function boot() {
       try {
-        // Check stored token
         const stored = localStorage.getItem(TOKEN_KEY);
         if (stored) {
           setToken(stored);
@@ -102,45 +133,28 @@ export function AuthProvider({
           return;
         }
 
-        // Wait for Telegram WebApp SDK
-        let tg = (window as any).Telegram?.WebApp;
-        if (!tg) {
-          let tries = 0;
-          await new Promise<void>((resolve) => {
-            const t = setInterval(() => {
-              tries++;
-              tg = (window as any).Telegram?.WebApp;
-              if (tg || tries >= 30) {
-                clearInterval(t);
-                resolve();
-              }
-            }, 100);
-          });
-        }
-
-        tg = (window as any).Telegram?.WebApp;
-
+        const tg = await waitForTelegram();
+        console.log("Telegram object:", tg);
+        
         if (!tg) {
           setState('error');
-          setError('Open this app via your Telegram bot.');
+          setError('Telegram environment not detected.');
           return;
         }
 
         tg.ready();
         tg.expand();
 
-        const initData = tg.initData;
-
-        if (!initData || initData.trim() === '') {
+        let initData;
+        try {
+          initData = await waitForInitData(tg);
+          console.log("InitData:", initData);
+        } catch {
           setState('error');
-          setError(
-            'No Telegram data detected. ' +
-            'Please open via the bot button, not a direct link.'
-          );
+          setError('Telegram session missing. Open from bot button.');
           return;
         }
 
-        // Authenticate via HTTP endpoint
         const data = await apiPost('/auth/telegramVerify', {
           args: { initData },
         });

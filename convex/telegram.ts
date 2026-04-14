@@ -1,4 +1,4 @@
-import { httpActionGeneric } from "./_generated/server";
+import { httpActionGeneric } from "convex/server";
 
 const httpAction = httpActionGeneric;
 

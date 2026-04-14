@@ -1,7 +1,6 @@
-import { httpRouter, httpActionGeneric } from "./_generated/server";
+import { httpRouter, httpActionGeneric } from "convex/server";
 import { telegramWebhook } from "./telegram";
 import { api } from "./_generated/api";
-import { getSessionUser } from "./auth";
 import { v } from "convex/values";
 
 const httpAction = httpActionGeneric;
@@ -244,8 +243,7 @@ http.route({
         return new Response(JSON.stringify({ error: "Missing token" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
-      // Use the Convex query from auth.ts
-      const result = await getSessionUser(ctx as any, { token });
+      const result = await ctx.runQuery(api.auth.getSessionUser, { token });
       
       if (!result) {
         return new Response(JSON.stringify({ error: "Invalid or expired session" }), { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } });
