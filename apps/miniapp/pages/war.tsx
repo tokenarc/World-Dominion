@@ -54,17 +54,13 @@ export default function WarPage() {
     player?.currentNation ? { nationIso: player.currentNation } : 'skip'
   );
   const myWarsArr = myWars || [];
-  const declareWarMutation = useMutation(
-    state === 'ready' && apiRef?.wars?.declareWar 
-      ? apiRef.wars.declareWar 
-      : 'skip'
-  );
+  const declareWarMutation = useMutation(apiRef?.wars?.declareWar);
 
   const hasNation = !!player?.currentNation;
   const canDeclare = hasNation && (player?.role === 'PRESIDENT' || player?.role === 'MILITARY');
 
   const handleDeclareWar = async () => {
-    if (!target.trim() || !token || !player?.currentNation) return;
+    if (state !== 'ready' || !target.trim() || !token || !player?.currentNation) return;
     if (!declareWarMutation) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setDeclaring(true);

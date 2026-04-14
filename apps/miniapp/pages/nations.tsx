@@ -264,11 +264,7 @@ function NationsPage() {
     ? useQuery(apiRef.nations.getAll)
     : 'skip';
   
-  const submitApplication = useMutation(
-    state === 'ready' && apiRef?.roles?.submitApplication 
-      ? apiRef.roles.submitApplication 
-      : 'skip'
-  );
+  const submitApplication = useMutation(apiRef?.roles?.submitApplication);
   
   const [search, setSearch] = useState('');
   const [continent, setContinent] = useState('ALL');
@@ -302,7 +298,8 @@ function NationsPage() {
   const fmt = (n?: number) => n ? (n >= 1e12 ? `$${(n/1e12).toFixed(1)}T` : n >= 1e9 ? `$${(n/1e9).toFixed(1)}B` : `$${(n/1e6).toFixed(0)}M`) : '—';
   
   const handleApply = async (roleId: string) => {
-    if (!selectedNation || !token) return;
+    if (state !== 'ready' || !selectedNation || !token) return;
+    if (!submitApplication) return;
     try {
       const role = ROLES.find(r => r.id === roleId);
       await submitApplication({

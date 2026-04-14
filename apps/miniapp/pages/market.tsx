@@ -23,14 +23,10 @@ export default function MarketPage() {
   const stocksArr = Array.isArray(stocks) ? stocks : [];
   const listings = state === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : undefined;
   const listingsArr = Array.isArray(listings) ? listings : [];
-  const buyMutation = useMutation(
-    state === 'ready' && apiRef?.market?.buyListing 
-      ? apiRef.market.buyListing 
-      : 'skip'
-  );
+  const buyMutation = useMutation(apiRef?.market?.buyListing);
 
   const buyP2P = async (listingId: any, quantity: number) => {
-    if (!token) return;
+    if (state !== 'ready' || !token) return;
     if (!buyMutation) return;
     tg?.HapticFeedback?.impactOccurred('medium');
     try {
