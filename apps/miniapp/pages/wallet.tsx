@@ -42,16 +42,25 @@ export default function WalletPage() {
   
   const transactions = state === 'ready' && token && apiRef?.wallet?.getTransactions 
     ? useQuery(apiRef.wallet.getTransactions, { token, limit: 20 }) 
-    : undefined;
+    : 'skip';
   const transactionsArr: Tx[] = (transactions as any) || [];
-  const verifyMutation = state === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
-  const withdrawMutation = state === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
+  const verifyMutation = useMutation(
+    state === 'ready' && apiRef?.wallet?.verifyDeposit 
+      ? apiRef.wallet.verifyDeposit 
+      : 'skip'
+  );
+  const withdrawMutation = useMutation(
+    state === 'ready' && apiRef?.wallet?.initiateWithdrawal 
+      ? apiRef.wallet.initiateWithdrawal 
+      : 'skip'
+  );
 
   const warBonds = balanceData?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
   const cp = balanceData?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;
 
   const verifyDeposit = async () => {
-    if (!verifyMutation || !txHash.trim() || !token || !amount) return;
+    if (!txHash.trim() || !token || !amount) return;
+    if (!verifyMutation) return;
     tg?.HapticFeedback?.impactOccurred('medium');
     setBusy(true); setMsg('');
     try {
@@ -70,7 +79,8 @@ export default function WalletPage() {
   };
 
   const withdraw = async () => {
-    if (!withdrawMutation || !toAddr.trim() || !amount || !token) return;
+    if (!toAddr.trim() || !amount || !token) return;
+    if (!withdrawMutation) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setBusy(true); setMsg('');
     try {

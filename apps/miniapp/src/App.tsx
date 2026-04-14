@@ -7,16 +7,14 @@ export default function App() {
   const [progress, setProgress] = useState(0);
 
   const commanderName = user?.firstName || 'Commander';
-  const isAuthenticated = state === 'authenticated';
 
   useEffect(() => {
-    if (state === 'checking') setProgress(p => Math.min(p + 10, 70));
-    else if (state === 'authenticating') setProgress(p => Math.min(p + 10, 80));
-    else if (state === 'authenticated') setProgress(100);
+    if (state === 'loading') setProgress(p => Math.min(p + 10, 70));
+    else if (state === 'ready') setProgress(100);
     else if (state === 'error') setProgress(100);
   }, [state]);
 
-  if (state === 'error' || state === 'unauthenticated') {
+  if (state === 'error') {
     return (
       <div style={{
         minHeight: '100vh',
@@ -49,7 +47,7 @@ export default function App() {
   return (
     <VideoLoadingScreen
       progress={progress}
-      loadingText={state === 'checking' ? 'Checking environment...' : state === 'authenticating' ? 'Authenticating...' : 'Loading assets...'}
+      loadingText={state === 'loading' ? 'Checking environment...' : 'Loading assets...'}
       commanderName={commanderName}
       onComplete={() => {}}
     />

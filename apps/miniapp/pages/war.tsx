@@ -41,26 +41,31 @@ export default function WarPage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const apiRef = api as any;
-  const activeWars = state === 'ready' && apiRef?.wars?.getActive 
-    ? useQuery(apiRef.wars.getActive) 
-    : undefined;
+  const activeWars = useQuery(
+    state === 'ready' && apiRef?.wars?.getActive 
+      ? apiRef.wars.getActive 
+      : 'skip'
+  );
   const activeWarsArr = activeWars || [];
-  const myWars = state === 'ready' && apiRef?.wars?.getForNation 
-    ? useQuery(
-        apiRef.wars.getForNation,
-        player?.currentNation ? { nationIso: player.currentNation } : 'skip'
-      ) 
-    : undefined;
+  const myWars = useQuery(
+    state === 'ready' && apiRef?.wars?.getForNation 
+      ? apiRef.wars.getForNation
+      : 'skip',
+    player?.currentNation ? { nationIso: player.currentNation } : 'skip'
+  );
   const myWarsArr = myWars || [];
-  const declareWarMutation = state === 'ready' && apiRef?.wars?.declareWar 
-    ? useMutation(apiRef.wars.declareWar) 
-    : null;
+  const declareWarMutation = useMutation(
+    state === 'ready' && apiRef?.wars?.declareWar 
+      ? apiRef.wars.declareWar 
+      : 'skip'
+  );
 
   const hasNation = !!player?.currentNation;
   const canDeclare = hasNation && (player?.role === 'PRESIDENT' || player?.role === 'MILITARY');
 
   const handleDeclareWar = async () => {
-    if (!declareWarMutation || !target.trim() || !token || !player?.currentNation) return;
+    if (!target.trim() || !token || !player?.currentNation) return;
+    if (!declareWarMutation) return;
     tg?.HapticFeedback?.impactOccurred('heavy');
     setDeclaring(true);
     setMsg('');

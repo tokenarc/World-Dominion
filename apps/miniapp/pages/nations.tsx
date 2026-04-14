@@ -262,11 +262,13 @@ function NationsPage() {
   
   const nations = state === 'ready' && apiRef?.nations?.getAll
     ? useQuery(apiRef.nations.getAll)
-    : undefined;
+    : 'skip';
   
-  const submitApplication = state === 'ready' && apiRef?.roles?.submitApplication 
-    ? useMutation(apiRef.roles.submitApplication)
-    : null;
+  const submitApplication = useMutation(
+    state === 'ready' && apiRef?.roles?.submitApplication 
+      ? apiRef.roles.submitApplication 
+      : 'skip'
+  );
   
   const [search, setSearch] = useState('');
   const [continent, setContinent] = useState('ALL');

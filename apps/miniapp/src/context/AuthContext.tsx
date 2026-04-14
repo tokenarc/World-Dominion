@@ -15,6 +15,7 @@ interface AuthContextType {
   user: any;
   player: any;
   token: string | null;
+  logout: () => void;
   retry: () => void;
   warBonds: number;
   commandPoints: number;
@@ -26,6 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   player: null,
   token: null,
+  logout: () => {},
   retry: () => {},
   warBonds: 0,
   commandPoints: 0,
@@ -133,7 +135,7 @@ export function AuthProvider({
           return;
         }
 
-        const tg = await waitForTelegram();
+        const tg = await waitForTelegram() as any;
         console.log("Telegram object:", tg);
         
         if (!tg) {
@@ -142,8 +144,8 @@ export function AuthProvider({
           return;
         }
 
-        tg.ready();
-        tg.expand();
+        (tg as any).ready();
+        (tg as any).expand();
 
         let initData;
         try {
@@ -193,6 +195,17 @@ export function AuthProvider({
     window.location.reload();
   }, []);
 
+  const logout = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+    setUser(null);
+    setPlayer(null);
+    setState('loading');
+    setError(null);
+    attempted.current = false;
+    window.location.reload();
+  }, []);
+
   const warBonds = player?.stats?.warBonds ?? 0;
   const commandPoints = player?.stats?.commandPoints ?? 0;
 
@@ -204,6 +217,7 @@ export function AuthProvider({
         user,
         player,
         token,
+        logout,
         retry,
         warBonds,
         commandPoints,
