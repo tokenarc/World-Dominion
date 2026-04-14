@@ -1,8 +1,10 @@
-import { httpRouter } from "convex/server";
-import { httpAction } from "./_generated/server";
+import { httpRouter, httpActionGeneric } from "./_generated/server";
 import { telegramWebhook } from "./telegram";
 import { api } from "./_generated/api";
+import { getSessionUser } from "./auth";
 import { v } from "convex/values";
+
+const httpAction = httpActionGeneric;
 
 const ALLOWED_ORIGINS = [
   "https://miniapp-lyart-sigma.vercel.app",
@@ -242,31 +244,15 @@ http.route({
         return new Response(JSON.stringify({ error: "Missing token" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
-      const session = await ctx.db
-        .query("sessions")
-        .withIndex("token", q => q.eq("token", token))
-        .first();
-
-      if (!session || session.expiresAt < Date.now()) {
+      // Use the Convex query from auth.ts
+      const result = await getSessionUser(ctx as any, { token });
+      
+      if (!result) {
         return new Response(JSON.stringify({ error: "Invalid or expired session" }), { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
-      const user = await ctx.db
-        .query("users")
-        .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
-        .first();
-
-      if (!user) {
-        return new Response(JSON.stringify({ error: "User not found" }), { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } });
-      }
-
-      const player = await ctx.db
-        .query("players")
-        .withIndex("telegramId", q => q.eq("telegramId", session.telegramId))
-        .first();
-
       return new Response(
-        JSON.stringify({ user, player }),
+        JSON.stringify({ user: result.user, player: result.player }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     } catch (error: any) {

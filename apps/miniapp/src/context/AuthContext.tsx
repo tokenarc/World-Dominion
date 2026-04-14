@@ -4,9 +4,8 @@ import {
   useEffect,
   useState,
   useRef,
+  useCallback,
 } from 'react';
-import { useQuery } from 'convex/react';
-import { api } from '../../convex/_generated/api';
 
 type AuthState = 'loading' | 'ready' | 'error';
 
@@ -42,41 +41,68 @@ export function useBalance() {
 }
 
 const TOKEN_KEY = 'wd_token';
-const CONVEX_SITE = 'https://peaceful-scorpion-529.convex.site';
+const API = 'https://peaceful-scorpion-529.convex.site';
 
-function useIsClient() {
-  const [isClient, setIsClient] = useState(false);
-  useEffect(() => setIsClient(true), []);
-  return isClient;
+async function apiPost(path: string, body: object) {
+  const res = await fetch(`${API}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || err.error || `HTTP ${res.status}`);
+  }
+  return res.json();
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const isClient = useIsClient();
+export function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [state, setState] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [player, setPlayer] = useState<any>(null);
   const attempted = useRef(false);
 
-  // ONLY call useQuery when on client
-  const sessionData = isClient ? useQuery(
-    api.auth.getSessionUser,
-    token ? { token } : 'skip'
-  ) : undefined;
+  const loadSession = useCallback(async (tok: string) => {
+    try {
+      const data = await apiPost('/auth/getSessionUser', {
+        args: { token: tok },
+      });
+      if (data.user && data.player) {
+        setUser(data.user);
+        setPlayer(data.player);
+        setState('ready');
+      } else {
+        throw new Error('Invalid session response');
+      }
+    } catch (err: any) {
+      console.error('[Auth] Session load error:', err.message);
+      // Don't clear token on error - let user retry
+      setState('error');
+      setError('Session check failed. Please try again.');
+    }
+  }, []);
 
   useEffect(() => {
-    if (!isClient || attempted.current) return;
+    if (attempted.current) return;
     attempted.current = true;
 
     async function boot() {
       try {
-        // Check stored token first
+        // Check stored token
         const stored = localStorage.getItem(TOKEN_KEY);
         if (stored) {
           setToken(stored);
-          // sessionData query will validate it
+          await loadSession(stored);
           return;
         }
-        // Wait for Telegram SDK
+
+        // Wait for Telegram WebApp SDK
         let tg = (window as any).Telegram?.WebApp;
         if (!tg) {
           let tries = 0;
@@ -105,29 +131,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         const initData = tg.initData;
 
-        if (!initData) {
+        if (!initData || initData.trim() === '') {
           setState('error');
-          setError('No Telegram data. Open via the bot button.');
+          setError(
+            'No Telegram data detected. ' +
+            'Please open via the bot button, not a direct link.'
+          );
           return;
         }
 
-        // Call Convex HTTP endpoint directly (no conditional hooks)
-        const res = await fetch(`${CONVEX_SITE}/auth/telegramVerify`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ args: { initData } }),
+        // Authenticate via HTTP endpoint
+        const data = await apiPost('/auth/telegramVerify', {
+          args: { initData },
         });
 
-        const data = await res.json();
-
-        if (!res.ok || !data.success || !data.token) {
+        if (!data.success || !data.token) {
           setState('error');
-          setError(data.message || 'Auth failed. Try again.');
+          setError(data.message || 'Authentication failed.');
           return;
         }
 
         localStorage.setItem(TOKEN_KEY, data.token);
         setToken(data.token);
+        setUser(data.user);
+        setPlayer(data.player);
+        setState('ready');
 
       } catch (err: any) {
         localStorage.removeItem(TOKEN_KEY);
@@ -137,58 +165,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-boot();
-  }, [isClient]);
+    boot();
+  }, [loadSession]);
 
-  // Handle session validation result
-  useEffect(() => {
-    if (!isClient) return;
-    if (sessionData === undefined) return;
-    if (sessionData === null) {
-      localStorage.removeItem(TOKEN_KEY);
-      setToken(null);
-      setState('error');
-      setError('Session expired. Please reopen the app.');
-      return;
-    }
-    setState('ready');
-    setError(null);
-  }, [isClient, sessionData]);
-
-  const retry = () => {
+  const retry = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
+    setUser(null);
+    setPlayer(null);
     setState('loading');
     setError(null);
     attempted.current = false;
     window.location.reload();
-  };
+  }, []);
 
-  // Only access sessionData after we're on client and have attempted auth
-  const warBonds = isClient && sessionData ? sessionData?.player?.stats?.warBonds ?? 0 : 0;
-  const commandPoints = isClient && sessionData ? sessionData?.player?.stats?.commandPoints ?? 0 : 0;
-  const user = isClient && sessionData ? sessionData?.user : null;
-  const player = isClient && sessionData ? sessionData?.player : null;
-
-  // Show loading state until client-side auth completes
-  if (!isClient) {
-    return (
-      <AuthContext.Provider
-        value={{
-          state: 'loading',
-          error: null,
-          user: null,
-          player: null,
-          token: null,
-          retry,
-          warBonds: 0,
-          commandPoints: 0,
-        }}
-      >
-        {children}
-      </AuthContext.Provider>
-    );
-  }
+  const warBonds = player?.stats?.warBonds ?? 0;
+  const commandPoints = player?.stats?.commandPoints ?? 0;
 
   return (
     <AuthContext.Provider

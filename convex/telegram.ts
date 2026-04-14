@@ -1,4 +1,6 @@
-import { httpAction } from "./_generated/server";
+import { httpActionGeneric } from "./_generated/server";
+
+const httpAction = httpActionGeneric;
 
 function getBotToken(): string {
   const token = process.env.BOT_TOKEN;
