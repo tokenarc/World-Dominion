@@ -260,11 +260,11 @@ function NationsPage() {
   const { state, token } = useAuth();
   const apiRef = api as any;
   
-  const nations = state === 'authenticated' && apiRef?.nations?.getAll
+  const nations = state === 'ready' && apiRef?.nations?.getAll
     ? useQuery(apiRef.nations.getAll)
     : undefined;
   
-  const submitApplication = state === 'authenticated' && apiRef?.roles?.submitApplication 
+  const submitApplication = state === 'ready' && apiRef?.roles?.submitApplication 
     ? useMutation(apiRef.roles.submitApplication)
     : null;
   

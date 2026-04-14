@@ -41,18 +41,18 @@ export default function WarPage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const apiRef = api as any;
-  const activeWars = state === 'authenticated' && apiRef?.wars?.getActive 
+  const activeWars = state === 'ready' && apiRef?.wars?.getActive 
     ? useQuery(apiRef.wars.getActive) 
     : undefined;
   const activeWarsArr = activeWars || [];
-  const myWars = state === 'authenticated' && apiRef?.wars?.getForNation 
+  const myWars = state === 'ready' && apiRef?.wars?.getForNation 
     ? useQuery(
         apiRef.wars.getForNation,
         player?.currentNation ? { nationIso: player.currentNation } : 'skip'
       ) 
     : undefined;
   const myWarsArr = myWars || [];
-  const declareWarMutation = state === 'authenticated' && apiRef?.wars?.declareWar 
+  const declareWarMutation = state === 'ready' && apiRef?.wars?.declareWar 
     ? useMutation(apiRef.wars.declareWar) 
     : null;
 

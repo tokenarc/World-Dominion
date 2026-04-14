@@ -3,7 +3,6 @@ import Head from 'next/head';
 import type { AppProps } from 'next/app';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 import { AuthProvider } from '../src/context/AuthContext';
-import AppShell from '../src/components/AppShell';
 import '../src/styles/global.css';
 import '../src/index.css';
 
@@ -95,9 +94,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <ErrorBoundary>
         <ConvexProvider client={convex}>
           <AuthProvider>
-            <AppShell>
-              <Component {...pageProps} />
-            </AppShell>
+            <Component {...pageProps} />
           </AuthProvider>
         </ConvexProvider>
       </ErrorBoundary>

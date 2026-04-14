@@ -37,7 +37,7 @@ function Dashboard() {
   const warBonds = player?.stats?.warBonds ?? 0;
   const commandPoints = player?.stats?.commandPoints ?? 0;
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
-  const isAuthenticated = state === 'authenticated';
+  const isAuthenticated = state === 'ready';
 
   const events = state === 'ready' && api?.events?.getRecent 
     ? useQuery(api.events.getRecent as any, { limit: 5 }) 

@@ -48,7 +48,7 @@ export default function ProfilePage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   
   const apiRef = api as any;
-  const humanScoreData = state === 'authenticated' && token && apiRef?.players?.getHumanScore
+  const humanScoreData = state === 'ready' && token && apiRef?.players?.getHumanScore
     ? useQuery(apiRef.players.getHumanScore, { token })
     : undefined;
   

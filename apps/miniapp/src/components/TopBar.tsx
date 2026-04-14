@@ -10,7 +10,7 @@ export default function TopBar() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
   
   const firstName = user?.firstName?.[0]?.toUpperCase() || '?';
-  const isAuthenticated = state === 'authenticated';
+  const isAuthenticated = state === 'ready';
 
   const handleHaptic = () => {
     tg?.HapticFeedback?.impactOccurred('light');

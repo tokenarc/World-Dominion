@@ -133,18 +133,18 @@ function DevModeScreen() {
 
 export default function AppShell({ children }: AppShellProps) {
   const router = useRouter();
-  const { state, error, logout } = useAuth();
+  const { state, error, retry } = useAuth();
   const [pageKey, setPageKey] = useState(0);
 
   useEffect(() => {
     setPageKey(k => k + 1);
   }, [router.asPath]);
 
-  if (state === 'checking' || state === 'authenticating') {
-    return <LoadingScreen message={state === 'checking' ? 'CHECKING...' : 'AUTHENTICATING...'} />;
+  if (state === 'loading') {
+    return <LoadingScreen message="LOADING..." />;
   }
 
-  if (state === 'error' || state === 'unauthenticated') {
+  if (state === 'error') {
     return <ErrorScreen error={error || 'Authentication failed'} onRetry={retry} />;
   }
 

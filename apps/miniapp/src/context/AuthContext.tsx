@@ -1,10 +1,14 @@
 import {
-  createContext, useContext, useEffect, useState, useRef
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
 } from 'react';
-import { useMutation, useQuery } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
-type AuthState = 'checking' | 'authenticating' | 'authenticated' | 'unauthenticated' | 'error';
+type AuthState = 'loading' | 'ready' | 'error';
 
 interface AuthContextType {
   state: AuthState;
@@ -12,19 +16,17 @@ interface AuthContextType {
   user: any;
   player: any;
   token: string | null;
-  logout: () => void;
   retry: () => void;
   warBonds: number;
   commandPoints: number;
 }
 
 const AuthContext = createContext<AuthContextType>({
-  state: 'checking',
+  state: 'loading',
   error: null,
   user: null,
   player: null,
   token: null,
-  logout: () => {},
   retry: () => {},
   warBonds: 0,
   commandPoints: 0,
@@ -35,218 +37,167 @@ export function useAuth() {
 }
 
 export function useBalance() {
-  const { player } = useContext(AuthContext);
-  return {
-    warBonds: player?.stats?.warBonds ?? 0,
-    commandPoints: player?.stats?.commandPoints ?? 0,
-  };
+  const { warBonds, commandPoints } = useContext(AuthContext);
+  return { warBonds, commandPoints };
 }
 
 const TOKEN_KEY = 'wd_token';
+const CONVEX_SITE = 'https://peaceful-scorpion-529.convex.site';
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error("Timeout")), ms)
-    )
-  ]);
-}
-
-function useClientOnly() {
+function useIsClient() {
   const [isClient, setIsClient] = useState(false);
   useEffect(() => setIsClient(true), []);
   return isClient;
 }
 
-export function AuthProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const isClient = useClientOnly();
-  const [state, setState] = useState<AuthState>('checking');
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const isClient = useIsClient();
+  const [state, setState] = useState<AuthState>('loading');
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const attempted = useRef(false);
-  const forceExitTimer = useRef<NodeJS.Timeout | null>(null);
 
-  const telegramVerifyFn = isClient ? api.auth?.telegramVerify : undefined;
-  const getSessionUserFn = isClient ? api.auth?.getSessionUser : undefined;
-  
-  const verifyMutation = telegramVerifyFn ? useMutation(telegramVerifyFn) : null;
-  const sessionUser = getSessionUserFn && token 
-    ? useQuery(getSessionUserFn, { token }) 
-    : undefined;
-
-  const clearForceExitTimer = () => {
-    if (forceExitTimer.current) {
-      clearTimeout(forceExitTimer.current);
-      forceExitTimer.current = null;
-    }
-  };
-
-  const forceExit = (errMsg: string) => {
-    console.error("AUTH FORCE EXIT:", errMsg);
-    clearForceExitTimer();
-    setState('error');
-    setError(errMsg);
-  };
+  // ONLY call useQuery when on client
+  const sessionData = isClient ? useQuery(
+    api.auth.getSessionUser,
+    token ? { token } : 'skip'
+  ) : undefined;
 
   useEffect(() => {
-    if (state === 'checking' || state === 'authenticating') {
-      forceExitTimer.current = setTimeout(() => {
-        forceExit("Auth timeout. Please restart.");
-      }, 10000);
-    } else {
-      clearForceExitTimer();
-    }
-    return () => clearForceExitTimer();
-  }, [state]);
-
-  useEffect(() => {
-    if (!isClient || !verifyMutation || attempted.current) return;
+    if (!isClient || attempted.current) return;
     attempted.current = true;
-    console.log("[Auth] Starting authentication flow...");
 
-    async function authenticate() {
+    async function boot() {
       try {
-        setState('authenticating');
-        console.log("[Auth] State: authenticating");
-
+        // Check stored token first
         const stored = localStorage.getItem(TOKEN_KEY);
         if (stored) {
-          console.log("[Auth] Found stored token, setting...");
           setToken(stored);
-          setState('authenticated');
-          console.log("[Auth] State: authenticated (stored token)");
+          // sessionData query will validate it
           return;
         }
-
-        console.log("[Auth] Waiting for Telegram SDK...");
+        // Wait for Telegram SDK
         let tg = (window as any).Telegram?.WebApp;
-        
         if (!tg) {
-          await withTimeout(
-            new Promise<void>((resolve) => {
-              let attempts = 0;
-              const interval = setInterval(() => {
-                attempts++;
-                tg = (window as any).Telegram?.WebApp;
-                if (tg || attempts > 30) {
-                  clearInterval(interval);
-                  resolve();
-                }
-              }, 100);
-            }),
-            5000
-          ).catch(() => {
-            console.warn("[Auth] Telegram SDK wait timeout");
+          let tries = 0;
+          await new Promise<void>((resolve) => {
+            const t = setInterval(() => {
+              tries++;
+              tg = (window as any).Telegram?.WebApp;
+              if (tg || tries >= 30) {
+                clearInterval(t);
+                resolve();
+              }
+            }, 100);
           });
         }
 
         tg = (window as any).Telegram?.WebApp;
 
         if (!tg) {
-          forceExit("Telegram SDK not found. Open via bot.");
+          setState('error');
+          setError('Open this app via your Telegram bot.');
           return;
         }
 
-        console.log("[Auth] Telegram SDK found, initializing...");
         tg.ready();
         tg.expand();
 
         const initData = tg.initData;
-        console.log("[Auth] initData present:", !!initData);
 
-        if (!initData || initData.trim() === '') {
-          forceExit("No Telegram data. Open via bot link.");
+        if (!initData) {
+          setState('error');
+          setError('No Telegram data. Open via the bot button.');
           return;
         }
 
-        if (!verifyMutation) {
-          forceExit("Auth mutation not available");
+        // Call Convex HTTP endpoint directly (no conditional hooks)
+        const res = await fetch(`${CONVEX_SITE}/auth/telegramVerify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ args: { initData } }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success || !data.token) {
+          setState('error');
+          setError(data.message || 'Auth failed. Try again.');
           return;
         }
 
-        console.log("[Auth] Calling telegramVerify...");
-        const result = await withTimeout(verifyMutation({ initData }), 10000);
-
-        console.log("[Auth] telegramVerify result:", !!result);
-
-        if (!result?.token) {
-          forceExit("Authentication failed. Please retry.");
-          return;
-        }
-
-        console.log("[Auth] Token received, storing...");
-        localStorage.setItem(TOKEN_KEY, result.token);
-        setToken(result.token);
-        setState('authenticated');
-        console.log("[Auth] State: authenticated");
+        localStorage.setItem(TOKEN_KEY, data.token);
+        setToken(data.token);
 
       } catch (err: any) {
-        console.error("[Auth] Exception:", err.message);
         localStorage.removeItem(TOKEN_KEY);
         setToken(null);
-        forceExit(err?.message || "Authentication failed");
+        setState('error');
+        setError(err?.message || 'Authentication failed.');
       }
     }
 
-    authenticate();
-  }, [isClient, verifyMutation]);
+boot();
+  }, [isClient]);
 
+  // Handle session validation result
   useEffect(() => {
     if (!isClient) return;
-    
-    console.log("[Auth] Session check:", sessionUser);
-
-    if (sessionUser === undefined) {
-      return;
-    }
-
-    if (sessionUser === null) {
-      console.log("[Auth] Session invalid, clearing...");
+    if (sessionData === undefined) return;
+    if (sessionData === null) {
       localStorage.removeItem(TOKEN_KEY);
       setToken(null);
-      setState('unauthenticated');
-      setError("Session expired. Please reopen.");
+      setState('error');
+      setError('Session expired. Please reopen the app.');
       return;
     }
-
-    setState('authenticated');
+    setState('ready');
     setError(null);
-  }, [isClient, sessionUser]);
-
-  const logout = () => {
-    console.log("[Auth] Logout called");
-    clearForceExitTimer();
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
-    setState('checking');
-    setError(null);
-    attempted.current = false;
-  };
+  }, [isClient, sessionData]);
 
   const retry = () => {
-    console.log("[Auth] Retry called");
-    logout();
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+    setState('loading');
+    setError(null);
+    attempted.current = false;
+    window.location.reload();
   };
 
-  const warBonds = sessionUser?.player?.stats?.warBonds ?? 0;
-  const commandPoints = sessionUser?.player?.stats?.commandPoints ?? 0;
+  // Only access sessionData after we're on client and have attempted auth
+  const warBonds = isClient && sessionData ? sessionData?.player?.stats?.warBonds ?? 0 : 0;
+  const commandPoints = isClient && sessionData ? sessionData?.player?.stats?.commandPoints ?? 0 : 0;
+  const user = isClient && sessionData ? sessionData?.user : null;
+  const player = isClient && sessionData ? sessionData?.player : null;
 
-  console.log("[Auth] Provider state:", state, "error:", error);
+  // Show loading state until client-side auth completes
+  if (!isClient) {
+    return (
+      <AuthContext.Provider
+        value={{
+          state: 'loading',
+          error: null,
+          user: null,
+          player: null,
+          token: null,
+          retry,
+          warBonds: 0,
+          commandPoints: 0,
+        }}
+      >
+        {children}
+      </AuthContext.Provider>
+    );
+  }
 
   return (
     <AuthContext.Provider
       value={{
         state,
         error,
-        user: sessionUser?.user ?? null,
-        player: sessionUser?.player ?? null,
+        user,
+        player,
         token,
-        logout,
         retry,
         warBonds,
         commandPoints,

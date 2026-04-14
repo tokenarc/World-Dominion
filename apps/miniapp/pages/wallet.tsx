@@ -35,17 +35,17 @@ export default function WalletPage() {
   const [busy,    setBusy]    = useState(false);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const balance = state === 'authenticated' && token && apiRef?.wallet?.getBalance 
+  const balance = state === 'ready' && token && apiRef?.wallet?.getBalance 
     ? useQuery(apiRef.wallet.getBalance, { token }) 
     : undefined;
   const balanceData = balance as any;
   
-  const transactions = state === 'authenticated' && token && apiRef?.wallet?.getTransactions 
+  const transactions = state === 'ready' && token && apiRef?.wallet?.getTransactions 
     ? useQuery(apiRef.wallet.getTransactions, { token, limit: 20 }) 
     : undefined;
   const transactionsArr: Tx[] = (transactions as any) || [];
-  const verifyMutation = state === 'authenticated' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
-  const withdrawMutation = state === 'authenticated' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
+  const verifyMutation = state === 'ready' && apiRef?.wallet?.verifyDeposit ? useMutation(apiRef.wallet.verifyDeposit) : null;
+  const withdrawMutation = state === 'ready' && apiRef?.wallet?.initiateWithdrawal ? useMutation(apiRef.wallet.initiateWithdrawal) : null;
 
   const warBonds = balanceData?.warBonds ?? player?.wallet?.warBonds ?? player?.stats?.warBonds ?? 0;
   const cp = balanceData?.commandPoints ?? player?.wallet?.commandPoints ?? player?.stats?.commandPoints ?? 0;

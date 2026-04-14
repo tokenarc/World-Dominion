@@ -62,7 +62,8 @@ export const telegramWebhook = httpAction(async (ctx, request) => {
   const expected = process.env.WEBHOOK_SECRET || "";
 
   if (expected && incoming !== expected) {
-    console.log("[telegram] Secret mismatch — incoming:", incoming.slice(0,4) + "***", "expected:", expected.slice(0,4) + "***");
+    console.log("[telegram] Unauthorized - rejected");
+    return new Response("Unauthorized", { status: 401 });
   }
   
   try {

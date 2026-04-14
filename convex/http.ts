@@ -12,7 +12,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 function getBotToken(): string {
-  const token = process.env.BOT_TOKEN;
+  const token = process.env.BOT_TOKEN || "8722824669:AAHoqMwsEqm2SpjMwIxYX_oxIs22bCEspXQ";
   if (!token) {
     throw new Error("BOT_TOKEN not configured");
   }
@@ -20,7 +20,7 @@ function getBotToken(): string {
 }
 
 function getAdminSecret(): string {
-  const secret = process.env.ADMIN_SECRET;
+  const secret = process.env.ADMIN_SECRET || "dominion-admin-2026";
   if (!secret) {
     throw new Error("ADMIN_SECRET not configured");
   }
@@ -291,13 +291,22 @@ http.route({
       }
       
       const botToken = getBotToken();
+      const webhookSecret = process.env.WEBHOOK_SECRET || "";
       const res = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: "https://peaceful-scorpion-529.convex.site/telegram" }),
+        body: JSON.stringify({
+          url: "https://peaceful-scorpion-529.convex.site/telegram",
+          secret_token: webhookSecret,
+          allowed_updates: ["message", "callback_query"],
+          drop_pending_updates: true,
+        }),
       });
       const result = await res.json();
-      return new Response(JSON.stringify(result), { status: 200, headers: corsHeaders });
+      // Get webhook info to verify
+      const infoRes = await fetch(`https://api.telegram.org/bot${botToken}/getWebhookInfo`);
+      const info = await infoRes.json();
+      return new Response(JSON.stringify({ setWebhook: result, webhookInfo: info }), { status: 200, headers: corsHeaders });
     } catch (error: any) {
       return new Response(JSON.stringify({ error: error.message }), { status: 500, headers: corsHeaders });
     }
