@@ -7,15 +7,16 @@ export default function App() {
   const [progress, setProgress] = useState(0);
 
   const commanderName = user?.firstName || 'Commander';
-  const isAuthenticated = state === 'ready';
+  const isAuthenticated = state === 'authenticated';
 
   useEffect(() => {
-    if (state === 'loading') setProgress(p => Math.min(p + 10, 70));
-    else if (state === 'ready') setProgress(100);
+    if (state === 'checking') setProgress(p => Math.min(p + 10, 70));
+    else if (state === 'authenticating') setProgress(p => Math.min(p + 10, 80));
+    else if (state === 'authenticated') setProgress(100);
     else if (state === 'error') setProgress(100);
   }, [state]);
 
-  if (state === 'error') {
+  if (state === 'error' || state === 'unauthenticated') {
     return (
       <div style={{
         minHeight: '100vh',
@@ -48,7 +49,7 @@ export default function App() {
   return (
     <VideoLoadingScreen
       progress={progress}
-      loadingText={state === 'loading' ? 'Connecting to Telegram...' : 'Loading assets...'}
+      loadingText={state === 'checking' ? 'Checking environment...' : state === 'authenticating' ? 'Authenticating...' : 'Loading assets...'}
       commanderName={commanderName}
       onComplete={() => {}}
     />

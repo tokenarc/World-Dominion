@@ -93,6 +93,18 @@ http.route({
 });
 
 http.route({
+  path: "/ping",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const origin = request.headers.get("origin") || "";
+    return new Response(JSON.stringify({ pong: true, ts: Date.now() }), {
+      headers: { "Content-Type": "application/json", ...getCorsHeaders(origin) },
+      status: 200
+    });
+  }),
+});
+
+http.route({
   path: "/telegram",
   method: "POST",
   handler: httpAction(async (ctx, request) => {

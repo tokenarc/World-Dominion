@@ -13,7 +13,7 @@ const LOADING_TIPS = [
 
 function IndexPage() {
   const router = useRouter();
-  const { state, error, retry } = useAuth();
+  const { state, error } = useAuth();
   const [progress, setProgress] = useState(0);
   const [tip] = useState(() => LOADING_TIPS[Math.floor(Math.random() * LOADING_TIPS.length)]);
   const navigated = useRef(false);
@@ -62,7 +62,10 @@ function IndexPage() {
           {error || 'Open through Telegram bot.'}
         </p>
         <button 
-          onClick={retry}
+          onClick={() => {
+            localStorage.removeItem('wd_token');
+            window.location.reload();
+          }}
           style={{
             padding: '12px 32px',
             background: 'linear-gradient(135deg, #cc0000, #8B0000)',
