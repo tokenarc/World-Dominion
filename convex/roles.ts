@@ -175,8 +175,8 @@ export const getMyApplications = query({
 export const getPendingApplications = query({
   args: { adminSecret: v.string() },
   handler: async (ctx, args) => {
-    const expected = process.env.ADMIN_SECRET || "dominion-admin-2026";
-    if (args.adminSecret !== expected) {
+    const expected = process.env.ADMIN_SECRET;
+    if (!expected || args.adminSecret !== expected) {
       throw new Error("Unauthorized");
     }
     
@@ -196,8 +196,8 @@ export const reviewApplication = mutation({
     adminNote: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const expected = process.env.ADMIN_SECRET || "dominion-admin-2026";
-    if (args.adminSecret !== expected) {
+    const expected = process.env.ADMIN_SECRET;
+    if (!expected || args.adminSecret !== expected) {
       throw new Error("Unauthorized");
     }
     

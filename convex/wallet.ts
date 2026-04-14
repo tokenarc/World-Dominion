@@ -1,8 +1,15 @@
 import { query, mutation, action } from "./_generated/server";
 import { v } from "convex/values";
 
-const DEPOSIT_ADDRESS = process.env.DEPOSIT_ADDRESS || "UQ_deposit_address_placeholder";
-const USDT_CONTRACT = process.env.USDT_CONTRACT || "EQDccccccccccccccccccccccccccccccccccccccccccccccc";
+// IMPORTANT: These must be set via environment variables in production
+// The placeholders are for development only
+const DEPOSIT_ADDRESS = process.env.DEPOSIT_ADDRESS;
+const USDT_CONTRACT = process.env.USDT_CONTRACT;
+
+// Check at startup if addresses are configured
+if (!DEPOSIT_ADDRESS || !USDT_CONTRACT) {
+  console.warn("[wallet] WARNING: DEPOSIT_ADDRESS or USDT_CONTRACT not configured. Deposits disabled.");
+}
 
 export const getBalance = query({
   args: { token: v.string() },
@@ -117,6 +124,16 @@ export const initiateDeposit = mutation({
 export const verifyDeposit = mutation({
   args: { token: v.string(), txHash: v.string(), amount: v.number() },
   handler: async (ctx, args) => {
+    // SECURITY: Block deposits if wallet not properly configured
+    if (!DEPOSIT_ADDRESS || !USDT_CONTRACT) {
+      return { success: false, message: "Deposits currently disabled" };
+    }
+    
+    // Validate amount bounds (min $1, max $10000 per deposit)
+    if (args.amount < 1 || args.amount > 10000) {
+      return { success: false, message: "Amount must be between $1 and $10,000" };
+    }
+    
     const existing = await ctx.db
       .query("transactions")
       .filter(q => q.eq(q.field("relatedId"), args.txHash))

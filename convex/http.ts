@@ -13,7 +13,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 function getBotToken(): string {
-  const token = process.env.BOT_TOKEN || "8722824669:AAHoqMwsEqm2SpjMwIxYX_oxIs22bCEspXQ";
+  const token = process.env.BOT_TOKEN;
   if (!token) {
     throw new Error("BOT_TOKEN not configured");
   }
@@ -21,7 +21,7 @@ function getBotToken(): string {
 }
 
 function getAdminSecret(): string {
-  const secret = process.env.ADMIN_SECRET || "dominion-admin-2026";
+  const secret = process.env.ADMIN_SECRET;
   if (!secret) {
     throw new Error("ADMIN_SECRET not configured");
   }

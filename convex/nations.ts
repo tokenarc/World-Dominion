@@ -214,8 +214,8 @@ export const setAtWar = mutation({
 export const clearAndReseed = mutation({
   args: { adminSecret: v.string() },
   handler: async (ctx, args) => {
-    const envSecret = process.env.ADMIN_SECRET || "dominion-admin-2026";
-    if (args.adminSecret !== envSecret) {
+    const envSecret = process.env.ADMIN_SECRET;
+    if (!envSecret || args.adminSecret !== envSecret) {
       throw new Error("Unauthorized");
     }
     const all = await ctx.db.query("nations").collect();

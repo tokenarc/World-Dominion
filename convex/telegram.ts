@@ -61,9 +61,15 @@ export async function notifyAdmin(message: string, botToken: string): Promise<vo
 
 export const telegramWebhook = httpAction(async (ctx, request) => {
   const incoming = request.headers.get("X-Telegram-Bot-Api-Secret-Token") || "";
-  const expected = process.env.WEBHOOK_SECRET || "";
+  const expected = process.env.WEBHOOK_SECRET;
 
-  if (expected && incoming !== expected) {
+  // SECURITY: Require webhook secret to be configured
+  if (!expected) {
+    console.error("[telegram] WEBHOOK_SECRET not configured - rejecting all requests");
+    return new Response("Service unavailable", { status: 503 });
+  }
+
+  if (incoming !== expected) {
     console.log("[telegram] Unauthorized - rejected");
     return new Response("Unauthorized", { status: 401 });
   }
