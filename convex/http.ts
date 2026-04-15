@@ -280,7 +280,7 @@ http.route({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          url: "https://peaceful-scorpion-529.convex.site/telegram",
+          url: "https://peaceful-scorpion-529.convex.cloud/telegram",
           secret_token: webhookSecret,
           allowed_updates: ["message", "callback_query"],
           drop_pending_updates: true,

@@ -43,19 +43,34 @@ export function useBalance() {
 }
 
 const TOKEN_KEY = 'wd_token';
-const API = 'https://peaceful-scorpion-529.convex.site';
+const API = 'https://peaceful-scorpion-529.convex.cloud';
+const API_TIMEOUT = 10000;
 
 async function apiPost(path: string, body: object) {
-  const res = await fetch(`${API}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || err.error || `HTTP ${res.status}`);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
+  
+  try {
+    const res = await fetch(`${API}${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || err.error || `HTTP ${res.status}`);
+    }
+    return res.json();
+  } catch (err: any) {
+    if (err.name === 'AbortError' || err.message?.includes('abort')) {
+      throw new Error('Request timeout - server not responding');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeout);
   }
-  return res.json();
 }
 
 async function waitForTelegram(timeout = 3000) {

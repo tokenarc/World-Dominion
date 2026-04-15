@@ -32,7 +32,7 @@ export const getBalance = query({
       throw new Error("Player not found");
     }
     
-    return player.wallet;
+    return player.stats;
   },
 });
 
@@ -165,8 +165,8 @@ export const verifyDeposit = mutation({
     
     await ctx.db.patch(player._id, {
       wallet: {
-        warBonds: player.wallet.warBonds + wrbAmount,
-        commandPoints: player.wallet.commandPoints,
+        warBonds: player.stats.warBonds + wrbAmount,
+        commandPoints: player.stats.commandPoints,
       },
       lastActive: Date.now(),
     });
@@ -212,16 +212,15 @@ export const initiateWithdrawal = mutation({
     
     const wrbAmount = Math.floor(args.amount);
     
-    if (player.wallet.warBonds < wrbAmount) {
-      throw new Error("Insufficient balance");
+if (player.stats.warBonds < wrbAmount) {
+      throw new Error("Insufficient War Bonds");
     }
     
-    const usdtAmount = wrbAmount / 100;
-    
     await ctx.db.patch(player._id, {
-      wallet: {
-        warBonds: player.wallet.warBonds - wrbAmount,
-        commandPoints: player.wallet.commandPoints,
+      stats: {
+        ...player.stats,
+        warBonds: player.stats.warBonds - wrbAmount,
+        commandPoints: player.stats.commandPoints,
       },
       lastActive: Date.now(),
     });

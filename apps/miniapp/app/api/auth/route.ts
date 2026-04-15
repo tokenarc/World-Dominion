@@ -7,6 +7,9 @@ const ALLOWED_PATHS = [
   '/auth/getSessionUser',
 ];
 
+const CONVEX_URL = 'https://peaceful-scorpion-529.convex.cloud';
+const API_TIMEOUT = 10000;
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -17,13 +20,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Path not allowed' }, { status: 403 });
     }
     
-    const response = await fetch(`https://peaceful-scorpion-529.convex.site${path}`, {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), API_TIMEOUT);
+    
+    const response = await fetch(`${CONVEX_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ args }),
+      signal: controller.signal,
     });
     
     const data = await response.json();
+    clearTimeout(timeout);
     return NextResponse.json(data);
   } catch (error: any) {
     console.error('API error:', error);
