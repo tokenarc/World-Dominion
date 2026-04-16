@@ -19,9 +19,9 @@ export default function MarketPage() {
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
   const apiRef = api as any;
-  const stocks = state === 'ready' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : undefined;
+  const stocks = (typeof window === 'undefined' ? 'skip' : state) === 'ready' && apiRef?.market?.getStocks ? useQuery(apiRef.market.getStocks) : undefined;
   const stocksArr = Array.isArray(stocks) ? stocks : [];
-  const listings = state === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : undefined;
+  const listings = (typeof window === 'undefined' ? 'skip' : state) === 'ready' && apiRef?.market?.getListings ? useQuery(apiRef.market.getListings, tab === 'p2p' ? {} : 'skip') : undefined;
   const listingsArr = Array.isArray(listings) ? listings : [];
   const buyMutation = useMutation(apiRef?.market?.buyListing);
 

@@ -42,13 +42,13 @@ export default function WarPage() {
 
   const apiRef = api as any;
   const activeWars = useQuery(
-    state === 'ready' && apiRef?.wars?.getActive 
+    (typeof window === 'undefined' ? 'skip' : state) === 'ready' && apiRef?.wars?.getActive 
       ? apiRef.wars.getActive 
       : 'skip'
   );
   const activeWarsArr = activeWars || [];
   const myWars = useQuery(
-    state === 'ready' && apiRef?.wars?.getForNation 
+    (typeof window === 'undefined' ? 'skip' : state) === 'ready' && apiRef?.wars?.getForNation 
       ? apiRef.wars.getForNation
       : 'skip',
     player?.currentNation ? { nationIso: player.currentNation } : 'skip'

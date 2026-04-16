@@ -35,12 +35,12 @@ export default function WalletPage() {
   const [busy,    setBusy]    = useState(false);
   const tg = typeof window !== 'undefined' ? window.Telegram?.WebApp : null;
 
-  const balance = state === 'ready' && token && apiRef?.wallet?.getBalance 
+  const balance = (typeof window === 'undefined' ? 'skip' : state) === 'ready' && token && apiRef?.wallet?.getBalance 
     ? useQuery(apiRef.wallet.getBalance, { token }) 
     : undefined;
   const balanceData = balance as any;
   
-  const transactions = state === 'ready' && token && apiRef?.wallet?.getTransactions 
+  const transactions = (typeof window === 'undefined' ? 'skip' : state) === 'ready' && token && apiRef?.wallet?.getTransactions 
     ? useQuery(apiRef.wallet.getTransactions, { token, limit: 20 }) 
     : 'skip';
   const transactionsArr: Tx[] = (transactions as any) || [];
