@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
@@ -24,7 +24,13 @@ function Spinner() {
   );
 }
 
-export default function WalletPage() {
+function WalletPage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  
+  if (!mounted) {
+    return <Layout><Spinner /></Layout>;
+  }
   const { player, token, state } = useAuth();
   const apiRef = api as any;
   const [tab,     setTab]     = useState<'balance'|'deposit'|'withdraw'>('balance');
@@ -234,3 +240,5 @@ export default function WalletPage() {
     </Layout>
   );
 }
+
+export default WalletPage;

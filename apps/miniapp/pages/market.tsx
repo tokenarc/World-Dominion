@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
@@ -12,7 +12,13 @@ function Spinner() {
   return <div style={{ display: 'flex', justifyContent: 'center', padding: '30px' }}><div style={{ width: '20px', height: '20px', border: '2px solid rgba(139,0,0,0.3)', borderTop: '2px solid #FFD700', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>;
 }
 
-export default function MarketPage() {
+function MarketPage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  
+  if (!mounted) {
+    return <Layout><Spinner /></Layout>;
+  }
   const { token, state } = useAuth();
   const [tab,      setTab]      = useState<'stocks'|'p2p'>('stocks');
   const [msg,      setMsg]      = useState('');
@@ -124,3 +130,5 @@ export default function MarketPage() {
     </Layout>
   );
 }
+
+export default MarketPage;

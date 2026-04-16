@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../src/context/AuthContext';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
@@ -33,7 +33,14 @@ function Spinner() {
   );
 }
 
-export default function WarPage() {
+function WarPage() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  
+  if (!mounted) {
+    return <Layout><Spinner /></Layout>;
+  }
+  
   const { player, token, state } = useAuth();
   const [target, setTarget] = useState('');
   const [declaring, setDeclaring] = useState(false);
@@ -42,13 +49,13 @@ export default function WarPage() {
 
   const apiRef = api as any;
   const activeWars = useQuery(
-    (typeof window === 'undefined' ? 'skip' : state) === 'ready' && apiRef?.wars?.getActive 
+    state === 'ready' && apiRef?.wars?.getActive 
       ? apiRef.wars.getActive 
       : 'skip'
   );
   const activeWarsArr = activeWars || [];
   const myWars = useQuery(
-    (typeof window === 'undefined' ? 'skip' : state) === 'ready' && apiRef?.wars?.getForNation 
+    state === 'ready' && apiRef?.wars?.getForNation 
       ? apiRef.wars.getForNation
       : 'skip',
     player?.currentNation ? { nationIso: player.currentNation } : 'skip'
@@ -220,3 +227,5 @@ export default function WarPage() {
     </Layout>
   );
 }
+
+export default WarPage;
