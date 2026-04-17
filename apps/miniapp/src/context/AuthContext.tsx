@@ -45,6 +45,7 @@ export function useBalance() {
 const TOKEN_KEY = 'wd_token';
 const API = 'https://peaceful-scorpion-529.convex.cloud';
 const API_TIMEOUT = 10000;
+const DEV_MODE = process.env.NODE_ENV !== 'production';
 
 async function apiPost(path: string, body: object) {
   const controller = new AbortController();
@@ -99,7 +100,7 @@ async function waitForInitData(tg, timeout = 3000) {
         return resolve(data);
       }
       if (Date.now() - start > timeout) {
-        return reject(new Error("No initData"));
+        reject(new Error("No initData"));
       }
       setTimeout(check, 100);
     }
@@ -129,10 +130,13 @@ export function AuthProvider({
         setPlayer(data.player);
         setState('ready');
       } else {
-        throw new Error('Invalid session response');
+        localStorage.removeItem(TOKEN_KEY);
+        setState('error');
+        setError('Session invalid. Please re-authenticate via Telegram.');
       }
     } catch (err: any) {
       console.error('[Auth] Session load error:', err.message);
+      localStorage.removeItem(TOKEN_KEY);
       setState('error');
       setError('Session check failed. Please try again.');
     }
@@ -144,33 +148,26 @@ export function AuthProvider({
 
     async function boot() {
       try {
-        // Global timeout to prevent infinite loading
-        const initTimeout = setTimeout(() => {
-          if (state === 'loading') {
-            console.warn('[Auth] Initialization timeout - enabling fallback mode');
-            setState('ready');
-            setUser({ id: 'guest', isGuest: true, firstName: 'Guest' });
-            setPlayer({ stats: { warBonds: 0, commandPoints: 0, reputation: 0 } });
-          }
-        }, 8000);
-        
         const stored = localStorage.getItem(TOKEN_KEY);
         if (stored) {
           setToken(stored);
           await loadSession(stored);
-          clearTimeout(initTimeout);
           return;
         }
 
         const tg = await waitForTelegram() as any;
-        console.log("Telegram object:", tg);
+        console.log("[Auth] Telegram:", tg ? 'detected' : 'not found');
         
         if (!tg) {
-          console.warn('[Auth] No Telegram - enabling fallback/guest mode');
-          setState('ready');
-          setUser({ id: 'guest', isGuest: true, firstName: 'Guest' });
-          setPlayer({ stats: { warBonds: 0, commandPoints: 0, reputation: 0 } });
-          clearTimeout(initTimeout);
+          if (DEV_MODE) {
+            console.warn("[DEV] Guest session active - no Telegram detected");
+            setState('ready');
+            setUser({ id: 'guest', isGuest: true, firstName: 'Guest' });
+            setPlayer({ stats: { warBonds: 0, commandPoints: 0, reputation: 0 } });
+            return;
+          }
+          setState('error');
+          setError('Authentication required. Open via your Telegram bot.');
           return;
         }
 
@@ -180,13 +177,16 @@ export function AuthProvider({
         let initData;
         try {
           initData = await waitForInitData(tg);
-          console.log("InitData:", initData);
         } catch {
-          console.warn('[Auth] No initData - enabling fallback mode');
-          setState('ready');
-          setUser({ id: 'guest', isGuest: true, firstName: 'Guest' });
-          setPlayer({ stats: { warBonds: 0, commandPoints: 0, reputation: 0 } });
-          clearTimeout(initTimeout);
+          if (DEV_MODE) {
+            console.warn("[DEV] Guest session active - no initData");
+            setState('ready');
+            setUser({ id: 'guest', isGuest: true, firstName: 'Guest' });
+            setPlayer({ stats: { warBonds: 0, commandPoints: 0, reputation: 0 } });
+            return;
+          }
+          setState('error');
+          setError('Telegram session invalid. Please reopen from bot.');
           return;
         }
 
@@ -196,8 +196,7 @@ export function AuthProvider({
 
         if (!data.success || !data.token) {
           setState('error');
-          setError(data.message || 'Authentication failed.');
-          clearTimeout(initTimeout);
+          setError(data.message || 'Authentication failed. Please try again.');
           return;
         }
 
@@ -206,13 +205,19 @@ export function AuthProvider({
         setUser(data.user);
         setPlayer(data.player);
         setState('ready');
-        clearTimeout(initTimeout);
 
       } catch (err: any) {
-        console.warn('[Auth] Auth error - enabling fallback mode:', err.message);
-        setState('ready');
-        setUser({ id: 'guest', isGuest: true, firstName: 'Guest' });
-        setPlayer({ stats: { warBonds: 0, commandPoints: 0, reputation: 0 } });
+        console.error('[Auth] Auth error:', err.message);
+        if (DEV_MODE) {
+          console.warn("[DEV] Guest session active - auth error:", err.message);
+          setState('ready');
+          setUser({ id: 'guest', isGuest: true, firstName: 'Guest' });
+          setPlayer({ stats: { warBonds: 0, commandPoints: 0, reputation: 0 } });
+          return;
+        }
+        localStorage.removeItem(TOKEN_KEY);
+        setState('error');
+        setError('Authentication failed. Please reopen from Telegram.');
       }
     }
 
