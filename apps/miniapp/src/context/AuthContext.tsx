@@ -174,10 +174,15 @@ export function AuthProvider({
         (tg as any).ready();
         (tg as any).expand();
 
+        console.log("[Auth] Telegram detected, waiting for initData...");
+        
         let initData;
         try {
           initData = await waitForInitData(tg);
-        } catch {
+        } catch (err: any) {
+          console.error("[Auth] waitForInitData failed:", err.message);
+          console.log("[Auth] tg.initData:", tg.initData);
+          console.log("[Auth] tg.initDataUnsafe:", tg.initDataUnsafe);
           if (DEV_MODE) {
             console.warn("[DEV] Guest session active - no initData");
             setState('ready');
@@ -190,15 +195,24 @@ export function AuthProvider({
           return;
         }
 
+        console.log("[Auth] initData received (first 50 chars):", initData?.slice(0, 50));
+
+        console.log("[Auth] Sending to backend:", { initData: initData?.slice(0, 50) + "..." });
+
         const data = await apiPost('/auth/telegramVerify', {
           args: { initData },
         });
 
+        console.log("[Auth] Backend response:", data);
+
         if (!data.success || !data.token) {
+          console.error("[Auth] Backend verification failed:", data.message || data.error);
           setState('error');
           setError(data.message || 'Authentication failed. Please try again.');
           return;
         }
+
+        console.log("[Auth] Verification success, user:", data.user);
 
         localStorage.setItem(TOKEN_KEY, data.token);
         setToken(data.token);

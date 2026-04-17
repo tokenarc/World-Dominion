@@ -132,19 +132,27 @@ http.route({
       const body = await request.json();
       const initData = body?.args?.initData;
       
+      console.log("[HTTP] Received body:", JSON.stringify(body).slice(0, 100));
+      console.log("[HTTP] initData received:", initData?.slice(0, 50) + "...");
+      
       if (!initData) {
+        console.error("[HTTP] Missing initData");
         return new Response(JSON.stringify({ error: "Missing initData" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
       const botToken = getBotToken();
       const result = await verifyHMAC(initData, botToken);
 
+      console.log("[HTTP] verifyHMAC result:", { valid: result.valid, authDate: result.authDate, userData: result.userData });
+
       if (!result.valid) {
+        console.error("[HTTP] Invalid HMAC - initData may be tampered or wrong bot token");
         return new Response(JSON.stringify({ success: false, message: "Invalid Telegram data" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
       const now = Date.now() / 1000;
       if (now - result.authDate > 86400) {
+        console.error("[HTTP] Session expired, authDate:", result.authDate, "now:", now);
         return new Response(JSON.stringify({ success: false, message: "Session expired" }), { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } });
       }
 
@@ -215,6 +223,8 @@ http.route({
         updatedAt: Date.now(),
       });
 
+      console.log("[HTTP] Creating session for telegramId:", telegramId, "username:", result.userData.username);
+      
       return new Response(JSON.stringify({ 
         success: true, 
         token,
@@ -223,6 +233,7 @@ http.route({
       }), { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } });
 
     } catch (error: any) {
+      console.error("[HTTP] Error:", error.message);
       return new Response(JSON.stringify({ success: false, message: error.message }), { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } });
     }
   }),
